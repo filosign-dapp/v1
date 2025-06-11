@@ -1,5 +1,5 @@
 {
-  "name": "@kb/server",
+  "name": "@knowledge-base/server",
   "version": "0.0.1",
   "type": "module",
   "main": "server.ts",
