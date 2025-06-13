@@ -1,12 +1,25 @@
 # Portal - Protocol Labs
 
-To install dependencies:
+Install dependencies:
 
 ```bash
 bun install
 ```
 
-To run server:
+Go to server:
+
 ```bash
-cd packages/server && bun dev
+cd packages/server
+```
+
+Copy .env.template to .env:
+
+```bash
+cp .env.template .env
+```
+
+Run the dev server:
+
+```bash
+bun run dev
 ```
