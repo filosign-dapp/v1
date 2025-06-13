@@ -1,5 +1,5 @@
 {
-  "name": "@knowledge-base/core",
+  "name": "@portal/core",
   "version": "0.0.1",
   "module": "index.ts",
   "type": "module",

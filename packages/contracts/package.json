@@ -1,5 +1,5 @@
 {
-  "name": "@knowledge-base/contracts",
+  "name": "@portal/contracts",
   "module": "index.ts",
   "type": "module",
   "private": true,

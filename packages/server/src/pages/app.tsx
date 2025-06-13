@@ -1,12 +1,12 @@
+// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import {
   Outlet,
   createRouter,
   createRoute,
   createRootRoute,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { withPageErrorBoundary } from "@/src/lib/components/errors/PageErrorBoundary";
-import HomePage from "./home";
+import Home from "./home";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -21,7 +21,7 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: function Index() {
-    return withPageErrorBoundary(HomePage)({});
+    return withPageErrorBoundary(Home)({});
   },
 })
 

@@ -8,9 +8,9 @@ export default function Layout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-background [--navbar-height:4rem] sm:[--sidebar-width:12rem] overflow-auto">
-      <Navbar />
-      <Sidebar />
+    <div className="bg-background [--navbar-height:0rem] sm:[--sidebar-width:0rem] overflow-auto">
+      {/* <Navbar /> */}
+      {/* <Sidebar /> */}
 
       <div className="mt-[calc(var(--navbar-height))] ml-[var(--sidebar-width)] h-[calc(100dvh-var(--navbar-height))] @container/main">
         {children}
