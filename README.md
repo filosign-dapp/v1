@@ -1,4 +1,4 @@
-# KnowledgeBase - Protocol Labs
+# Portal - Protocol Labs
 
 To install dependencies:
 

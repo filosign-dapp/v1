@@ -1,6 +1,6 @@
+// import dist from "./dist/index.html";
 import { serve } from "bun";
 import hono from "./api";
-// import dist from "./dist/index.html";
 import html from "./src/index.html";
 import { isProd } from "env";
 

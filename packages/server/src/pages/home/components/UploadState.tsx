@@ -4,6 +4,7 @@ import { CloudUpload, Shield, LoaderCircle } from 'lucide-react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
+import { Image } from '@/src/lib/components/custom/Image'
 
 interface UploadStateProps {
   onFileUpload: (file: File) => void
