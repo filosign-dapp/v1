@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import UploadState from './components/UploadState'
 import LinkGeneratedState from './components/LinkGeneratedState'
 import DownloadState from './components/DownloadState'
+import Connect from '@/src/lib/components/app/Connect'
 
 export type PortalState = 'upload' | 'link-generated' | 'download'
 
@@ -40,7 +41,7 @@ export default function Portal() {
   }
 
   return (
-    <div className="h-full bg-gradient-to-br from-background via-background/80 to-muted/20 flex items-center justify-center p-4">
+    <div className="flex items-center justify-center h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">   
       <div className="w-full max-w-2xl">
         <AnimatePresence mode="wait">
           {currentState === 'upload' && (
