@@ -43,7 +43,7 @@ export async function encryptFile(file: File) {
 
   return {
     encryptedBuffer,
-    encodedKey: keyIvString
+    secretKey: keyIvString
   };
 }
 

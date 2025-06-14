@@ -5,6 +5,7 @@ import LinkGeneratedState from './components/LinkGeneratedState'
 import DownloadState from './components/DownloadState'
 import api from '@/src/lib/utils/api-client'
 import { toast } from 'sonner'
+import { encryptFile } from '@/src/lib/utils/encryption'
 
 
 export type PortalState = 'upload' | 'link-generated' | 'download'
@@ -22,9 +23,11 @@ export default function Portal() {
   // Simulate file upload and link generation
   const handleFileUpload = async (file: File) => {
     try {
+      const { encryptedBuffer, secretKey } = await encryptFile(file);
+
       const result = await api.file.index.$post({
         form: {
-          file: file
+          file: encryptedBuffer
         }
       })
       
@@ -35,13 +38,13 @@ export default function Portal() {
         toast.error(parsed?.error);
         return;
       }
-      
-      console.log(parsed?.data)
+
+      const url = `${process.env.BUN_PUBLIC_APP_URL}/download/${parsed?.data?.cid}#${secretKey}`
   
       setFileData({
         name: file.name,
         size: formatFileSize(file.size),
-        link: parsed?.data?.url
+        link: url
       })
       setCurrentState('link-generated')
     } catch (error) {
