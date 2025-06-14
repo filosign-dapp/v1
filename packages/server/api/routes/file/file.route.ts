@@ -2,8 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { respond } from "@/api/lib/utils/respond";
-import W3UpClient from "@/api/lib/utils/w3up-client";
-import { env } from "@/env";
+import { getW3UpClient } from "@/api/lib/utils/w3up-client";
 
 const file = new Hono()
   .get(
@@ -42,14 +41,8 @@ const file = new Hono()
           return respond.err(ctx, "File is required", 400);
         }
 
-        const client = new W3UpClient();
-        await client.init(
-          {
-            email: env.W3UP_EMAIL as `${string}@${string}`,
-            spaceName: env.W3UP_SPACE_NAME,
-          }
-        )
-        const cid = await client.uploadFile(file);
+        const w3upClient = getW3UpClient();
+        const cid = await w3upClient.uploadFile(file);
 
         return respond.ok(ctx, { cid }, "Successfully uploaded file", 200);
       } catch (error) {

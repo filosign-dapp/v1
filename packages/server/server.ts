@@ -3,7 +3,15 @@ import { serve } from "bun";
 import hono from "./api";
 import html from "./src/index.html";
 import { isProd } from "env";
+import W3UpClient from "./api/lib/utils/w3up-client";
 
+// Initialize W3UpClient
+W3UpClient.getInstance().catch((error) => {
+  console.error("Failed to initialize W3UpClient:", error);
+  process.exit(1);
+});
+
+// Start the server
 const server = serve({
   development: !isProd ? {
     hmr: true,
