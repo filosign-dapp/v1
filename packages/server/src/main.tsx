@@ -7,6 +7,7 @@ import router from "./pages/app";
 import { toast, Toaster } from "sonner";
 import "./styles/globals.css";
 import { RouterProvider } from "@tanstack/react-router";
+import PrivyProvider from "./lib/context/privy-provider";
 
 // Tanstack Query
 const queryClient = new QueryClient();
@@ -24,8 +25,10 @@ const app = (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme="dark" storageKey="theme">
-          <RouterProvider router={router} />
-          <Toaster position="bottom-right" theme="dark" />
+          <PrivyProvider>
+              <RouterProvider router={router} />
+              <Toaster position="bottom-right" theme="dark" />
+          </PrivyProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>

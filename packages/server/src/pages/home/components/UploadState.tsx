@@ -4,7 +4,7 @@ import { CloudUpload, Shield, LoaderCircle } from 'lucide-react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
-import { Image } from '@/src/lib/components/custom/Image'
+import Icon from '@/src/lib/components/custom/Icon'
 
 interface UploadStateProps {
   onFileUpload: (file: File) => void
@@ -69,7 +69,7 @@ export default function UploadState({ onFileUpload, onViewDownload }: UploadStat
       <Card className="relative overflow-hidden">
         <motion.div
           className={`
-            border-2 border-dashed transition-all duration-200 p-12 rounded-lg cursor-pointer
+            border-2 border-dashed transition-all duration-200 p-12 rounded-xl cursor-pointer
             ${isDragOver
               ? 'border-primary bg-primary/5 scale-[1.02]'
               : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30'
@@ -80,21 +80,17 @@ export default function UploadState({ onFileUpload, onViewDownload }: UploadStat
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={handleButtonClick}
-          whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
         >
           {isUploading ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">
-                    Uploading...
-                </h3>
-                <p className="text-muted-foreground">
-                  <TextShimmer duration={4} className="w-full">
-                    Securing your file with end-to-end encryption..
-                  </TextShimmer>
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Icon name="CloudUpload" className="w-16 h-16 mx-auto text-muted-foreground" />
+              <h3 className="text-lg font-semibold">
+                Uploading...
+              </h3>
+              <TextShimmer duration={3} className="w-full">
+                Securing your file with end-to-end encryption..
+              </TextShimmer>
             </div>
           ) : (
             <div className="space-y-4">

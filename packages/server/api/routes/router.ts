@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import example from "./example";
+import file from "./file";
 
 const routes = new Hono()
-.route("/example", example)
+.route("/file", file)
 
 export default routes;
