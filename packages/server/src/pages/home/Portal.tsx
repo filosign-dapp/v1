@@ -41,7 +41,7 @@ export default function Portal() {
       setFileData({
         name: file.name,
         size: formatFileSize(file.size),
-        link: `https://portal.link/${generateShortId()}`
+        link: parsed?.data?.url
       })
       setCurrentState('link-generated')
     } catch (error) {

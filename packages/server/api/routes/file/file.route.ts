@@ -43,8 +43,9 @@ const file = new Hono()
 
         const w3upClient = getW3UpClient();
         const cid = await w3upClient.uploadFile(file);
+        const url = w3upClient.getGatewayUrl(cid);
 
-        return respond.ok(ctx, { cid }, "Successfully uploaded file", 200);
+        return respond.ok(ctx, { cid, url }, "Successfully uploaded file", 200);
       } catch (error) {
         return respond.err(ctx, "Failed to upload file", 500);
       }

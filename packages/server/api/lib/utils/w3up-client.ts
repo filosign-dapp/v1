@@ -21,19 +21,34 @@ export default class W3UpClient {
 
     // Static method to get or create the singleton instance
     public static async getInstance(): Promise<W3UpClient> {
+        // If we already have an initialized instance, return it
+        if (W3UpClient.instance?.ready) {
+            return W3UpClient.instance;
+        }
+
+        // If initialization is in progress, wait for it
         if (W3UpClient.initPromise) {
             return W3UpClient.initPromise;
         }
 
-        if (W3UpClient.instance && W3UpClient.instance.ready) {
-            return W3UpClient.instance;
+        // Start initialization
+        W3UpClient.initPromise = W3UpClient.initialize();
+        
+        try {
+            const instance = await W3UpClient.initPromise;
+            return instance;
+        } finally {
+            // Clear the promise after completion (success or failure)
+            W3UpClient.initPromise = null;
+        }
+    }
+
+    private static async initialize(): Promise<W3UpClient> {
+        if (!W3UpClient.instance) {
+            W3UpClient.instance = new W3UpClient();
         }
 
-        W3UpClient.initPromise = (async () => {
-            if (!W3UpClient.instance) {
-                W3UpClient.instance = new W3UpClient();
-            }
-
+        try {
             await W3UpClient.instance.init({
                 email: env.W3UP_EMAIL as `${string}@${string}`,
                 spaceName: env.W3UP_SPACE_NAME,
@@ -41,14 +56,16 @@ export default class W3UpClient {
 
             console.log("W3UpClient singleton initialized successfully");
             return W3UpClient.instance;
-        })();
-
-        return W3UpClient.initPromise;
+        } catch (error) {
+            // Reset instance on failure to allow retry
+            W3UpClient.instance = null;
+            throw error;
+        }
     }
 
     // Static method to get the already initialized instance (throws if not initialized)
     public static getInstanceSync(): W3UpClient {
-        if (!W3UpClient.instance || !W3UpClient.instance.ready) {
+        if (!W3UpClient.instance?.ready) {
             throw new Error("W3UpClient not initialized. Call getInstance() first.");
         }
         return W3UpClient.instance;
@@ -85,14 +102,28 @@ export default class W3UpClient {
 
         try {
             console.log("Attempting to authenticate with email:", email);
+            console.log("Please check your email and click the confirmation link...");
+            
+            // Login with email - this will send an email and wait for confirmation
             const account = await this.client.login(email);
 
+            console.log("Email confirmed successfully. Waiting for payment plan...");
+            
+            // Wait for payment plan with timeout (default is 15 minutes according to docs)
             await account.plan.wait();
 
             console.log("Successfully authenticated with email:", email);
             return account;
         } catch (error) {
-            console.error("Failed to authenticate with email:", email, error);
+            if (error instanceof Error) {
+                if (error.message.includes('timeout') || error.message.includes('expired')) {
+                    console.error(`Authentication failed: Email confirmation timed out for ${email}. Please try again and confirm your email quickly.`);
+                } else {
+                    console.error(`Authentication failed for ${email}:`, error.message);
+                }
+            } else {
+                console.error("Authentication failed with unknown error:", error);
+            }
             throw error;
         }
     }
@@ -101,23 +132,27 @@ export default class W3UpClient {
         if (!this.client) throw new Error('Client not initialized');
 
         try {
-            // check if space already exists
+            // Check if space already exists by name
             const spaces = this.client.spaces();
-            const space = spaces.find((space) => space.name === spaceName);
-            if (space) {
-                console.log(`Space ${spaceName} already exists`, space.did());
-                await this.client.setCurrentSpace(space.did());
-                return space;
+            let existingSpace = spaces.find((space) => space.name === spaceName);
+            
+            if (existingSpace) {
+                console.log(`Space "${spaceName}" already exists with DID: ${existingSpace.did()}`);
+                await this.client.setCurrentSpace(existingSpace.did());
+                return existingSpace;
             }
 
-            // create space
+            // Create new space with account for recovery capability
+            console.log(`Creating new space: "${spaceName}"`);
             const newSpace = await this.client.createSpace(spaceName, { account });
+            
+            // Set as current space
             await this.client.setCurrentSpace(newSpace.did());
-            console.log(`Created space: ${spaceName} with DID: ${newSpace.did()}`);
+            console.log(`Successfully created and set space "${spaceName}" with DID: ${newSpace.did()}`);
 
             return newSpace;
         } catch (error) {
-            console.error('Failed to create space:', error);
+            console.error(`Failed to create/access space "${spaceName}":`, error);
             throw error;
         }
     }
@@ -150,6 +185,31 @@ export default class W3UpClient {
 
     getGatewayUrl(cid: string, gatewayHost = 'w3s.link'): string {
         return `https://${cid}.ipfs.${gatewayHost}`;
+    }
+
+    // Additional utility methods for space management
+    getCurrentSpace() {
+        if (!this.client) throw new Error('Client not initialized');
+        return this.client.currentSpace();
+    }
+
+    getAllSpaces() {
+        if (!this.client) throw new Error('Client not initialized');
+        return this.client.spaces();
+    }
+
+    async setCurrentSpace(spaceDid: `did:${string}:${string}`) {
+        if (!this.client) throw new Error('Client not initialized');
+        await this.client.setCurrentSpace(spaceDid);
+        console.log(`Current space set to: ${spaceDid}`);
+    }
+
+    getAccount() {
+        return this.account;
+    }
+
+    isReady() {
+        return this.ready && this.client !== null;
     }
 }
 
