@@ -7,24 +7,24 @@ import { env } from "@/env";
 
 const file = new Hono()
   .get(
-    "/",
+    "/:cid",
     zValidator(
-      "query",
+      "param",
       z.object({
-        name: z.string(),
+        cid: z.string(),
       })
     ),
     async (ctx) => {
-      const { name } = ctx.req.valid("query");
+      const { cid } = ctx.req.valid("param");
 
-      if (!name) {
-        return respond.err(ctx, "Name is required", 400);
+      if (!cid) {
+        return respond.err(ctx, "CID is required", 400);
       }
 
       return respond.ok(
         ctx,
         {
-          name,
+          cid,
         },
         "Successfully fetched data",
         200
@@ -45,8 +45,8 @@ const file = new Hono()
         const client = new W3UpClient();
         await client.init(
           {
-            email: "kartik100100@gmail.com",
-            spaceName: "portal",
+            email: env.W3UP_EMAIL as `${string}@${string}`,
+            spaceName: env.W3UP_SPACE_NAME,
           }
         )
         const cid = await client.uploadFile(file);
