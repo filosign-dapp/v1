@@ -35,14 +35,14 @@ const file = new Hono()
     "/",
     async (ctx) => {
       try {
-        const { file } = await ctx.req.parseBody();
+        const { buffer } = await ctx.req.json();
 
-        if(typeof file === 'string') {
-          return respond.err(ctx, "File is required", 400);
+        if(typeof buffer === 'string') {
+          return respond.err(ctx, "Buffer is required", 400);
         }
 
         const w3upClient = getW3UpClient();
-        const cid = await w3upClient.uploadFile(file);
+        const cid = await w3upClient.uploadFile(buffer);
         const url = w3upClient.getGatewayUrl(cid);
 
         return respond.ok(ctx, { cid, url }, "Successfully uploaded file", 200);

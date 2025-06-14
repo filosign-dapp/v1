@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { CheckCircle, Copy, Upload, ExternalLink } from 'lucide-react'
+import { CheckCircle, Copy, Upload } from 'lucide-react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
 import { Input } from '@/src/lib/components/ui/input'
@@ -9,10 +9,9 @@ import type { FileData } from '../Portal'
 interface LinkGeneratedStateProps {
   fileData: FileData
   onUploadAnother: () => void
-  onViewDownload: () => void
 }
 
-export default function LinkGeneratedState({ fileData, onUploadAnother, onViewDownload }: LinkGeneratedStateProps) {
+export default function LinkGeneratedState({ fileData, onUploadAnother }: LinkGeneratedStateProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopyLink = async () => {
@@ -103,7 +102,7 @@ export default function LinkGeneratedState({ fileData, onUploadAnother, onViewDo
       </Card>
 
       {/* Actions */}
-      <div className="flex flex-col justify-center gap-3 sm:flex-row">
+      <div className="flex justify-center">
         <Button
           onClick={onUploadAnother}
           variant="outline"
@@ -111,15 +110,6 @@ export default function LinkGeneratedState({ fileData, onUploadAnother, onViewDo
         >
           <Upload className="w-4 h-4" />
           Upload Another File
-        </Button>
-        
-        <Button
-          onClick={onViewDownload}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <ExternalLink className="w-4 h-4" />
-          Preview Download Page
         </Button>
       </div>
 

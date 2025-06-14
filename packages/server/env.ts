@@ -4,7 +4,7 @@ const envKeys = [
   "BUN_PUBLIC_PRIVY_APP_ID",
   "W3UP_EMAIL",
   "W3UP_SPACE_NAME",
-  "BUN_PUBLIC_APP_URL"
+  "BUN_PUBLIC_APP_URL",
 ] as const;
 
 type ENV = Record<(typeof envKeys)[number], string>;

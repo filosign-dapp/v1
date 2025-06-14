@@ -1,17 +1,15 @@
 import { useState, useRef } from 'react'
 import { motion } from 'motion/react'
-import { CloudUpload, Shield, LoaderCircle } from 'lucide-react'
-import { Button } from '@/src/lib/components/ui/button'
+import { CloudUpload, Shield } from 'lucide-react'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
 import Icon from '@/src/lib/components/custom/Icon'
 
 interface UploadStateProps {
   onFileUpload: (file: File) => void
-  onViewDownload: () => void
 }
 
-export default function UploadState({ onFileUpload, onViewDownload }: UploadStateProps) {
+export default function UploadState({ onFileUpload }: UploadStateProps) {
   const [isDragOver, setIsDragOver] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -125,16 +123,7 @@ export default function UploadState({ onFileUpload, onViewDownload }: UploadStat
         <span>Files are end-to-end encrypted. We never see your data.</span>
       </div>
 
-      {/* Demo Button */}
-      <div className="pt-4">
-        <Button
-          variant="outline"
-          onClick={onViewDownload}
-          className="text-sm"
-        >
-          View Download Demo
-        </Button>
-      </div>
+
     </div>
   )
 } 

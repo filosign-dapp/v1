@@ -157,11 +157,11 @@ export default class W3UpClient {
         }
     }
 
-    async uploadFile(file: Blob | File): Promise<string> {
+    async uploadFile(file: ArrayBuffer): Promise<string> {
         if (!this.client) throw new Error('Client not initialized');
 
         try {
-            const cid = await this.client.uploadFile(file);
+            const cid = await this.client.uploadFile(new Blob([file]));
             console.log(`File uploaded with CID: ${cid}`);
             return cid.toString();
         } catch (error) {
