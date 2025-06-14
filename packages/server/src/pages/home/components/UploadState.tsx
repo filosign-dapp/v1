@@ -4,7 +4,6 @@ import { CloudUpload, Shield, LoaderCircle } from 'lucide-react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
-import { Image } from '@/src/lib/components/custom/Image'
 import Icon from '@/src/lib/components/custom/Icon'
 
 interface UploadStateProps {
@@ -70,7 +69,7 @@ export default function UploadState({ onFileUpload, onViewDownload }: UploadStat
       <Card className="relative overflow-hidden">
         <motion.div
           className={`
-            border-2 border-dashed transition-all duration-200 p-12 rounded-lg cursor-pointer
+            border-2 border-dashed transition-all duration-200 p-12 rounded-xl cursor-pointer
             ${isDragOver
               ? 'border-primary bg-primary/5 scale-[1.02]'
               : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30'

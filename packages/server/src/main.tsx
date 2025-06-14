@@ -26,8 +26,8 @@ const app = (
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme="dark" storageKey="theme">
           <PrivyProvider>
-            <RouterProvider router={router} />
-            <Toaster position="bottom-right" theme="dark" />
+              <RouterProvider router={router} />
+              <Toaster position="bottom-right" theme="dark" />
           </PrivyProvider>
         </ThemeProvider>
       </QueryClientProvider>

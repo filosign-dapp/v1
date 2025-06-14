@@ -1,0 +1,1 @@
+export { default, type FileType } from "./file.route";

@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'motion/react'
 import UploadState from './components/UploadState'
 import LinkGeneratedState from './components/LinkGeneratedState'
 import DownloadState from './components/DownloadState'
-import Connect from '@/src/lib/components/app/Connect'
+import api from '@/src/lib/utils/api-client'
+import { toast } from 'sonner'
+
 
 export type PortalState = 'upload' | 'link-generated' | 'download'
 
@@ -18,16 +20,34 @@ export default function Portal() {
   const [fileData, setFileData] = useState<FileData | null>(null)
 
   // Simulate file upload and link generation
-  const handleFileUpload = (file: File) => {
-    // Mock processing
-    setTimeout(() => {
+  const handleFileUpload = async (file: File) => {
+    try {
+      const result = await api.file.index.$post({
+        form: {
+          file: file
+        }
+      })
+      
+      const parsed = await result.json()
+      
+      if(!parsed.success) {
+        console.log(parsed?.error);
+        toast.error(parsed?.error);
+        return;
+      }
+      
+      console.log(parsed?.data)
+  
       setFileData({
         name: file.name,
         size: formatFileSize(file.size),
         link: `https://portal.link/${generateShortId()}`
       })
       setCurrentState('link-generated')
-    }, 1500)
+    } catch (error) {
+      toast.error("Failed to upload file");
+      console.log(error);
+    }
   }
 
   const handleUploadAnother = () => {
