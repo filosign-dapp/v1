@@ -37,7 +37,7 @@ export default function DownloadPage() {
 
       try {
         const decryptedBuffer = await decryptFile(downloadFileData, secretKey);
-        const decompressedBuffer = await decompressFile(decryptedBuffer, name || 'Unknown file');
+        const decompressedBuffer = await decompressFile(decryptedBuffer);
         const file = new File([decompressedBuffer], name || 'Unknown file')
 
         setDownloadFile(file)
