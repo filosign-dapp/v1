@@ -1,4 +1,4 @@
-// import dist from "./dist/index.html";
+import dist from "./dist/index.html";
 import { serve } from "bun";
 import hono from "./api";
 import html from "./src/index.html";
@@ -13,10 +13,7 @@ W3UpClient.getInstance().catch((error) => {
 
 // Start the server
 const server = serve({
-  development: !isProd ? {
-    hmr: true,
-    console: true,
-  } : false,
+  development: false,
 
   routes: {
     "/api": new Response(JSON.stringify({
@@ -27,8 +24,7 @@ const server = serve({
     "/api/v1/*": (req) => {
       return hono.fetch(req);
     },
-    // "/*": isProd ? dist : html,
-    "/*": html,
+    "/*": dist,
   },
 
   fetch(req) {

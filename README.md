@@ -1,4 +1,4 @@
-# Portal - Protocol Labs
+# Portal - Protocol Labs Hackathon
 
 Install dependencies:
 
