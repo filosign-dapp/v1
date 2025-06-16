@@ -3,7 +3,7 @@ const envKeys = [
   "BUN_VERSION",
   "BUN_PUBLIC_PRIVY_APP_ID",
   "W3UP_EMAIL",
-  "W3UP_SPACE_DID",
+  "W3UP_SPACE_NAME",
   "BUN_PUBLIC_APP_URL",
 ] as const;
 

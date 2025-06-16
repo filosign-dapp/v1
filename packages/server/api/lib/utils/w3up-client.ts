@@ -53,7 +53,7 @@ export default class W3UpClient {
         try {
             await W3UpClient.instance.init({
                 email: env.W3UP_EMAIL as `${string}@${string}`,
-                spaceName: "portal",
+                spaceName: env.W3UP_SPACE_NAME,
             });
 
             logger("W3UpClient singleton initialized successfully");
