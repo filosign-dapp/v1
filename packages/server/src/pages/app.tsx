@@ -7,7 +7,10 @@ import {
 } from '@tanstack/react-router'
 import { withPageErrorBoundary } from "@/src/lib/components/errors/PageErrorBoundary";
 import Home from "./home";
+import Upload from "./upload";
+import LinkGenerated from "./link";
 import Download from "./download";
+import { z } from 'zod';
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -26,15 +29,41 @@ const indexRoute = createRoute({
   },
 })
 
+const uploadRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/upload',
+  component: function UploadPage() {
+    return withPageErrorBoundary(Upload)({});
+  },
+})
+
+const linkRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/link/$cid',
+  component: function LinkPage() {
+    return withPageErrorBoundary(LinkGenerated)({});
+  },
+  validateSearch: z.object({
+    name: z.string().optional(),
+    size: z.string().optional(),
+    type: z.string().optional(),
+    key: z.string().optional(),
+  }),
+})
+
 const downloadRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/download/$cid',
   component: function DownloadPage() {
     return withPageErrorBoundary(Download)({});
   },
+  validateSearch: z.object({
+    name: z.string().optional(),
+    type: z.string().optional(),
+  }),
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, downloadRoute])
+const routeTree = rootRoute.addChildren([indexRoute, uploadRoute, linkRoute, downloadRoute])
 const router = createRouter({
   routeTree,
 })

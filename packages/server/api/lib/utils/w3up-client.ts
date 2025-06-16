@@ -2,6 +2,7 @@ import { create } from "@web3-storage/w3up-client";
 import type { Client } from "@web3-storage/w3up-client";
 import type { Account } from "@web3-storage/w3up-client/account";
 import { env } from "@/env";
+import type { BlobLike, FileLike, UploadDirectoryOptions } from "@web3-storage/w3up-client/types";
 
 interface W3UpConfig {
     email?: `${string}@${string}`;
@@ -157,11 +158,11 @@ export default class W3UpClient {
         }
     }
 
-    async uploadFile(file: ArrayBuffer): Promise<string> {
+    async uploadFile(file: BlobLike) {
         if (!this.client) throw new Error('Client not initialized');
 
         try {
-            const cid = await this.client.uploadFile(new Blob([file]));
+            const cid = await this.client.uploadFile(file);
             console.log(`File uploaded with CID: ${cid}`);
             return cid.toString();
         } catch (error) {
@@ -170,11 +171,11 @@ export default class W3UpClient {
         }
     }
 
-    async uploadDirectory(files: File[]): Promise<string> {
+    async uploadDirectory(files: FileLike[], options?: UploadDirectoryOptions) {
         if (!this.client) throw new Error('Client not initialized');
 
         try {
-            const cid = await this.client.uploadDirectory(files);
+            const cid = await this.client.uploadDirectory(files, options);
             console.log(`Directory uploaded with CID: ${cid}`);
             return cid.toString();
         } catch (error) {

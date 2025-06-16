@@ -1,10 +1,10 @@
 import Layout from "../layout";
-import Portal from "./Portal";
+import HomePage from "./Home";
 
 export default function Home() {
   return (
     <Layout>
-      <Portal />
+      <HomePage />
     </Layout>
   )
 }

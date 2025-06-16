@@ -1,28 +1,32 @@
 // Converts ArrayBuffer to Base64 string
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
+function arrayBufferToBase64(buffer: ArrayBuffer): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64String = (reader.result as string).split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(new Blob([buffer]));
+  });
 }
 
 // Converts Base64 string to ArrayBuffer
-function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes.buffer;
+function base64ToArrayBuffer(base64: string): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    resolve(bytes.buffer);
+  });
 }
 
 export async function encryptFile(file: File) {
-
   const key = await crypto.subtle.generateKey(
     { name: 'AES-GCM', length: 256 },
-    true, // extractable
+    true,
     ['encrypt', 'decrypt']
   );
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -37,8 +41,8 @@ export async function encryptFile(file: File) {
 
   const rawKey = await crypto.subtle.exportKey('raw', key);
 
-  const encodedKey = arrayBufferToBase64(rawKey);
-  const encodedIV = arrayBufferToBase64(iv.buffer);
+  const encodedKey = await arrayBufferToBase64(rawKey);
+  const encodedIV = await arrayBufferToBase64(iv.buffer);
   const keyIvString = `${encodedKey}:${encodedIV}`;
 
   return {
@@ -49,12 +53,13 @@ export async function encryptFile(file: File) {
 
 export async function decryptFile(
   encryptedBuffer: ArrayBuffer,
-  encodedKey: string
-): Promise<ArrayBuffer> {
-
-  const [keyB64, ivB64] = encodedKey.split(':');
-  const rawKey = base64ToArrayBuffer(keyB64);
-  const iv = new Uint8Array(base64ToArrayBuffer(ivB64));
+  secretKey: string,
+  name: string,
+  type: string
+): Promise<File> {
+  const [keyB64, ivB64] = secretKey.split(':');
+  const rawKey = await base64ToArrayBuffer(keyB64);
+  const iv = new Uint8Array(await base64ToArrayBuffer(ivB64));
 
   const cryptoKey = await crypto.subtle.importKey(
     'raw',
@@ -64,13 +69,11 @@ export async function decryptFile(
     ['decrypt']
   );
 
-
   const decryptedBuffer = await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv },
     cryptoKey,
     encryptedBuffer
   );
 
-  return decryptedBuffer;
+  return new File([decryptedBuffer], name, { type });
 }
-

@@ -3,10 +3,10 @@ import { motion } from 'motion/react'
 import { Download, FileText, Shield, LoaderCircle, AlertCircle } from 'lucide-react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
-import { useParams } from '@tanstack/react-router'
+import { useParams, useSearch } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import api from '@/src/lib/utils/api-client'
 import { decryptFile } from '@/src/lib/utils/encryption'
+import { formatFileSize } from '@/src/lib/utils/utils'
 
 interface FileMetadata {
   name: string
@@ -15,11 +15,14 @@ interface FileMetadata {
 }
 
 export default function DownloadPage() {
-  const { cid } = useParams({ from: '/download/$cid' })
   const [isLoading, setIsLoading] = useState(true)
   const [isDownloading, setIsDownloading] = useState(false)
   const [fileMetadata, setFileMetadata] = useState<FileMetadata | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [downloadFile, setDownloadFile] = useState<File | null>(null)
+  
+  const { cid } = useParams({ from: '/download/$cid' })
+  const { name, type } = useSearch({ from: '/download/$cid' })
 
   // Extract secret key from URL hash
   const secretKey = window.location.hash.slice(1) // Remove the # symbol
@@ -33,17 +36,23 @@ export default function DownloadPage() {
       }
 
       try {
-        // For now, we'll use placeholder data since we need to fix the API client
-        // You'll need to implement the actual API call based on your backend structure
+        const result = await fetch(`https://${cid}.ipfs.w3s.link`)
+        const buffer = await result.arrayBuffer()
+
+        if(!name || !type) {
+          setError('Invalid download link')
+          setIsLoading(false)
+          return
+        }
+
+        const decryptedFile = await decryptFile(buffer, secretKey, name, type);
+
+        setDownloadFile(decryptedFile)
         setFileMetadata({
-          name: 'Document.pdf', // This should come from your API
-          size: '2.4 MB', // This should come from your API
-          type: 'application/pdf' // This should come from your API
+          name: decryptedFile.name,
+          size: formatFileSize(decryptedFile.size),
+          type: decryptedFile.type
         })
-        
-        // TODO: Implement proper API call when client structure is fixed
-        // const result = await fetch(`/api/v1/file/${cid}`)
-        // const response = await result.json()
       } catch (err) {
         setError('Failed to fetch file information')
         console.error(err)
@@ -64,27 +73,27 @@ export default function DownloadPage() {
     setIsDownloading(true)
     
     try {
-      // TODO: Implement proper API call when client structure is fixed
-      // const result = await fetch(`/api/v1/file/${cid}`)
-      // const response = await result.json()
-      
-      // For now, simulate the download - you'll need to implement actual download
-      // const decryptedFile = await decryptFile(response.data.encryptedBuffer, secretKey)
-      
-      // Placeholder download simulation
-      const decryptedFile = new ArrayBuffer(1024) // Replace with actual decrypted data
-      
-      // Create download link
-      const blob = new Blob([decryptedFile])
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = fileMetadata?.name || 'download'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      if (!downloadFile) {
+        toast.error('File not available for download')
+        return
+      }
 
+      // Create a URL for the file blob
+      const url = URL.createObjectURL(downloadFile)
+      
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a')
+      link.href = url
+      link.download = downloadFile.name
+      document.body.appendChild(link)
+      
+      // Trigger the download
+      link.click()
+      
+      // Clean up
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      
       toast.success('File downloaded successfully')
     } catch (err) {
       toast.error('Failed to download file')

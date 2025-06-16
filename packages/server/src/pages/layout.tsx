@@ -13,7 +13,7 @@ export default function Layout({
       {/* <Navbar /> */}
       {/* <Sidebar /> */}
 
-      <div className="absolute z-10 top-4 right-4">
+      <div className="absolute z-10 top-6 right-6">
         <Connect />
       </div>
 

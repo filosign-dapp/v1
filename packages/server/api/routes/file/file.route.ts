@@ -33,17 +33,32 @@ const file = new Hono()
 
   .post(
     "/",
+    // zValidator(
+    //   "json",
+    //   z.object({
+    //     buffer: z.instanceof(ArrayBuffer),
+    //     originalName: z.string(),
+    //     originalType: z.string(),
+    //   })
+    // ),
     async (ctx) => {
       try {
-        const { buffer } = await ctx.req.json();
+        // const buffer = await ctx.req.raw.arrayBuffer();
+        const { file } = await ctx.req.parseBody();
+        console.log({
+          file,
+        });
 
-        if(typeof buffer === 'string') {
-          return respond.err(ctx, "Buffer is required", 400);
+        if(!file || !(file instanceof File)) {
+          return respond.err(ctx, "File is required", 400);
         }
 
         const w3upClient = getW3UpClient();
-        const cid = await w3upClient.uploadFile(buffer);
+        // const blob = new Blob([buffer], { type: "application/octet-stream" });
+        const cid = await w3upClient.uploadFile(file);
         const url = w3upClient.getGatewayUrl(cid);
+
+        console.log(url);
 
         return respond.ok(ctx, { cid, url }, "Successfully uploaded file", 200);
       } catch (error) {
