@@ -1,5 +1,5 @@
 import Layout from "../layout";
-import DownloadPage from "./DownloadPage";
+import DownloadPage from "./Download";
 
 export default function Download() {
   return (

@@ -8,7 +8,7 @@ export default function HomePage() {
   const navigate = useNavigate()
 
   const handleStartUpload = () => {
-    navigate({ to: '/upload' })
+    navigate({ to: '/' })
   }
 
   const features = [

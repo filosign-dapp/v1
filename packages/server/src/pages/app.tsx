@@ -25,15 +25,15 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: function Index() {
-    return withPageErrorBoundary(Home)({});
+    return withPageErrorBoundary(Upload)({});
   },
 })
 
 const uploadRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/upload',
+  path: '/landing',
   component: function UploadPage() {
-    return withPageErrorBoundary(Upload)({});
+    return withPageErrorBoundary(Home)({});
   },
 })
 

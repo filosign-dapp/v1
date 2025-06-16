@@ -56,7 +56,7 @@ export async function decryptFile(
   secretKey: string,
   name: string,
   type: string
-): Promise<File> {
+) {
   const [keyB64, ivB64] = secretKey.split(':');
   const rawKey = await base64ToArrayBuffer(keyB64);
   const iv = new Uint8Array(await base64ToArrayBuffer(ivB64));
