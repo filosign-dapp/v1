@@ -1,29 +1,28 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Download, FileText, Shield, LoaderCircle, AlertCircle } from 'lucide-react'
+import { Download, FileText, Shield, LoaderCircle, AlertCircle, Upload } from 'lucide-react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
-import { useParams, useSearch } from '@tanstack/react-router'
+import { useParams, useSearch, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { decryptFile } from '@/src/lib/utils/encryption'
-import { formatFileSize } from '@/src/lib/utils/utils'
-import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
 import { useApi } from '@/src/lib/hooks/use-api'
-import { handleError } from '@/src/lib/utils'
+import { handleError, logger } from '@/src/lib/utils'
+import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
+import { formatFileSize, decompressFile, decryptFile } from '@/src/lib/utils/files'
 
 interface FileMetadata {
   name: string
   size: string
-  type: string
 }
 
 export default function DownloadPage() {
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
   const [fileMetadata, setFileMetadata] = useState<FileMetadata | null>(null)
   const [downloadFile, setDownloadFile] = useState<File | null>(null)
 
   const { cid } = useParams({ from: '/download/$cid' })
-  const { name, type } = useSearch({ from: '/download/$cid' })
+  const { name } = useSearch({ from: '/download/$cid' })
   const secretKey = window.location.hash.slice(1)
 
   const { downloadFile: downloadFileQuery } = useApi()
@@ -32,21 +31,19 @@ export default function DownloadPage() {
   useEffect(() => {
     async function fetchFileMetadata() {
       if (!isSuccess) {
-        return
-      }
-
-      if (!cid || !secretKey || !name || !type) {
-        return
+        logger("Waiting for file to be downloaded...")
+        return;
       }
 
       try {
-        const decryptedFile = await decryptFile(downloadFileData, secretKey, name, type)
+        const decryptedBuffer = await decryptFile(downloadFileData, secretKey);
+        const decompressedBuffer = await decompressFile(decryptedBuffer, name || 'Unknown file');
+        const file = new File([decompressedBuffer], name || 'Unknown file')
 
-        setDownloadFile(decryptedFile)
+        setDownloadFile(file)
         setFileMetadata({
-          name: decryptedFile.name,
-          size: formatFileSize(decryptedFile.size),
-          type: decryptedFile.type
+          name: name || 'Unknown file',
+          size: formatFileSize(file.size),
         })
       } catch (err) {
         handleError(err)
@@ -92,9 +89,9 @@ export default function DownloadPage() {
   function renderStatusCard(icon: React.ReactNode, title: string, message: string) {
     return (
       <div className="flex items-center justify-center h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
-        <Card className="p-8 text-center max-w-md">
+        <Card className="max-w-md p-8 text-center">
           {icon}
-          <h2 className="text-xl font-semibold mb-2">{title}</h2>
+          <h2 className="mb-2 text-xl font-semibold">{title}</h2>
           <p className="text-muted-foreground">{message}</p>
         </Card>
       </div>
@@ -111,7 +108,7 @@ export default function DownloadPage() {
 
   if (error) {
     return renderStatusCard(
-      <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />,
+      <AlertCircle className="w-16 h-16 mx-auto mb-4 text-destructive" />,
       'Download Error',
       error.message
     )
@@ -119,7 +116,7 @@ export default function DownloadPage() {
 
   if (!fileMetadata) {
     return renderStatusCard(
-      <AlertCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4" />,
+      <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />,
       'File Not Found',
       'The requested file could not be found.'
     )
@@ -154,7 +151,7 @@ export default function DownloadPage() {
 
             {/* File Details */}
             <div className="space-y-3">
-              <h3 className="text-2xl font-semibold text-foreground break-all">
+              <h3 className="text-2xl font-semibold break-all text-foreground">
                 {fileMetadata.name}
               </h3>
               <p className="text-lg text-muted-foreground">{fileMetadata.size}</p>
@@ -166,7 +163,7 @@ export default function DownloadPage() {
                 onClick={handleDownload}
                 disabled={isDownloading}
                 size="lg"
-                className="w-full max-w-sm mx-auto h-12 text-lg"
+                className="w-full h-12 max-w-sm mx-auto text-lg"
               >
                 {isDownloading ? (
                   <>
@@ -184,13 +181,24 @@ export default function DownloadPage() {
           </motion.div>
         </Card>
 
+        <div className="flex justify-center">
+          <Button
+            onClick={() => navigate({ to: '/' })}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Upload File
+          </Button>
+        </div>
+
         {/* Security Footer */}
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <Shield className="w-4 h-4" />
             <span>Shared securely with Portal</span>
           </div>
-          <div className="text-xs text-muted-foreground space-y-2">
+          <div className="space-y-2 text-xs text-muted-foreground">
             <p>🔒 End-to-end encrypted transfer</p>
             <p>🕒 This link will expire automatically</p>
           </div>

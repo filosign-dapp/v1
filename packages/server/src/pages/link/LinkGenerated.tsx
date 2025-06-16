@@ -5,7 +5,7 @@ import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
 import { Input } from '@/src/lib/components/ui/input'
 import { useSearch, useNavigate, useParams } from '@tanstack/react-router'
-import { createDownloadLink } from '@/src/lib/utils'
+import { createDownloadLink } from '@/src/lib/utils/files'
 
 export default function LinkGenerated() {
   const [copied, setCopied] = useState(false)
@@ -19,18 +19,16 @@ export default function LinkGenerated() {
   const {
     name,
     size,
-    type,
     key
   } = useSearch({
     from: '/link/$cid',
   });
 
-  const link = createDownloadLink(cid || '', name || '', type || '', key || '')
+  const link = createDownloadLink(cid || '', name || '', key || '')
 
   const fileData = {
     name: name || 'Unknown file',
     size: size || '0 B',
-    type: type || ''
   }
 
   const handleCopyLink = async () => {

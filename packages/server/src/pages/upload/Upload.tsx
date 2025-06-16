@@ -4,14 +4,14 @@ import { CloudUpload, Shield } from 'lucide-react'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
 import Icon from '@/src/lib/components/custom/Icon'
-import { encryptFile } from '@/src/lib/utils/encryption'
 import { useNavigate } from '@tanstack/react-router'
-import { handleError } from '@/src/lib/utils'
-import { formatFileSize } from '@/src/lib/utils/utils'
+import { cn, handleError } from '@/src/lib/utils'
 import { useApi } from '@/src/lib/hooks/use-api'
+import { formatFileSize, compressFile, encryptFile, sanitizeFile, basicFileChecks } from '@/src/lib/utils/files'
 
 export default function UploadPage() {
   const [isDragOver, setIsDragOver] = useState(false)
+  const [isError, setIsError] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
   const { uploadFile } = useApi()
@@ -27,29 +27,33 @@ export default function UploadPage() {
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setIsError(false)
     const file = e.target.files?.[0]
     if (file) handleFileUpload(file)
   }
 
   async function handleFileUpload(file: File) {
     try {
-      const { encryptedBuffer, secretKey } = await encryptFile(file)
+      basicFileChecks(file);
+      const sanitizedFile = sanitizeFile(file);
+      const compressedBuffer = await compressFile(sanitizedFile);
+      const { encryptedBuffer, secretKey } = await encryptFile(compressedBuffer);
       const result = await uploadFileMutation({
         encryptedBuffer,
-        metadata: { name: file.name, type: file.type }
+        metadata: { name: sanitizedFile.name, type: sanitizedFile.type }
       })
 
       navigate({
         to: '/link/$cid',
         params: { cid: result.cid },
         search: {
-          name: file.name,
-          type: file.type,
+          name: sanitizedFile.name,
           key: secretKey,
-          size: formatFileSize(file.size),
+          size: formatFileSize(sanitizedFile.size),
         }
       })
     } catch (error) {
+      setIsError(true)
       handleError(error)
     }
   }
@@ -69,11 +73,13 @@ export default function UploadPage() {
         {/* Upload Area */}
         <Card className="relative overflow-hidden">
           <motion.div
-            className={`
-              border-2 border-dashed transition-all duration-200 p-12 rounded-xl cursor-pointer
-              ${isDragOver ? 'border-primary bg-primary/5 scale-[1.02]' : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30'}
-              ${isUploading ? 'pointer-events-none opacity-50' : ''}
-            `}
+            className={cn(
+              "border-2 border-dashed transition-all duration-200 p-12 rounded-xl cursor-pointer",
+              isDragOver && "border-primary bg-primary/5 scale-[1.02]",
+              !isDragOver && "border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30",
+              isUploading && "pointer-events-none opacity-50",
+              isError && "border-destructive bg-destructive/5"
+            )}
             onDragOver={(e) => handleDragEvents(e, true)}
             onDragLeave={(e) => handleDragEvents(e, false)}
             onDrop={(e) => handleDragEvents(e)}

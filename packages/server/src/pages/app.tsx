@@ -44,10 +44,9 @@ const linkRoute = createRoute({
     return withPageErrorBoundary(LinkGenerated)({});
   },
   validateSearch: z.object({
-    name: z.string().optional(),
-    size: z.string().optional(),
-    type: z.string().optional(),
-    key: z.string().optional(),
+    name: z.string(),
+    size: z.string(),
+    key: z.string(),
   }),
 })
 

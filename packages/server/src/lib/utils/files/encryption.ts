@@ -1,3 +1,5 @@
+import { logger } from "../utils";
+
 // Converts ArrayBuffer to Base64 string
 function arrayBufferToBase64(buffer: ArrayBuffer): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -23,7 +25,9 @@ function base64ToArrayBuffer(base64: string): Promise<ArrayBuffer> {
   });
 }
 
-export async function encryptFile(file: File) {
+export async function encryptFile(buffer: ArrayBuffer) {
+  logger('Encrypting file...');
+  const initTime = new Date().toISOString();
   const key = await crypto.subtle.generateKey(
     { name: 'AES-GCM', length: 256 },
     true,
@@ -31,12 +35,10 @@ export async function encryptFile(file: File) {
   );
   const iv = crypto.getRandomValues(new Uint8Array(12));
 
-  const fileBuffer = await file.arrayBuffer();
-
   const encryptedBuffer = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
-    fileBuffer
+    buffer
   );
 
   const rawKey = await crypto.subtle.exportKey('raw', key);
@@ -45,6 +47,9 @@ export async function encryptFile(file: File) {
   const encodedIV = await arrayBufferToBase64(iv.buffer);
   const keyIvString = `${encodedKey}:${encodedIV}`;
 
+  const endTime = new Date().toISOString();
+  const timeTaken = new Date(endTime).getTime() - new Date(initTime).getTime();
+  logger('Finished encrypting file...', { timeTaken: `${timeTaken}ms` });
   return {
     encryptedBuffer,
     secretKey: keyIvString
@@ -54,9 +59,9 @@ export async function encryptFile(file: File) {
 export async function decryptFile(
   encryptedBuffer: ArrayBuffer,
   secretKey: string,
-  name: string,
-  type: string
 ) {
+  logger('Decrypting file...');
+  const initTime = new Date().toISOString();
   const [keyB64, ivB64] = secretKey.split(':');
   const rawKey = await base64ToArrayBuffer(keyB64);
   const iv = new Uint8Array(await base64ToArrayBuffer(ivB64));
@@ -75,5 +80,8 @@ export async function decryptFile(
     encryptedBuffer
   );
 
-  return new File([decryptedBuffer], name, { type });
+  const endTime = new Date().toISOString();
+  const timeTaken = new Date(endTime).getTime() - new Date(initTime).getTime();
+  logger('Finished decrypting file...', { timeTaken: `${timeTaken}ms` });
+  return decryptedBuffer;
 }
