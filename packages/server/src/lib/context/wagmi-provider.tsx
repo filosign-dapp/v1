@@ -1,5 +1,5 @@
 import { http } from 'wagmi'
-import { optimism, optimismSepolia } from 'wagmi/chains'
+import { optimism, optimismSepolia } from 'viem/chains'
 import { createConfig, WagmiProvider as WagmiProviderBase } from '@privy-io/wagmi'
 
 declare module 'wagmi' {

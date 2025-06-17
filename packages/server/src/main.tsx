@@ -18,16 +18,16 @@ if (!rootElement) throw new Error("Failed to find the root element");
 const app = (
   <StrictMode>
     <ErrorBoundary>
-      <PrivyProvider>
-        <QueryClientProvider>
+      <QueryClientProvider>
+        <PrivyProvider>
           <WagmiProvider>
             <ThemeProvider defaultTheme="dark" storageKey="theme">
               <RouterProvider router={router} />
               <Toaster position="bottom-right" theme="dark" />
             </ThemeProvider>
           </WagmiProvider>
-        </QueryClientProvider>
-      </PrivyProvider>
+        </PrivyProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   </StrictMode>
 );

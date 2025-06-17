@@ -1,7 +1,6 @@
 import dist from "./dist/index.html";
 import { serve } from "bun";
 import hono from "./api";
-import html from "./src/index.html";
 import { isProd } from "env";
 import W3UpClient from "./api/lib/utils/w3up-client";
 
