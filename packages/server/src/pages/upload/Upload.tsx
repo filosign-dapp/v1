@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { CloudUpload, Shield, X, Plus, Upload, CheckCircle, FolderUp, Copy } from 'lucide-react'
+import { CloudUpload, Shield, X, Plus, Upload, CheckCircle, FolderUp, Copy, Link } from 'lucide-react'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
 import { Button } from '@/src/lib/components/ui/button'
@@ -43,7 +43,7 @@ export default function UploadPage() {
   const { mutateAsync: uploadDirectoryMutation, isPending: isUploadingDirectory } = uploadDirectory
   const { addToHistory } = useUploadHistory()
   const { lastUploadResults, setLastUploadResults, clearLastUploadResults } = useUploadSession()
-  const [copied, setCopied] = useState(false)
+  const [copiedLink, setCopiedLink] = useState("")
 
   const { address } = useAccount();
   const { data: balance } = useBalance({ address })
@@ -452,7 +452,7 @@ export default function UploadPage() {
                 {uploadResults.map((result, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg gap-2"
+                    className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-green-600" />
@@ -461,43 +461,49 @@ export default function UploadPage() {
                         <p className="text-sm text-muted-foreground">{result.size}</p>
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate({
-                        to: '/link/$cid',
-                        params: { cid: result.cid },
-                        search: {
-                          name: result.name,
-                          key: result.key,
-                          size: result.size,
-                        }
-                      })}
-                    >
-                      View Link
-                    </Button>
 
-                    <Button onClick={async () => {
-                      try {
-                        await navigator.clipboard.writeText(createDownloadLink(result.cid, result.name, result.key))
-                        setCopied(true)
-                        setTimeout(() => setCopied(false), 2000)
-                      } catch (err) {
-                        console.error('Failed to copy link:', err)
-                      }
-                    }}>
-                      {copied ? (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy Link
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate({
+                          to: '/link/$cid',
+                          params: { cid: result.cid },
+                          search: {
+                            name: result.name,
+                            key: result.key,
+                            size: result.size,
+                          }
+                        })}
+                      >
+                        <Link className="size-3 mr-1" />
+                        View Link
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(createDownloadLink(result.cid, result.name, result.key))
+                          setCopiedLink(createDownloadLink(result.cid, result.name, result.key))
+                        } catch (err) {
+                          console.error('Failed to copy link:', err)
+                        }
+                      }}>
+                        {copiedLink === createDownloadLink(result.cid, result.name, result.key) ? (
+                          <>
+                            <CheckCircle className="size-3 mr-1" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="size-3 mr-1" />
+                            Copy Link
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
