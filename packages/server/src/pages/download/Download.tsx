@@ -39,7 +39,7 @@ export default function DownloadPage() {
       try {
         let totalSize = 0
         const fileItems: FileItem[] = []
-        await Promise.all(buffers.map(async (item) => { 
+        await Promise.all(buffers.map(async (item) => {
           const decryptedBuffer = await decryptFile(item.buffer, secretKey);
           const decompressedBuffer = await decompressFile(decryptedBuffer);
           const file = new File([decompressedBuffer], item.name)

@@ -66,30 +66,33 @@ export function useApi() {
             return useQuery({
                 queryKey: ['downloadFile', cid],
                 queryFn: async () => {
-                    const initTime = new Date().toISOString();
-
                     const serverResponse = await api.file[":cid"].$get({
                         param: { cid },
                     })
                     const serverResponseJson = await serverResponse.json();
 
-                    if(!serverResponseJson.success) throw new Error(serverResponseJson.error);
+                    if (!serverResponseJson.success) throw new Error(serverResponseJson.error);
                     const { fileNames } = serverResponseJson.data;
 
-                    const filePromises = fileNames.map(async (fileName: string) => {
-                        const encodedFileName = encodeURIComponent(fileName);
-                        const url = `https://${cid}.ipfs.w3s.link/${encodedFileName}`
+                    if (fileNames.length === 1) {
+                        const url = `https://${cid}.ipfs.w3s.link`
                         const buffer = await fetch(url).then(res => res.arrayBuffer())
-                        return {
+                        return [{
                             buffer,
-                            name: fileName.replace('.enc', ''),
-                        };
-                    })
-
-                    const buffers = await Promise.all(filePromises);
-                    const timeTaken = new Date().getTime() - new Date(initTime).getTime();
-                    logger('Download API call finished...', { timeTaken: `${timeTaken}ms` });
-                    return buffers;
+                            name: fileNames[0].replace('.enc', ''),
+                        }];
+                    } else {
+                        const filePromises = fileNames.map(async (fileName: string) => {
+                            const encodedFileName = encodeURIComponent(fileName);
+                            const url = `https://${cid}.ipfs.w3s.link/${encodedFileName}`
+                            const buffer = await fetch(url).then(res => res.arrayBuffer())
+                            return {
+                                buffer,
+                                name: fileName.replace('.enc', ''),
+                            };
+                        })
+                        return await Promise.all(filePromises);
+                    }
                 },
                 enabled: !!cid,
             })
