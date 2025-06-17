@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Download, FileText, Shield, LoaderCircle, AlertCircle, Upload } from 'lucide-react'
+import { Download, FileText, Shield, LoaderCircle, AlertCircle, Upload, Package } from 'lucide-react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
 import { useParams, useSearch, useNavigate } from '@tanstack/react-router'
@@ -10,7 +10,8 @@ import { handleError, logger } from '@/src/lib/utils'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
 import { formatFileSize, decompressFile, decryptFile } from '@/src/lib/utils/files'
 
-interface FileMetadata {
+interface FileItem {
+  file: File
   name: string
   size: string
 }
@@ -18,33 +19,35 @@ interface FileMetadata {
 export default function DownloadPage() {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
-  const [fileMetadata, setFileMetadata] = useState<FileMetadata | null>(null)
-  const [downloadFile, setDownloadFile] = useState<File | null>(null)
+  const [fileItems, setFileItems] = useState<FileItem[]>([])
+  const [totalSize, setTotalSize] = useState<string>('')
 
   const { cid } = useParams({ from: '/download/$cid' })
   const { name } = useSearch({ from: '/download/$cid' })
   const secretKey = window.location.hash.slice(1)
 
-  const { downloadFile: downloadFileQuery } = useApi()
-  const { data: downloadFileData, isLoading: isDownloading, isSuccess, error } = downloadFileQuery(cid)
+  const { downloadFiles } = useApi()
+  const { data: buffers, status: downloadStatus, error } = downloadFiles(cid)
+
+  console.log(fileItems)
 
   useEffect(() => {
     async function fetchFileMetadata() {
-      if (!isSuccess) {
-        logger("Waiting for file to be downloaded...")
+      if (downloadStatus !== 'success') {
+        logger("Waiting for file to be downloaded...");
         return;
       }
 
       try {
-        const decryptedBuffer = await decryptFile(downloadFileData, secretKey);
-        const decompressedBuffer = await decompressFile(decryptedBuffer);
-        const file = new File([decompressedBuffer], name || 'Unknown file')
-
-        setDownloadFile(file)
-        setFileMetadata({
-          name: name || 'Unknown file',
-          size: formatFileSize(file.size),
-        })
+        let totalSize = 0
+        await Promise.all(buffers.map(async (item) => { 
+          const decryptedBuffer = await decryptFile(item.buffer, secretKey);
+          const decompressedBuffer = await decompressFile(decryptedBuffer);
+          const file = new File([decompressedBuffer], item.name)
+          setFileItems(prev => [...prev, { file, name: item.name, size: formatFileSize(file.size) }])
+          totalSize += file.size
+        }))
+        setTotalSize(formatFileSize(totalSize))
       } catch (err) {
         handleError(err)
       } finally {
@@ -53,19 +56,14 @@ export default function DownloadPage() {
     }
 
     fetchFileMetadata()
-  }, [isSuccess])
+  }, [downloadStatus, buffers, secretKey, name])
 
-  async function handleDownload() {
-    if (!downloadFile) {
-      toast.error('File not available for download')
-      return
-    }
-
+  async function handleDownloadFile(fileItem: FileItem) {
     try {
-      const url = URL.createObjectURL(downloadFile)
+      const url = URL.createObjectURL(fileItem.file)
       const link = Object.assign(document.createElement('a'), {
         href: url,
-        download: downloadFile.name
+        download: fileItem.name
       })
 
       document.body.appendChild(link)
@@ -73,9 +71,30 @@ export default function DownloadPage() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
 
-      toast.success('File downloaded successfully')
+      toast.success(`${fileItem.name} downloaded successfully`)
     } catch (err) {
-      toast.error('Failed to download file')
+      toast.error(`Failed to download ${fileItem.name}`)
+      console.error(err)
+    }
+  }
+
+  async function handleDownloadAll() {
+    if (fileItems.length === 0) {
+      toast.error('No files available for download');
+      return
+    }
+
+    try {
+      // Download all files sequentially
+      for (const fileItem of fileItems) {
+        await handleDownloadFile(fileItem)
+        // Small delay between downloads to avoid overwhelming the browser
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
+
+      toast.success(`All ${fileItems.length} files downloaded successfully`)
+    } catch (err) {
+      toast.error('Failed to download some files')
       console.error(err)
     }
   }
@@ -83,7 +102,7 @@ export default function DownloadPage() {
   function getFileIcon(filename: string) {
     const ext = filename.split('.').pop()?.toLowerCase()
     const isDocument = ['pdf', 'doc', 'docx', 'txt'].includes(ext || '')
-    return <FileText className={`w-20 h-20 ${isDocument ? 'text-red-500' : 'text-primary'}`} />
+    return <FileText className={`w-8 h-8 ${isDocument ? 'text-red-500' : 'text-primary'}`} />
   }
 
   function renderStatusCard(icon: React.ReactNode, title: string, message: string) {
@@ -106,7 +125,7 @@ export default function DownloadPage() {
     )
   }
 
-  if (error) {
+  if (downloadStatus === 'error') {
     return renderStatusCard(
       <AlertCircle className="w-16 h-16 mx-auto mb-4 text-destructive" />,
       'Download Error',
@@ -114,13 +133,15 @@ export default function DownloadPage() {
     )
   }
 
-  if (!fileMetadata) {
+  if (fileItems.length === 0) {
     return renderStatusCard(
       <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />,
       'File Not Found',
       'The requested file could not be found.'
     )
   }
+
+  const isMultipleFiles = fileItems.length > 1
 
   return (
     <div className="flex items-center justify-center h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
@@ -131,10 +152,12 @@ export default function DownloadPage() {
             <Shield className="w-6 h-6 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">Portal</h1>
           </div>
-          <h2 className="text-xl text-muted-foreground">Someone shared a file with you</h2>
+          <h2 className="text-xl text-muted-foreground">
+            Someone shared {isMultipleFiles ? `${fileItems.length} files` : 'a file'} with you
+          </h2>
         </div>
 
-        {/* File Display */}
+        {/* Files Display */}
         <Card className="p-8">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -142,42 +165,117 @@ export default function DownloadPage() {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            {/* File Icon */}
-            <div className="flex items-center justify-center">
-              <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
-                {getFileIcon(fileMetadata.name)}
-              </motion.div>
-            </div>
+            {isMultipleFiles ? (
+              <>
+                {/* Multiple Files Header */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center">
+                    <Package className="w-16 h-16 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-foreground">
+                    {fileItems.length} Files
+                  </h3>
+                  <p className="text-lg text-muted-foreground">Total size: {totalSize}</p>
+                </div>
 
-            {/* File Details */}
-            <div className="space-y-3">
-              <h3 className="text-2xl font-semibold break-all text-foreground">
-                {fileMetadata.name}
-              </h3>
-              <p className="text-lg text-muted-foreground">{fileMetadata.size}</p>
-            </div>
+                {/* Download All Button */}
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    onClick={handleDownloadAll}
+                    disabled={downloadStatus !== 'success'}
+                    size="lg"
+                    className="w-full h-12 max-w-sm mx-auto text-lg mb-6"
+                  >
+                    {downloadStatus !== 'success' ? (
+                      <>
+                        <LoaderCircle className="w-5 h-5 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5 mr-2" />
+                        Download All Files
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
 
-            {/* Download Button */}
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                onClick={handleDownload}
-                disabled={isDownloading}
-                size="lg"
-                className="w-full h-12 max-w-sm mx-auto text-lg"
-              >
-                {isDownloading ? (
-                  <>
-                    <LoaderCircle className="w-5 h-5 animate-spin" />
-                    Downloading...
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-5 h-5 mr-2" />
-                    Download File
-                  </>
-                )}
-              </Button>
-            </motion.div>
+                {/* Individual Files List */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Individual Files
+                  </h4>
+                  <div className="space-y-2">
+                    {fileItems.map((fileItem, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="flex items-center justify-between p-3 border rounded-lg bg-muted/20"
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          {getFileIcon(fileItem.name)}
+                          <div className="min-w-0 flex-1 text-left">
+                            <p className="font-medium truncate text-foreground">
+                              {fileItem.name}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {fileItem.size}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => handleDownloadFile(fileItem)}
+                          disabled={downloadStatus !== 'success'}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Single File Display */}
+                <div className="flex items-center justify-center">
+                  <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
+                    <FileText className="w-20 h-20 text-primary" />
+                  </motion.div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-semibold break-all text-foreground">
+                    {fileItems[0].name}
+                  </h3>
+                  <p className="text-lg text-muted-foreground">{fileItems[0].size}</p>
+                </div>
+
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    onClick={() => handleDownloadFile(fileItems[0])}
+                    disabled={downloadStatus !== 'success'}
+                    size="lg"
+                    className="w-full h-12 max-w-sm mx-auto text-lg"
+                  >
+                    {downloadStatus !== 'success' ? (
+                      <>
+                        <LoaderCircle className="w-5 h-5 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5 mr-2" />
+                        Download File
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
+              </>
+            )}
           </motion.div>
         </Card>
 

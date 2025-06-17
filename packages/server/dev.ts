@@ -15,7 +15,7 @@ W3UpClient.getInstance().catch((error) => {
 const server = serve({
   development: !isProd ? {
     hmr: true,
-    console: true,
+    console: false,
   } : false,
 
   routes: {

@@ -10,6 +10,10 @@ export function truncateText(text: string, length: number = 20) {
   return `${text.slice(0, length)}...`;
 }
 
+export function truncateAddress(address: string, length: number = 4) {
+  return `${address.slice(0, length)}...${address.slice(-length)}`;
+}
+
 export function logger(message: string, data?: object) {
   if (process.env.BUN_PUBLIC_LOGGER === 'true') {
     console.log(message, data ? data : '');

@@ -33,23 +33,19 @@ export function useApi() {
 
         uploadDirectory: useMutation({
             mutationKey: ['uploadDirectory'],
-            mutationFn: async ({ encryptedFiles, directoryName }: { 
-                encryptedFiles: { buffer: ArrayBuffer, name: string, type: string }[], 
-                directoryName: string 
+            mutationFn: async ({ encryptedFiles }: {
+                encryptedFiles: { buffer: ArrayBuffer, name: string, type: string }[],
             }) => {
                 const initTime = new Date().toISOString();
-                
-                const formData = new FormData();
-                encryptedFiles.forEach(({ buffer, name, type }) => {
-                    formData.append('files', new File([buffer], `${name}.enc`, { type }));
-                });
-                formData.append('directoryName', directoryName);
 
-                const result = await fetch('/api/file/directory', {
-                    method: 'POST',
-                    body: formData
-                });
-                
+                const files = encryptedFiles.map(({ buffer, name, type }) => new File([buffer], `${name}.enc`, { type }));
+
+                const result = await api.file.directory.$post({
+                    form: {
+                        files,
+                    }
+                })
+
                 const timeTaken = new Date().getTime() - new Date(initTime).getTime();
                 logger('Directory upload API call finished...', { timeTaken: `${timeTaken}ms` });
 
@@ -66,16 +62,34 @@ export function useApi() {
             }
         }),
 
-        downloadFile: (cid: string) => {
+        downloadFiles: (cid: string) => {
             return useQuery({
                 queryKey: ['downloadFile', cid],
                 queryFn: async () => {
                     const initTime = new Date().toISOString();
-                    const result = await fetch(`https://${cid}.ipfs.w3s.link`)
-                    const buffer = await result.arrayBuffer()
+
+                    const serverResponse = await api.file[":cid"].$get({
+                        param: { cid },
+                    })
+                    const serverResponseJson = await serverResponse.json();
+
+                    if(!serverResponseJson.success) throw new Error(serverResponseJson.error);
+                    const { fileNames } = serverResponseJson.data;
+
+                    const filePromises = fileNames.map(async (fileName: string) => {
+                        const encodedFileName = encodeURIComponent(fileName);
+                        const url = `https://${cid}.ipfs.w3s.link/${encodedFileName}`
+                        const buffer = await fetch(url).then(res => res.arrayBuffer())
+                        return {
+                            buffer,
+                            name: fileName.replace('.enc', ''),
+                        };
+                    })
+
+                    const buffers = await Promise.all(filePromises);
                     const timeTaken = new Date().getTime() - new Date(initTime).getTime();
                     logger('Download API call finished...', { timeTaken: `${timeTaken}ms` });
-                    return buffer;
+                    return buffers;
                 },
                 enabled: !!cid,
             })

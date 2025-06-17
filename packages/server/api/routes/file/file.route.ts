@@ -6,9 +6,10 @@ import { getW3UpClient } from "@/api/lib/utils/w3up-client";
 import { db } from "@/api/lib/db/db";
 import { filesTable } from "@/api/lib/db/schema";
 import { zNumberString } from "@/api/lib/utils/zod";
-import { inArray, lt } from "drizzle-orm";
+import { eq, inArray, lt } from "drizzle-orm";
 import { env } from "@/env";
 import { bearerAuth } from 'hono/bearer-auth'
+import { MAX_FILE_SIZE } from "@/src/lib/utils/files";
 
 const app = new Hono()
   .get(
@@ -47,9 +48,13 @@ const app = new Hono()
     const { cid } = ctx.req.valid("param");
 
     try {
-      const file = await fetch(`https://${cid}.ipfs.w3s.link`);
-      const fileBuffer = await file.arrayBuffer();
-      
+      const file = await db.select().from(filesTable).where(eq(filesTable.cid, cid)).limit(1);
+
+      if(!file || file.length === 0) {
+        return respond.err(ctx, "File not found", 404);
+      }
+
+      return respond.ok(ctx, file[0], "Successfully fetched file", 200);
     } catch (error) {
       return respond.err(ctx, "Failed to fetch file", 500);
     }
@@ -65,12 +70,18 @@ const app = new Hono()
           return respond.err(ctx, "File is required", 400);
         }
 
+        if(file.size > MAX_FILE_SIZE) {
+          return respond.err(ctx, "File is too large", 400);
+        }
+
         const w3upClient = getW3UpClient();
         const cid = await w3upClient.uploadFile(file);
 
         await db.insert(filesTable).values({
           cid: cid.toString(),
           size: file.size,
+          isDirectory: false,
+          fileNames: [file.name],
         });
 
         return respond.ok(ctx, { cid }, "Successfully uploaded file", 200);
@@ -84,32 +95,29 @@ const app = new Hono()
     "/directory",
     async (ctx) => {
       try {
-        const body = await ctx.req.parseBody();
-        const files = body.files;
-        const directoryName = body.directoryName as string;
+        const body = await ctx.req.parseBody({ all: true });
+        const files = body['files'] as File[];
 
         if (!files || !Array.isArray(files) || files.length === 0) {
           return respond.err(ctx, "Files are required", 400);
         }
 
-        if (!directoryName) {
-          return respond.err(ctx, "Directory name is required", 400);
+        const totalSize = files.reduce((sum: number, file: File) => sum + file.size, 0);
+
+        if(totalSize > 10 * MAX_FILE_SIZE) {
+          return respond.err(ctx, `Total size cannot exceed ${10 * MAX_FILE_SIZE}`, 400);
         }
 
-        // Convert files to FileLike format for w3up
-        const fileLikes = files.map((file: File) => ({
-          name: file.name,
-          stream: () => file.stream()
-        }));
-
         const w3upClient = getW3UpClient();
-        const cid = await w3upClient.uploadDirectory(fileLikes);
+        const cid = await w3upClient.uploadDirectory(files);
 
-        const totalSize = files.reduce((sum: number, file: File) => sum + file.size, 0);
+        const fileNames = files.map((file: File) => file.name);
 
         await db.insert(filesTable).values({
           cid: cid.toString(),
           size: totalSize,
+          isDirectory: true,
+          fileNames,
         });
 
         return respond.ok(ctx, { cid }, "Successfully uploaded directory", 200);

@@ -8,6 +8,7 @@ import {
 import { withPageErrorBoundary } from "@/src/lib/components/errors/PageErrorBoundary";
 import Landing from "./landing";
 import Upload from "./upload";
+import History from "./history";
 import LinkGenerated from "./link";
 import Download from "./download";
 import { z } from 'zod';
@@ -37,6 +38,14 @@ const landingRoute = createRoute({
   },
 })
 
+const historyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/history',
+  component: function HistoryPage() {
+    return withPageErrorBoundary(History)({});
+  },
+})
+
 const linkRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/link/$cid',
@@ -62,7 +71,7 @@ const downloadRoute = createRoute({
   }),
 })
 
-const routeTree = rootRoute.addChildren([uploadRoute, landingRoute, linkRoute, downloadRoute])
+const routeTree = rootRoute.addChildren([uploadRoute, landingRoute, historyRoute, linkRoute, downloadRoute])
 const router = createRouter({
   routeTree,
 })

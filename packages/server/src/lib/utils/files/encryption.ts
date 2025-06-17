@@ -25,34 +25,35 @@ function base64ToArrayBuffer(base64: string): Promise<ArrayBuffer> {
   });
 }
 
-export async function encryptFile(buffer: ArrayBuffer, customKey?: Uint8Array) {
+export async function encryptFile(buffer: ArrayBuffer, secretKey?: string) {
   logger('Encrypting file...');
   const initTime = new Date().toISOString();
-  
+
   let key: CryptoKey;
   let rawKey: ArrayBuffer;
-  
-  if (customKey) {
-    // Use provided key
+  let iv: Uint8Array<ArrayBuffer>;
+
+  if (secretKey) {
+    logger('Using provided secret key for encryption');
+    const [keyB64, ivB64] = secretKey.split(':');
+    rawKey = await base64ToArrayBuffer(keyB64);
+    iv = new Uint8Array(await base64ToArrayBuffer(ivB64));
     key = await crypto.subtle.importKey(
       'raw',
-      customKey,
+      rawKey,
       { name: 'AES-GCM' },
       true,
       ['encrypt', 'decrypt']
     );
-    rawKey = customKey.buffer.slice(0) as ArrayBuffer;
   } else {
-    // Generate new key
     key = await crypto.subtle.generateKey(
       { name: 'AES-GCM', length: 256 },
       true,
       ['encrypt', 'decrypt']
     );
     rawKey = await crypto.subtle.exportKey('raw', key);
+    iv = crypto.getRandomValues(new Uint8Array(12));
   }
-  
-  const iv = crypto.getRandomValues(new Uint8Array(12));
 
   const encryptedBuffer = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { CloudUpload, Shield, X, Plus, Upload, CheckCircle, FolderUp } from 'lucide-react'
 import { Card } from '@/src/lib/components/ui/card'
@@ -10,7 +10,8 @@ import Icon from '@/src/lib/components/custom/Icon'
 import { useNavigate } from '@tanstack/react-router'
 import { cn, handleError } from '@/src/lib/utils'
 import { useApi } from '@/src/lib/hooks/use-api'
-import { formatFileSize, compressFile, encryptFile, sanitizeFile, basicFileChecks } from '@/src/lib/utils/files'
+import { useUploadHistory, useUploadSession, type UploadHistoryItem } from '@/src/lib/hooks/use-store'
+import { formatFileSize, compressFile, encryptFile, sanitizeFile, basicFileChecks, createDownloadLink } from '@/src/lib/utils/files'
 import { useAccount, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
 
@@ -40,9 +41,24 @@ export default function UploadPage() {
   const { uploadFile, uploadDirectory } = useApi()
   const { mutateAsync: uploadFileMutation, isPending: isUploading } = uploadFile
   const { mutateAsync: uploadDirectoryMutation, isPending: isUploadingDirectory } = uploadDirectory
+  const { addToHistory } = useUploadHistory()
+  const { lastUploadResults, setLastUploadResults, clearLastUploadResults } = useUploadSession()
 
   const { address } = useAccount();
   const { data: balance } = useBalance({ address })
+
+  // Initialize upload results from session store on component mount
+  useEffect(() => {
+    if (lastUploadResults.length > 0 && uploadResults.length === 0) {
+      setUploadResults(lastUploadResults)
+    }
+  }, [lastUploadResults, uploadResults.length])
+
+  // Clear session when user starts a new upload
+  const clearSession = () => {
+    clearLastUploadResults()
+    setUploadResults([])
+  }
 
   function handleDragEvents(e: React.DragEvent, isDragging?: boolean) {
     e.preventDefault()
@@ -105,16 +121,13 @@ export default function UploadPage() {
       setIsError(false)
       
       if (isDirectoryMode) {
-        // Directory upload mode - single encrypted directory with shared key
-        const directoryName = `Portal-Upload-${Date.now()}`
+        const directoryName = `folder-${Date.now()}`
         const processedFiles = []
         
         // Mark all files as uploading
         selectedFiles.forEach(f => updateFileStatus(f.id, 'uploading', 25))
         
-        // Generate a single encryption key for the entire directory
-        const sharedKey = crypto.getRandomValues(new Uint8Array(32))
-        const sharedKeyHex = Array.from(sharedKey, b => b.toString(16).padStart(2, '0')).join('')
+        let sharedSecretKey: string | undefined = undefined
         
         for (const selectedFile of selectedFiles) {
           const { file } = selectedFile
@@ -123,8 +136,12 @@ export default function UploadPage() {
           updateFileStatus(selectedFile.id, 'uploading', 50)
           
           const compressedBuffer = await compressFile(sanitizedFile);
-          // Use the shared key for all files
-          const { encryptedBuffer } = await encryptFile(compressedBuffer, sharedKey);
+          const { encryptedBuffer, secretKey } = await encryptFile(compressedBuffer, sharedSecretKey);
+          
+          if (!sharedSecretKey) {
+            sharedSecretKey = secretKey;
+          }
+          
           updateFileStatus(selectedFile.id, 'uploading', 75)
           
           processedFiles.push({
@@ -134,25 +151,45 @@ export default function UploadPage() {
           })
         }
         
+        if (!sharedSecretKey) {
+          throw new Error('No shared secret key found')
+        }
+        
         const result = await uploadDirectoryMutation({
           encryptedFiles: processedFiles,
-          directoryName
-        })
+        });
 
         // Mark all as success
         selectedFiles.forEach(f => updateFileStatus(f.id, 'success', 100))
         
         const totalSize = selectedFiles.reduce((sum, f) => sum + f.file.size, 0)
-        setUploadResults([{
+        const uploadResult = {
           cid: result.cid,
           name: directoryName,
-          key: sharedKeyHex,
+          key: sharedSecretKey,
           size: formatFileSize(totalSize)
-        }])
+        }
+        
+        setUploadResults([uploadResult])
+        setLastUploadResults([uploadResult])
+        
+        // Save to history
+        const historyItem: UploadHistoryItem = {
+          id: `${result.cid}-${Date.now()}`,
+          cid: result.cid,
+          name: directoryName,
+          key: sharedSecretKey,
+          size: formatFileSize(totalSize),
+          type: 'directory',
+          fileCount: selectedFiles.length,
+          uploadedAt: new Date().toISOString(),
+          downloadUrl: createDownloadLink(result.cid, directoryName, sharedSecretKey),
+          fileNames: selectedFiles.map(f => f.file.name)
+        }
+        addToHistory(historyItem)
         
         setSelectedFiles([])
       } else {
-        // Individual file upload mode - parallel processing
         const uploadPromises = selectedFiles.map(async (selectedFile) => {
           const { file, id } = selectedFile
           
@@ -186,6 +223,20 @@ export default function UploadPage() {
 
         const results = await Promise.all(uploadPromises)
         setUploadResults(results)
+        setLastUploadResults(results)
+        
+        // Save individual files to history
+        const historyItems: UploadHistoryItem[] = results.map(result => ({
+          id: `${result.cid}-${Date.now()}-${Math.random()}`,
+          cid: result.cid,
+          name: result.name,
+          key: result.key,
+          size: result.size,
+          type: 'file' as const,
+          uploadedAt: new Date().toISOString(),
+          downloadUrl: createDownloadLink(result.cid, result.name, result.key)
+        }))
+        addToHistory(historyItems)
         
         // Navigate logic for individual files
         if (results.length === 1) {
@@ -214,8 +265,8 @@ export default function UploadPage() {
   const isProcessing = isUploading || isUploadingDirectory
 
   return (
-    <div className="container mx-auto flex items-center justify-center min-h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
-      <div className="w-full max-w-4xl space-y-8 text-center">
+    <div className="flex items-center justify-center min-h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
+      <div className="container mx-auto max-w-4xl space-y-8 text-center px-4">
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -340,7 +391,7 @@ export default function UploadPage() {
                             {selectedFile.size} • {selectedFile.file.type || 'Unknown type'}
                           </p>
                           {selectedFile.status === 'uploading' && (
-                            <div className="mt-2">
+                            <div className="mt-4">
                               <Progress value={selectedFile.progress} className="h-1" />
                             </div>
                           )}
@@ -348,17 +399,17 @@ export default function UploadPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         {selectedFile.status === 'success' && <CheckCircle className="w-4 h-4 text-green-600" />}
-                        {selectedFile.status === 'error' && <X className="w-4 h-4 text-red-600" />}
                         {selectedFile.status === 'uploading' && <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />}
-                        <Button
+                        {selectedFile.status !== 'uploading' && (
+                          <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => removeFile(selectedFile.id)}
                           className="flex-shrink-0"
-                          disabled={selectedFile.status === 'uploading'}
                         >
                           <X className="w-4 h-4" />
                         </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -385,7 +436,17 @@ export default function UploadPage() {
         {uploadResults.length > 0 && (
           <Card className="p-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-green-600">Upload Complete!</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-green-600">Upload Complete!</h3>
+                <Button 
+                  variant="outline" 
+                  onClick={clearSession}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Start New Upload
+                </Button>
+              </div>
               <div className="space-y-2">
                 {uploadResults.map((result, index) => (
                   <div

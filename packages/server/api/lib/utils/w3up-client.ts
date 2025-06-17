@@ -57,7 +57,6 @@ export default class W3UpClient {
                 spaceName: env.W3UP_SPACE_NAME,
             });
 
-            logger("W3UpClient singleton initialized successfully");
             return W3UpClient.instance;
         } catch (error) {
             // Reset instance on failure to allow retry
@@ -104,18 +103,15 @@ export default class W3UpClient {
         }
 
         try {
-            logger("Attempting to authenticate with email:", { email });
             logger("Please check your email and click the confirmation link...");
 
             // Login with email - this will send an email and wait for confirmation
             const account = await this.client.login(email);
 
-            logger("Email confirmed successfully. Waiting for payment plan...");
-
             // Wait for payment plan with timeout (default is 15 minutes according to docs)
             await account.plan.wait();
 
-            logger("Successfully authenticated with email:", { email });
+            logger(`Successfully authenticated with ${email}`);
             return account;
         } catch (error) {
             if (error instanceof Error) {
@@ -140,13 +136,12 @@ export default class W3UpClient {
             let existingSpace = spaces.find((space) => space.name === spaceName);
 
             if (existingSpace) {
-                logger(`Space "${spaceName}" already exists with DID: ${existingSpace.did()}`);
+                logger(`Space "${spaceName}" already exists. Setting it as current space...`);
                 await this.client.setCurrentSpace(existingSpace.did());
                 return existingSpace;
             }
 
             // Create new space with account for recovery capability
-            logger(`Creating new space: "${spaceName}"`);
             const newSpace = await this.client.createSpace(spaceName, { account });
 
             // Set as current space
