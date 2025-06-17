@@ -6,7 +6,7 @@ import {
   createRootRoute,
 } from '@tanstack/react-router'
 import { withPageErrorBoundary } from "@/src/lib/components/errors/PageErrorBoundary";
-import Home from "./home";
+import Landing from "./landing";
 import Upload from "./upload";
 import LinkGenerated from "./link";
 import Download from "./download";
@@ -21,7 +21,7 @@ const rootRoute = createRootRoute({
   ),
 })
 
-const indexRoute = createRoute({
+const uploadRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: function Index() {
@@ -29,11 +29,11 @@ const indexRoute = createRoute({
   },
 })
 
-const uploadRoute = createRoute({
+const landingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/landing',
-  component: function UploadPage() {
-    return withPageErrorBoundary(Home)({});
+  component: function LandingPage() {
+    return withPageErrorBoundary(Landing)({});
   },
 })
 
@@ -62,7 +62,7 @@ const downloadRoute = createRoute({
   }),
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, uploadRoute, linkRoute, downloadRoute])
+const routeTree = rootRoute.addChildren([uploadRoute, landingRoute, linkRoute, downloadRoute])
 const router = createRouter({
   routeTree,
 })

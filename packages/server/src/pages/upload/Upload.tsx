@@ -8,6 +8,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { cn, handleError } from '@/src/lib/utils'
 import { useApi } from '@/src/lib/hooks/use-api'
 import { formatFileSize, compressFile, encryptFile, sanitizeFile, basicFileChecks } from '@/src/lib/utils/files'
+import { useAccount, useBalance } from 'wagmi'
+import { formatEther } from 'viem'
 
 export default function UploadPage() {
   const [isDragOver, setIsDragOver] = useState(false)
@@ -16,6 +18,9 @@ export default function UploadPage() {
   const navigate = useNavigate()
   const { uploadFile } = useApi()
   const { mutateAsync: uploadFileMutation, isPending: isUploading } = uploadFile
+
+  const { address } = useAccount();
+  const { data: balance } = useBalance({ address })
 
   function handleDragEvents(e: React.DragEvent, isDragging?: boolean) {
     e.preventDefault()
@@ -120,6 +125,13 @@ export default function UploadPage() {
             />
           </motion.div>
         </Card>
+
+        {address && (
+          <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+            <span>Your address: {address}</span>
+            <span>Balance: {balance?.value ? formatEther(balance.value) : '0'} ETH</span>
+          </div>
+        )}
 
         {/* Security Notice */}
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">

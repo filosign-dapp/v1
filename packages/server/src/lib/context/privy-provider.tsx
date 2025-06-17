@@ -1,7 +1,7 @@
 import { PrivyProvider as PrivyProviderBase } from '@privy-io/react-auth';
 import { useTheme } from './theme-provider';
 
-export default function PrivyProvider({ children }: { children: React.ReactNode }) {
+export function PrivyProvider({ children }: { children: React.ReactNode }) {
     const {theme} = useTheme();
     return (
         <PrivyProviderBase

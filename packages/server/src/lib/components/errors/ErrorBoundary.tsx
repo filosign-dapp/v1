@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface ErrorBoundaryProps {
@@ -15,17 +16,11 @@ interface ErrorBoundaryState {
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-    };
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return {
-      hasError: true,
-      error,
-    };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
@@ -35,65 +30,35 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   render(): ReactNode {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
+      if (this.props.fallback) return this.props.fallback;
 
       return (
-        <div className="relative overflow-hidden rounded-lg border border-destructive/20 bg-destructive/5 p-4 shadow-sm animate-in fade-in duration-300">
-          {/* Animated gradient line */}
-          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-destructive to-transparent animate-shimmer" />
+        <div className="flex min-h-[200px] items-center justify-center p-6">
+          <div className="relative max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="rounded-2xl border border-red-200/60 bg-gradient-to-br from-red-50/80 to-orange-50/40 p-8 shadow-lg backdrop-blur-sm dark:border-red-800/30 dark:from-red-950/20 dark:to-orange-950/10">
+              <div className="flex flex-col items-center space-y-4 text-center">
+                <div className="rounded-full bg-red-100/80 p-4 dark:bg-red-900/20">
+                  <AlertTriangle className="h-8 w-8 animate-pulse text-red-600 dark:text-red-400" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold text-red-900 dark:text-red-100">
+                    Oops! Something went wrong
+                  </h3>
+                  <p className="text-sm text-red-700/80 dark:text-red-300/80">
+                    {this.state.error?.message || "An unexpected error occurred"}
+                  </p>
+                </div>
 
-          <div className="flex items-start space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-sm font-medium text-destructive">
-                Something went wrong
-              </h2>
-              <p className="mt-1 text-xs text-destructive/80">
-                {this.state.error?.message || "An unexpected error occurred"}
-              </p>
-              <Button
-                className="mt-3"
-                size="sm"
-                variant="destructive"
-                onClick={() => this.setState({ hasError: false, error: null })}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mr-1"
+                <Button
+                  size="sm"
+                  className="group mt-2 bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
+                  onClick={() => this.setState({ hasError: false, error: null })}
                 >
-                  <path d="M21 2v6h-6"></path>
-                  <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
-                  <path d="M3 22v-6h6"></path>
-                  <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
-                </svg>
-                Try again
-              </Button>
+                  <RotateCcw className="mr-2 h-4 w-4 transition-transform group-hover:rotate-180" />
+                  Try Again
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -104,12 +69,11 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-const withErrorBoundary = <P extends {}>(Component: React.ComponentType<P>) => (props: P) =>
-  (
-    <ErrorBoundary>
-      <Component {...props} />
-    </ErrorBoundary>
-  );
+const withErrorBoundary = <P extends {}>(Component: React.ComponentType<P>) => (props: P) => (
+  <ErrorBoundary>
+    <Component {...props} />
+  </ErrorBoundary>
+);
 
 export { ErrorBoundary, withErrorBoundary };
 

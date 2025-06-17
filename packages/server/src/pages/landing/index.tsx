@@ -1,5 +1,5 @@
 import Layout from "../layout";
-import HomePage from "./Home";
+import HomePage from "./Landing";
 
 export default function Home() {
   return (
