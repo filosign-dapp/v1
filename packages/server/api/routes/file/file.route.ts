@@ -8,6 +8,7 @@ import { filesTable } from "@/api/lib/db/schema";
 import { zNumberString } from "@/api/lib/utils/zod";
 import { inArray, lt } from "drizzle-orm";
 import { env } from "@/env";
+import { bearerAuth } from 'hono/bearer-auth'
 
 const file = new Hono()
   .get(
@@ -40,6 +41,20 @@ const file = new Hono()
     }
   )
 
+  .get("/:cid", zValidator("param", z.object({
+    cid: z.string(),
+  })), async (ctx) => {
+    const { cid } = ctx.req.valid("param");
+
+    try {
+      const file = await fetch(`https://${cid}.ipfs.w3s.link`);
+      const fileBuffer = await file.arrayBuffer();
+      
+    } catch (error) {
+      return respond.err(ctx, "Failed to fetch file", 500);
+    }
+  })
+
   .post(
     "/",
     async (ctx) => {
@@ -49,10 +64,6 @@ const file = new Hono()
         if (!file || !(file instanceof File)) {
           return respond.err(ctx, "File is required", 400);
         }
-
-        console.log({
-          size: `${file.size} bytes`,
-        });
 
         const w3upClient = getW3UpClient();
         const cid = await w3upClient.uploadFile(file);
@@ -69,15 +80,10 @@ const file = new Hono()
     }
   )
 
-  .get("/flush", zValidator("query", z.object({
+  .get("/flush", bearerAuth({ token: env.SUPERADMIN_PASSWORD }), zValidator("query", z.object({
     days: zNumberString().default("7"),
   })), async (ctx) => {
     const { days } = ctx.req.valid("query");
-    const password = ctx.req.header("Authorization")?.split(" ")[1];
-
-    if (password !== env.SUPERADMIN_PASSWORD) {
-      return respond.err(ctx, "Invalid password", 401);
-    }
 
     try {
       const files = await db.select({

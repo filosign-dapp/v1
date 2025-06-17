@@ -140,19 +140,6 @@ export default function UploadPage() {
           <Shield className="w-4 h-4" />
           <span>Files are end-to-end encrypted. We never see your data.</span>
         </div>
-
-        <Button variant="outline" onClick={async () => {
-          const result = await api.file.index.$get({
-            query: {
-              page: "1",
-              limit: "10",
-            }
-          });
-          const parsedResult = await result.json();
-          console.log(parsedResult);
-        }}>
-          View Files
-        </Button>
       </div>
     </div>
   )
