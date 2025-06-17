@@ -29,8 +29,6 @@ export default function DownloadPage() {
   const { downloadFiles } = useApi()
   const { data: buffers, status: downloadStatus, error } = downloadFiles(cid)
 
-  console.log(fileItems)
-
   useEffect(() => {
     async function fetchFileMetadata() {
       if (downloadStatus !== 'success') {
@@ -40,13 +38,15 @@ export default function DownloadPage() {
 
       try {
         let totalSize = 0
+        const fileItems: FileItem[] = []
         await Promise.all(buffers.map(async (item) => { 
           const decryptedBuffer = await decryptFile(item.buffer, secretKey);
           const decompressedBuffer = await decompressFile(decryptedBuffer);
           const file = new File([decompressedBuffer], item.name)
-          setFileItems(prev => [...prev, { file, name: item.name, size: formatFileSize(file.size) }])
+          fileItems.push({ file, name: item.name, size: formatFileSize(file.size) })
           totalSize += file.size
         }))
+        setFileItems(fileItems)
         setTotalSize(formatFileSize(totalSize))
       } catch (err) {
         handleError(err)
