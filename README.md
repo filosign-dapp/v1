@@ -1,4 +1,4 @@
-# Portal - Protocol Labs Hackathon
+# Portal - End-to-end encrypted file sharing
 
 Install dependencies:
 
