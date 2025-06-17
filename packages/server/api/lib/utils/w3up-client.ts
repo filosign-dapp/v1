@@ -2,7 +2,8 @@ import { create } from "@web3-storage/w3up-client";
 import type { Client } from "@web3-storage/w3up-client";
 import type { Account } from "@web3-storage/w3up-client/account";
 import { env } from "@/env";
-import type { BlobLike, FileLike, UploadDirectoryOptions } from "@web3-storage/w3up-client/types";
+import type { BlobLike, FileLike, UnknownLink, UploadDirectoryOptions } from "@web3-storage/w3up-client/types";
+import { CID } from "multiformats/cid";
 import { logger } from "@/src/lib/utils";
 
 interface W3UpConfig {
@@ -181,6 +182,22 @@ export default class W3UpClient {
             return cid.toString();
         } catch (error) {
             console.error('Directory upload failed:', error);
+            throw error;
+        }
+    }
+
+    async removeFile(cid: string) {
+        if (!this.client) throw new Error('Client not initialized');
+
+        try {
+            // Convert string CID to CID object
+            const cidObject = CID.parse(cid);
+            await this.client.remove(cidObject, {
+                shards: true,
+            });
+            logger(`File removed with CID: ${cid}`);
+        } catch (error) {
+            console.error('File removal failed:', error);
             throw error;
         }
     }
