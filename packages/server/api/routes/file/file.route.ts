@@ -10,7 +10,7 @@ import { inArray, lt } from "drizzle-orm";
 import { env } from "@/env";
 import { bearerAuth } from 'hono/bearer-auth'
 
-const file = new Hono()
+const app = new Hono()
   .get(
     "/",
     zValidator(
@@ -80,6 +80,46 @@ const file = new Hono()
     }
   )
 
+  .post(
+    "/directory",
+    async (ctx) => {
+      try {
+        const body = await ctx.req.parseBody();
+        const files = body.files;
+        const directoryName = body.directoryName as string;
+
+        if (!files || !Array.isArray(files) || files.length === 0) {
+          return respond.err(ctx, "Files are required", 400);
+        }
+
+        if (!directoryName) {
+          return respond.err(ctx, "Directory name is required", 400);
+        }
+
+        // Convert files to FileLike format for w3up
+        const fileLikes = files.map((file: File) => ({
+          name: file.name,
+          stream: () => file.stream()
+        }));
+
+        const w3upClient = getW3UpClient();
+        const cid = await w3upClient.uploadDirectory(fileLikes);
+
+        const totalSize = files.reduce((sum: number, file: File) => sum + file.size, 0);
+
+        await db.insert(filesTable).values({
+          cid: cid.toString(),
+          size: totalSize,
+        });
+
+        return respond.ok(ctx, { cid }, "Successfully uploaded directory", 200);
+      } catch (error) {
+        console.error(error);
+        return respond.err(ctx, "Failed to upload directory", 500);
+      }
+    }
+  )
+
   .get("/flush", bearerAuth({ token: env.SUPERADMIN_PASSWORD }), zValidator("query", z.object({
     days: zNumberString().default("7"),
   })), async (ctx) => {
@@ -106,5 +146,5 @@ const file = new Hono()
     }
   })
 
-export default file;
-export type FileType = typeof file;
+export default app;
+export type FileType = typeof app;

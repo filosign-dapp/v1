@@ -31,6 +31,41 @@ export function useApi() {
             }
         }),
 
+        uploadDirectory: useMutation({
+            mutationKey: ['uploadDirectory'],
+            mutationFn: async ({ encryptedFiles, directoryName }: { 
+                encryptedFiles: { buffer: ArrayBuffer, name: string, type: string }[], 
+                directoryName: string 
+            }) => {
+                const initTime = new Date().toISOString();
+                
+                const formData = new FormData();
+                encryptedFiles.forEach(({ buffer, name, type }) => {
+                    formData.append('files', new File([buffer], `${name}.enc`, { type }));
+                });
+                formData.append('directoryName', directoryName);
+
+                const result = await fetch('/api/file/directory', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const timeTaken = new Date().getTime() - new Date(initTime).getTime();
+                logger('Directory upload API call finished...', { timeTaken: `${timeTaken}ms` });
+
+                const parsed = await result.json();
+                if (!parsed.success) throw new Error(parsed.error);
+                return parsed.data;
+            },
+            onSuccess: () => {
+                // queryClient.invalidateQueries({ queryKey: ['directories'] });
+            },
+            onError: (error) => {
+                console.error('Directory upload failed:', error);
+                handleError(error);
+            }
+        }),
+
         downloadFile: (cid: string) => {
             return useQuery({
                 queryKey: ['downloadFile', cid],

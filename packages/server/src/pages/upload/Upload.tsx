@@ -1,8 +1,11 @@
 import { useState, useRef } from 'react'
 import { motion } from 'motion/react'
-import { CloudUpload, Shield } from 'lucide-react'
+import { CloudUpload, Shield, X, Plus, Upload, CheckCircle, FolderUp } from 'lucide-react'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
+import { Button } from '@/src/lib/components/ui/button'
+import { Switch } from '@/src/lib/components/ui/switch'
+import { Progress } from '@/src/lib/components/ui/progress'
 import Icon from '@/src/lib/components/custom/Icon'
 import { useNavigate } from '@tanstack/react-router'
 import { cn, handleError } from '@/src/lib/utils'
@@ -10,16 +13,33 @@ import { useApi } from '@/src/lib/hooks/use-api'
 import { formatFileSize, compressFile, encryptFile, sanitizeFile, basicFileChecks } from '@/src/lib/utils/files'
 import { useAccount, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
-import { Button } from '@/src/lib/components/ui/button'
-import api from '@/src/lib/utils/api-client'
+
+interface SelectedFile {
+  id: string
+  file: File
+  size: string
+  status: 'pending' | 'uploading' | 'success' | 'error'
+  progress: number
+}
+
+interface UploadResult {
+  cid: string
+  name: string
+  key: string
+  size: string
+}
 
 export default function UploadPage() {
   const [isDragOver, setIsDragOver] = useState(false)
   const [isError, setIsError] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([])
+  const [uploadResults, setUploadResults] = useState<UploadResult[]>([])
+  const [isDirectoryMode, setIsDirectoryMode] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
-  const { uploadFile } = useApi()
+  const { uploadFile, uploadDirectory } = useApi()
   const { mutateAsync: uploadFileMutation, isPending: isUploading } = uploadFile
+  const { mutateAsync: uploadDirectoryMutation, isPending: isUploadingDirectory } = uploadDirectory
 
   const { address } = useAccount();
   const { data: balance } = useBalance({ address })
@@ -29,45 +49,173 @@ export default function UploadPage() {
     if (isDragging !== undefined) setIsDragOver(isDragging)
     if (e.type === 'drop') {
       const files = Array.from(e.dataTransfer.files)
-      if (files[0]) handleFileUpload(files[0])
+      addFiles(files)
     }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     setIsError(false)
-    const file = e.target.files?.[0]
-    if (file) handleFileUpload(file)
+    const files = Array.from(e.target.files || [])
+    addFiles(files)
+    // Reset input value to allow selecting the same file again
+    e.target.value = ''
   }
 
-  async function handleFileUpload(file: File) {
-    try {
-      basicFileChecks(file);
-      const sanitizedFile = sanitizeFile(file);
-      const compressedBuffer = await compressFile(sanitizedFile);
-      const { encryptedBuffer, secretKey } = await encryptFile(compressedBuffer);
-      const result = await uploadFileMutation({
-        encryptedBuffer,
-        metadata: { name: sanitizedFile.name, type: sanitizedFile.type }
-      })
+  function addFiles(files: File[]) {
+    const newFiles: SelectedFile[] = []
+    
+    files.forEach(file => {
+      // Check if file is already selected (by name and size to handle duplicates)
+      const isDuplicate = selectedFiles.some(selected => 
+        selected.file.name === file.name && 
+        selected.file.size === file.size &&
+        selected.file.lastModified === file.lastModified
+      )
+      
+      if (!isDuplicate) {
+        newFiles.push({
+          id: `${file.name}-${Date.now()}-${Math.random()}`,
+          file,
+          size: formatFileSize(file.size),
+          status: 'pending',
+          progress: 0
+        })
+      }
+    })
+    
+    if (newFiles.length > 0) {
+      setSelectedFiles(prev => [...prev, ...newFiles])
+    }
+  }
 
-      navigate({
-        to: '/link/$cid',
-        params: { cid: result.cid },
-        search: {
-          name: sanitizedFile.name,
-          key: secretKey,
-          size: formatFileSize(sanitizedFile.size),
+  function removeFile(id: string) {
+    setSelectedFiles(prev => prev.filter(f => f.id !== id))
+  }
+
+  const updateFileStatus = (id: string, status: SelectedFile['status'], progress = 0) => {
+    setSelectedFiles(prev => prev.map(f => 
+      f.id === id ? { ...f, status, progress } : f
+    ))
+  }
+
+  async function handleSubmit() {
+    if (selectedFiles.length === 0) return
+
+    try {
+      setIsError(false)
+      
+      if (isDirectoryMode) {
+        // Directory upload mode - single encrypted directory with shared key
+        const directoryName = `Portal-Upload-${Date.now()}`
+        const processedFiles = []
+        
+        // Mark all files as uploading
+        selectedFiles.forEach(f => updateFileStatus(f.id, 'uploading', 25))
+        
+        // Generate a single encryption key for the entire directory
+        const sharedKey = crypto.getRandomValues(new Uint8Array(32))
+        const sharedKeyHex = Array.from(sharedKey, b => b.toString(16).padStart(2, '0')).join('')
+        
+        for (const selectedFile of selectedFiles) {
+          const { file } = selectedFile
+          basicFileChecks(file);
+          const sanitizedFile = sanitizeFile(file);
+          updateFileStatus(selectedFile.id, 'uploading', 50)
+          
+          const compressedBuffer = await compressFile(sanitizedFile);
+          // Use the shared key for all files
+          const { encryptedBuffer } = await encryptFile(compressedBuffer, sharedKey);
+          updateFileStatus(selectedFile.id, 'uploading', 75)
+          
+          processedFiles.push({
+            buffer: encryptedBuffer,
+            name: sanitizedFile.name,
+            type: sanitizedFile.type
+          })
         }
-      })
+        
+        const result = await uploadDirectoryMutation({
+          encryptedFiles: processedFiles,
+          directoryName
+        })
+
+        // Mark all as success
+        selectedFiles.forEach(f => updateFileStatus(f.id, 'success', 100))
+        
+        const totalSize = selectedFiles.reduce((sum, f) => sum + f.file.size, 0)
+        setUploadResults([{
+          cid: result.cid,
+          name: directoryName,
+          key: sharedKeyHex,
+          size: formatFileSize(totalSize)
+        }])
+        
+        setSelectedFiles([])
+      } else {
+        // Individual file upload mode - parallel processing
+        const uploadPromises = selectedFiles.map(async (selectedFile) => {
+          const { file, id } = selectedFile
+          
+          try {
+            updateFileStatus(id, 'uploading', 30)
+            basicFileChecks(file);
+            const sanitizedFile = sanitizeFile(file);
+            
+            updateFileStatus(id, 'uploading', 50)
+            const compressedBuffer = await compressFile(sanitizedFile);
+            const { encryptedBuffer, secretKey } = await encryptFile(compressedBuffer);
+            
+            updateFileStatus(id, 'uploading', 80)
+            const result = await uploadFileMutation({
+              encryptedBuffer,
+              metadata: { name: sanitizedFile.name, type: sanitizedFile.type }
+            })
+
+            updateFileStatus(id, 'success', 100)
+            return {
+              cid: result.cid,
+              name: sanitizedFile.name,
+              key: secretKey,
+              size: formatFileSize(sanitizedFile.size)
+            }
+          } catch (error) {
+            updateFileStatus(id, 'error', 0)
+            throw error
+          }
+        })
+
+        const results = await Promise.all(uploadPromises)
+        setUploadResults(results)
+        
+        // Navigate logic for individual files
+        if (results.length === 1) {
+          const result = results[0]
+          navigate({
+            to: '/link/$cid',
+            params: { cid: result.cid },
+            search: {
+              name: result.name,
+              key: result.key,
+              size: result.size,
+            }
+          })
+        } else {
+          setSelectedFiles([])
+        }
+      }
     } catch (error) {
       setIsError(true)
       handleError(error)
     }
   }
 
+  const hasFiles = selectedFiles.length > 0
+  const canSubmit = hasFiles && !isUploading && !isUploadingDirectory
+  const isProcessing = isUploading || isUploadingDirectory
+
   return (
-    <div className="flex items-center justify-center h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
-      <div className="w-full max-w-2xl space-y-8 text-center">
+    <div className="container mx-auto flex items-center justify-center min-h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
+      <div className="w-full max-w-4xl space-y-8 text-center">
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -84,7 +232,7 @@ export default function UploadPage() {
               "border-2 border-dashed transition-all duration-200 p-12 rounded-xl cursor-pointer",
               isDragOver && "border-primary bg-primary/5 scale-[1.02]",
               !isDragOver && "border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30",
-              isUploading && "pointer-events-none opacity-50",
+              isProcessing && "pointer-events-none opacity-50",
               isError && "border-destructive bg-destructive/5"
             )}
             onDragOver={(e) => handleDragEvents(e, true)}
@@ -93,12 +241,14 @@ export default function UploadPage() {
             onClick={() => fileInputRef.current?.click()}
             whileTap={{ scale: 0.99 }}
           >
-            {isUploading ? (
+            {isProcessing ? (
               <div className="space-y-2">
-                <Icon name="CloudUpload" className="w-16 h-16 mx-auto text-muted-foreground" />
-                <h3 className="text-lg font-semibold">Uploading...</h3>
+                {isDirectoryMode ? <FolderUp className="w-16 h-16 mx-auto text-muted-foreground" /> : <Icon name="CloudUpload" className="w-16 h-16 mx-auto text-muted-foreground" />}
+                <h3 className="text-lg font-semibold">
+                  {isDirectoryMode ? 'Creating directory...' : `Uploading ${selectedFiles.length} file${selectedFiles.length !== 1 ? 's' : ''}...`}
+                </h3>
                 <TextShimmer duration={3} className="w-full">
-                  Securing your file with end-to-end encryption..
+                  Securing your files with end-to-end encryption..
                 </TextShimmer>
               </div>
             ) : (
@@ -110,7 +260,7 @@ export default function UploadPage() {
                   <CloudUpload className="w-16 h-16 mx-auto text-muted-foreground" />
                 </motion.div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-semibold">Drag & Drop Your File</h3>
+                  <h3 className="text-xl font-semibold">Drag & Drop Your Files</h3>
                   <p className="text-muted-foreground">
                     or <span className="font-medium text-primary">click to browse</span>
                   </p>
@@ -124,9 +274,152 @@ export default function UploadPage() {
               className="hidden"
               onChange={handleFileChange}
               accept="*/*"
+              multiple
             />
           </motion.div>
         </Card>
+
+        {/* Upload Mode Toggle */}
+        {hasFiles && (
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <label htmlFor="directory-mode" className="text-sm font-medium">
+                  Directory Mode
+                </label>
+                <Switch
+                  id="directory-mode"
+                  checked={isDirectoryMode}
+                  onCheckedChange={setIsDirectoryMode}
+                  disabled={isProcessing}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isDirectoryMode ? 'Upload as single encrypted directory' : 'Upload files individually'}
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {/* Selected Files */}
+        {hasFiles && (
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Selected Files ({selectedFiles.length})</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2"
+                  disabled={isProcessing}
+                >
+                  <Plus className="w-4 h-4" />
+                  Add More Files
+                </Button>
+              </div>
+              
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {selectedFiles.map((selectedFile) => (
+                  <div
+                    key={selectedFile.id}
+                    className={cn(
+                      "p-3 rounded-lg transition-colors",
+                      selectedFile.status === 'pending' && "bg-muted/30",
+                      selectedFile.status === 'uploading' && "bg-blue-50 dark:bg-blue-900/20",
+                      selectedFile.status === 'success' && "bg-green-50 dark:bg-green-900/20",
+                      selectedFile.status === 'error' && "bg-red-50 dark:bg-red-900/20"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <Icon name="File" className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium truncate">{selectedFile.file.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {selectedFile.size} • {selectedFile.file.type || 'Unknown type'}
+                          </p>
+                          {selectedFile.status === 'uploading' && (
+                            <div className="mt-2">
+                              <Progress value={selectedFile.progress} className="h-1" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {selectedFile.status === 'success' && <CheckCircle className="w-4 h-4 text-green-600" />}
+                        {selectedFile.status === 'error' && <X className="w-4 h-4 text-red-600" />}
+                        {selectedFile.status === 'uploading' && <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFile(selectedFile.id)}
+                          className="flex-shrink-0"
+                          disabled={selectedFile.status === 'uploading'}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Button
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+                className="w-full flex items-center gap-2"
+                size="lg"
+              >
+                {isDirectoryMode ? <FolderUp className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
+                {isDirectoryMode 
+                  ? `Create Directory (${selectedFiles.length} files)` 
+                  : `Upload ${selectedFiles.length} File${selectedFiles.length !== 1 ? 's' : ''}`
+                }
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Upload Results */}
+        {uploadResults.length > 0 && (
+          <Card className="p-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-green-600">Upload Complete!</h3>
+              <div className="space-y-2">
+                {uploadResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <div>
+                        <p className="font-medium">{result.name}</p>
+                        <p className="text-sm text-muted-foreground">{result.size}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate({
+                        to: '/link/$cid',
+                        params: { cid: result.cid },
+                        search: {
+                          name: result.name,
+                          key: result.key,
+                          size: result.size,
+                        }
+                      })}
+                    >
+                      View Link
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        )}
 
         {address && (
           <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">

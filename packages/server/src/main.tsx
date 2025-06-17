@@ -19,14 +19,14 @@ const app = (
   <StrictMode>
     <ErrorBoundary>
       <QueryClientProvider>
-        <PrivyProvider>
-          <WagmiProvider>
-            <ThemeProvider defaultTheme="dark" storageKey="theme">
+        <ThemeProvider defaultTheme="dark" storageKey="theme">
+          <PrivyProvider>
+            <WagmiProvider>
               <RouterProvider router={router} />
               <Toaster position="bottom-right" theme="dark" />
-            </ThemeProvider>
-          </WagmiProvider>
-        </PrivyProvider>
+            </WagmiProvider>
+          </PrivyProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   </StrictMode>
