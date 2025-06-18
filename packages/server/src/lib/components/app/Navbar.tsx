@@ -23,7 +23,7 @@ export default function Navbar() {
           History
         </Button>
 
-        <Connect />
+        {/* <Connect /> */}
       </div>
     </nav>
   )

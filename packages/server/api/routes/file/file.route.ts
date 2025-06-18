@@ -104,8 +104,8 @@ const app = new Hono()
 
         const totalSize = files.reduce((sum: number, file: File) => sum + file.size, 0);
 
-        if(totalSize > 10 * MAX_FILE_SIZE) {
-          return respond.err(ctx, `Total size cannot exceed ${10 * MAX_FILE_SIZE}`, 400);
+        if(totalSize > 2 * MAX_FILE_SIZE) {
+          return respond.err(ctx, `Total size cannot exceed ${2 * MAX_FILE_SIZE}`, 400);
         }
 
         const w3upClient = getW3UpClient();

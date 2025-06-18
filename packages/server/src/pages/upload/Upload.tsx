@@ -121,7 +121,7 @@ export default function UploadPage() {
     try {
       setIsError(false)
 
-      if (isDirectoryMode) {
+      if (isDirectoryMode && selectedFiles.length > 1) {
         const directoryName = `folder-${Date.now()}`
         const processedFiles = []
 
@@ -271,7 +271,7 @@ export default function UploadPage() {
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Shield className="w-8 h-8 text-primary" />
+            <Icon name="ShieldCheck" className="w-8 h-8 text-primary" />
             <h1 className="text-4xl font-bold text-foreground">Portal</h1>
           </div>
           <p className="text-lg text-muted-foreground">Secure file sharing made simple</p>
@@ -519,9 +519,9 @@ export default function UploadPage() {
         )}
 
         {/* Security Notice */}
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Shield className="w-4 h-4" />
-          <span>Files are end-to-end encrypted. We never see your data.</span>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Icon name="Zap" className='sm:size-4 size-6' />
+          <span>Files are end-to-end encrypted. We can't see what's inside. </span>
         </div>
       </div>
     </div>
