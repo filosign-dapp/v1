@@ -12,14 +12,19 @@ import History from "./history";
 import LinkGenerated from "./link";
 import Download from "./download";
 import { z } from 'zod';
+import { useAnalytics } from '../lib/hooks/use-analytics';
 
 const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      {/* <TanStackRouterDevtools /> */}
-    </>
-  ),
+  component: () => {
+    useAnalytics();
+
+    return (
+      <>
+        <Outlet />
+        {/* <TanStackRouterDevtools /> */}
+      </>
+    )
+  },
 })
 
 const uploadRoute = createRoute({
@@ -75,7 +80,7 @@ const routeTree = rootRoute.addChildren([uploadRoute, landingRoute, historyRoute
 const router = createRouter({
   routeTree,
 })
-  
+
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router

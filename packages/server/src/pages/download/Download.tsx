@@ -71,7 +71,13 @@ export default function DownloadPage() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
 
-      toast.success(`${fileItem.name} downloaded successfully`)
+      toast.success(`${fileItem.name} downloaded successfully`);
+
+      window?.gtag?.('event', 'download', {
+        event_category: 'download',
+        event_label: fileItem.name,
+        value: fileItem.size
+      })
     } catch (err) {
       toast.error(`Failed to download ${fileItem.name}`)
       console.error(err)
@@ -92,7 +98,13 @@ export default function DownloadPage() {
         await new Promise(resolve => setTimeout(resolve, 100))
       }
 
-      toast.success(`All ${fileItems.length} files downloaded successfully`)
+      toast.success(`All ${fileItems.length} files downloaded successfully`);
+      
+      window?.gtag?.('event', 'download', {
+        event_category: 'download',
+        event_label: `${fileItems.length} files`,
+        value: totalSize
+      })
     } catch (err) {
       toast.error('Failed to download some files')
       console.error(err)
