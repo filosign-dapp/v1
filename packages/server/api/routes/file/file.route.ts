@@ -42,7 +42,7 @@ const app = new Hono()
     }
   )
 
-  .get("/:cid", zValidator("param", z.object({
+  .get("/download/:cid", zValidator("param", z.object({
     cid: z.string(),
   })), async (ctx) => {
     const { cid } = ctx.req.valid("param");
@@ -80,7 +80,7 @@ const app = new Hono()
         await db.insert(filesTable).values({
           cid: cid.toString(),
           size: file.size,
-          isDirectory: false,
+          isDirectory: "false",
           fileNames: [file.name],
         });
 
@@ -116,7 +116,7 @@ const app = new Hono()
         await db.insert(filesTable).values({
           cid: cid.toString(),
           size: totalSize,
-          isDirectory: true,
+          isDirectory: "true",
           fileNames,
         });
 
@@ -144,12 +144,14 @@ const app = new Hono()
       }
 
       const w3upClient = getW3UpClient();
-      await Promise.all(files.map(({ cid }) => w3upClient.removeFile(cid)));
+      await Promise.allSettled(files.map(({ cid }) => w3upClient.removeFile(cid))).catch((error) => {
+        console.log(error);
+      });
       await db.delete(filesTable).where(inArray(filesTable.id, files.map(({ id }) => id)));
 
       return respond.ok(ctx, {}, "Successfully flushed outdated files", 200);
     } catch (error) {
-      console.error(error);
+      console.log(error);
       return respond.err(ctx, "Failed to flush files", 500);
     }
   })

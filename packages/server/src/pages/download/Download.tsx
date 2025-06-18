@@ -119,8 +119,8 @@ export default function DownloadPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
-        <TextShimmer>Decrypting file...</TextShimmer>
+      <div className="flex items-center justify-center h-full p-4 bg-gradient-to-br text-muted-foreground from-background via-background/80 to-muted/20">
+        <TextShimmer>Downloading files..</TextShimmer>
       </div>
     )
   }

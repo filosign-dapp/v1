@@ -15,9 +15,9 @@ W3UpClient.getInstance().catch((error) => {
 const server = serve({
   development: !isProd ? {
     hmr: true,
-    console: false,
+    console: true,
   } : false,
-
+  idleTimeout: 30,
   routes: {
     "/api": new Response(JSON.stringify({
       message: "Bun Server",

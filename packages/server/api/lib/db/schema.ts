@@ -5,7 +5,7 @@ export const filesTable = pgTable('files_table', {
   cid: text('cid').notNull(),
   size: integer('size').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-  isDirectory: boolean('is_directory').default(false),
+  isDirectory: text('is_directory').default('false'),
   fileNames: text('file_names').array().notNull().default([]),
   updatedAt: timestamp('updated_at')
     .notNull()

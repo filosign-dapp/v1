@@ -66,7 +66,7 @@ export function useApi() {
             return useQuery({
                 queryKey: ['downloadFile', cid],
                 queryFn: async () => {
-                    const serverResponse = await api.file[":cid"].$get({
+                    const serverResponse = await api.file.download[":cid"].$get({
                         param: { cid },
                     })
                     const serverResponseJson = await serverResponse.json();
