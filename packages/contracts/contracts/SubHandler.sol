@@ -15,7 +15,7 @@ contract SubHandler is Ownable {
 
     constructor(address admin) Ownable(admin) {}
 
-    function buyPlan(uint8 planId) external payable {
+    function buyPlan(uint8 planId) external {
         require(plans[planId].price > 0, "Invalid plan");
         require(msg.value == plans[planId].price, "Incorrect payment");
 
