@@ -1,19 +1,14 @@
-import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "./lib/context/theme-provider";
 import { ErrorBoundary } from "./lib/components/errors/ErrorBoundary";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import router from "./pages/app";
-import { toast, Toaster } from "sonner";
-import "./styles/globals.css";
 import { RouterProvider } from "@tanstack/react-router";
-import PrivyProvider from "./lib/context/privy-provider";
-
-// Tanstack Query
-const queryClient = new QueryClient();
-queryClient.defaultMutationOptions({
-  onError: ({ error }) => toast(error),
-});
+import { PrivyProvider } from "./lib/context/privy-provider";
+import { WagmiProvider } from "./lib/context/wagmi-provider";
+import { QueryClientProvider } from "./lib/context/query-client-provider";
+import { Toaster } from "sonner";
+import router from "./pages/app";
+import "./styles/globals.css";
 
 // Root element
 const rootElement = document.getElementById("root")!;
@@ -23,11 +18,13 @@ if (!rootElement) throw new Error("Failed to find the root element");
 const app = (
   <StrictMode>
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider>
         <ThemeProvider defaultTheme="dark" storageKey="theme">
           <PrivyProvider>
+            <WagmiProvider>
               <RouterProvider router={router} />
               <Toaster position="bottom-right" theme="dark" />
+            </WagmiProvider>
           </PrivyProvider>
         </ThemeProvider>
       </QueryClientProvider>

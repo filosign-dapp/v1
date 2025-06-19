@@ -1,4 +1,4 @@
-# Portal - Protocol Labs
+# Portal - End-to-end encrypted file sharing
 
 Install dependencies:
 

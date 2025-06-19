@@ -2,6 +2,9 @@ import { create } from "@web3-storage/w3up-client";
 import type { Client } from "@web3-storage/w3up-client";
 import type { Account } from "@web3-storage/w3up-client/account";
 import { env } from "@/env";
+import type { BlobLike, FileLike, UnknownLink, UploadDirectoryOptions } from "@web3-storage/w3up-client/types";
+import { CID } from "multiformats/cid";
+import { logger } from "@/src/lib/utils";
 
 interface W3UpConfig {
     email?: `${string}@${string}`;
@@ -11,13 +14,13 @@ interface W3UpConfig {
 export default class W3UpClient {
     private static instance: W3UpClient | null = null;
     private static initPromise: Promise<W3UpClient> | null = null;
-    
+
     private client: Client | null = null;
     private account: Account | null = null;
     private ready = false;
 
     // Private constructor to prevent direct instantiation
-    private constructor() {}
+    private constructor() { }
 
     // Static method to get or create the singleton instance
     public static async getInstance(): Promise<W3UpClient> {
@@ -33,7 +36,7 @@ export default class W3UpClient {
 
         // Start initialization
         W3UpClient.initPromise = W3UpClient.initialize();
-        
+
         try {
             const instance = await W3UpClient.initPromise;
             return instance;
@@ -54,7 +57,6 @@ export default class W3UpClient {
                 spaceName: env.W3UP_SPACE_NAME,
             });
 
-            console.log("W3UpClient singleton initialized successfully");
             return W3UpClient.instance;
         } catch (error) {
             // Reset instance on failure to allow retry
@@ -82,7 +84,7 @@ export default class W3UpClient {
             if (config.email) {
                 this.account = await this.authenticateWithEmail(config.email);
             }
-            
+
             if (config.spaceName && this.account) {
                 await this.createSpace(config.spaceName, this.account);
             }
@@ -101,18 +103,15 @@ export default class W3UpClient {
         }
 
         try {
-            console.log("Attempting to authenticate with email:", email);
-            console.log("Please check your email and click the confirmation link...");
-            
+            logger("Please check your email and click the confirmation link...");
+
             // Login with email - this will send an email and wait for confirmation
             const account = await this.client.login(email);
 
-            console.log("Email confirmed successfully. Waiting for payment plan...");
-            
             // Wait for payment plan with timeout (default is 15 minutes according to docs)
             await account.plan.wait();
 
-            console.log("Successfully authenticated with email:", email);
+            logger(`Successfully authenticated with ${email}`);
             return account;
         } catch (error) {
             if (error instanceof Error) {
@@ -135,20 +134,19 @@ export default class W3UpClient {
             // Check if space already exists by name
             const spaces = this.client.spaces();
             let existingSpace = spaces.find((space) => space.name === spaceName);
-            
+
             if (existingSpace) {
-                console.log(`Space "${spaceName}" already exists with DID: ${existingSpace.did()}`);
+                logger(`Space "${spaceName}" already exists. Setting it as current space...`);
                 await this.client.setCurrentSpace(existingSpace.did());
                 return existingSpace;
             }
 
             // Create new space with account for recovery capability
-            console.log(`Creating new space: "${spaceName}"`);
             const newSpace = await this.client.createSpace(spaceName, { account });
-            
+
             // Set as current space
             await this.client.setCurrentSpace(newSpace.did());
-            console.log(`Successfully created and set space "${spaceName}" with DID: ${newSpace.did()}`);
+            logger(`Successfully created and set space "${spaceName}" with DID: ${newSpace.did()}`);
 
             return newSpace;
         } catch (error) {
@@ -157,12 +155,12 @@ export default class W3UpClient {
         }
     }
 
-    async uploadFile(file: Blob | File): Promise<string> {
+    async uploadFile(file: BlobLike) {
         if (!this.client) throw new Error('Client not initialized');
 
         try {
             const cid = await this.client.uploadFile(file);
-            console.log(`File uploaded with CID: ${cid}`);
+            logger(`File uploaded with CID: ${cid}`);
             return cid.toString();
         } catch (error) {
             console.error('File upload failed:', error);
@@ -170,15 +168,31 @@ export default class W3UpClient {
         }
     }
 
-    async uploadDirectory(files: File[]): Promise<string> {
+    async uploadDirectory(files: FileLike[], options?: UploadDirectoryOptions) {
         if (!this.client) throw new Error('Client not initialized');
 
         try {
-            const cid = await this.client.uploadDirectory(files);
-            console.log(`Directory uploaded with CID: ${cid}`);
+            const cid = await this.client.uploadDirectory(files, options);
+            logger(`Directory uploaded with CID: ${cid}`);
             return cid.toString();
         } catch (error) {
             console.error('Directory upload failed:', error);
+            throw error;
+        }
+    }
+
+    async removeFile(cid: string) {
+        if (!this.client) throw new Error('Client not initialized');
+
+        try {
+            // Convert string CID to CID object
+            const cidObject = CID.parse(cid);
+            await this.client.remove(cidObject, {
+                shards: true,
+            });
+            logger(`File removed with CID: ${cid}`);
+        } catch (error) {
+            console.error('File removal failed:', error);
             throw error;
         }
     }
@@ -201,7 +215,7 @@ export default class W3UpClient {
     async setCurrentSpace(spaceDid: `did:${string}:${string}`) {
         if (!this.client) throw new Error('Client not initialized');
         await this.client.setCurrentSpace(spaceDid);
-        console.log(`Current space set to: ${spaceDid}`);
+        logger(`Current space set to: ${spaceDid}`);
     }
 
     getAccount() {
