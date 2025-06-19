@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import "./KeyManager.sol";
 import "./SubHandler.sol";
-import "./usdfc.sol";
+import "./IAM.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract PortalOrchestrator {
@@ -13,13 +13,14 @@ contract PortalOrchestrator {
 
     KeyManager public keyManager;
     SubHandler public subHandler;
+    IAM public iam;
     ERC20 public usdfc;
 
     uint256 public immutable ONE_USDFC;
 
     event Payment(address indexed user, uint256 amount, string reason);
 
-    constructor() {
+    constructor(address usdfc_) {
         _admin = msg.sender;
 
         keyManager = new KeyManager();
@@ -28,7 +29,10 @@ contract PortalOrchestrator {
         subHandler = new SubHandler(_admin);
         spenders[address(subHandler)] = true;
 
-        usdfc = ERC20(address(new USDFC(msg.sender)));
+        iam = new IAM();
+        // Iam no need to be a spender
+
+        usdfc = ERC20(usdfc_);
         ONE_USDFC = 10 ** usdfc.decimals();
     }
 
