@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "test": "hardhat test",
+    "test:keymanager": "hardhat test --grep KeyManager",
+    "test:iam": "hardhat test --grep IAM",
+    "test:integration": "hardhat test --grep Integration"
+  }
+}

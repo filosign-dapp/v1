@@ -35,13 +35,13 @@ contract IAM is SignatureVerifier {
         return bytes32(abi.encodePacked("seed-", msg.sender, "-", _nonce));
     }
 
-    function register(address pub_) external {
+    function register(address pub_, bytes calldata signature_) external {
         require(accounts[msg.sender].pub == address(0), "Already registered");
 
         bytes32 seed = determineNextSeed();
-        require(validate(pub_, seed, msg.data), "Invalid signature");
+        require(validate(msg.sender, seed, signature_), "Invalid signature");
 
-        accounts[msg.sender] = Account(msg.sender, seed);
+        accounts[msg.sender] = Account(pub_, seed);
         registered[msg.sender] = true;
 
         incrementNonce();
