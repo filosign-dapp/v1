@@ -9,6 +9,7 @@
     "analyze": "bun install --analyze src/**/*.tsx"
   },
   "dependencies": {
+    "contracts": "workspace:*",
     "@hono/zod-validator": "^0.7.0",
     "@hookform/resolvers": "^4.1.0",
     "@neondatabase/serverless": "^1.0.1",

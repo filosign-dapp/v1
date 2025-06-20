@@ -32,7 +32,7 @@ contract IAM is SignatureVerifier {
     }
 
     function determineNextSeed() public view returns (bytes32) {
-        return bytes32(abi.encodePacked("seed-", msg.sender, "-", _nonce));
+        return bytes32(abi.encodePacked(msg.sender, _nonce));
     }
 
     function register(address pub_, bytes calldata signature_) external {
