@@ -2,6 +2,7 @@
   "name": "contracts",
   "module": "index.ts",
   "private": true,
+  "exports": "./exports.ts",
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^0.15.0",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
