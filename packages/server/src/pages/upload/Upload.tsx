@@ -269,10 +269,10 @@ export default function UploadPage() {
     <div className="flex items-center justify-center min-h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
       <div className="container mx-auto max-w-4xl space-y-8 text-center px-4">
         {/* Header */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="space-y-4">
+          <div className="flex items-center justify-center gap-2">
             <Icon name="ShieldCheck" className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground">Portal</h1>
+            <h1 className="text-4xl font-bold text-foreground mr-2">Portal</h1>
           </div>
           <p className="text-lg text-muted-foreground">Secure file sharing made simple</p>
         </div>
@@ -520,7 +520,7 @@ export default function UploadPage() {
 
         {/* Security Notice */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Icon name="Zap" className='sm:size-4 size-6' />
+          <Icon name="Zap" className='sm:block hidden size-4' />
           <span>Files are end-to-end encrypted. We can't see what's inside. </span>
         </div>
       </div>
