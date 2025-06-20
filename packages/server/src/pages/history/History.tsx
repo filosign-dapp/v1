@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { History, ExternalLink, Copy, Trash2, Calendar } from 'lucide-react'
+import { History, ExternalLink, Copy, Trash2, Calendar, Trash } from 'lucide-react'
 import { Card } from '@/src/lib/components/ui/card'
 import { Button } from '@/src/lib/components/ui/button'
 import { Badge } from '@/src/lib/components/ui/badge'
@@ -163,6 +163,15 @@ export default function HistoryPage() {
                   >
                     <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="sm:inline">Open</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeFromHistory(item.id)}
+                    className="flex items-center justify-center gap-2 text-xs sm:text-sm"
+                  >
+                    <Trash className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
               </div>
