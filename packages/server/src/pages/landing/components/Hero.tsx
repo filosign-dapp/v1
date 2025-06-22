@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 
 const Hero = () => {
   return (
-    <section className="flex items-center px-4 pb-12 min-h-screen sm:pb-20 sm:px-6 bg-neo-bg dotted-pattern relative overflow-hidden">
+    <section className="flex items-center px-4 pt-10 pb-12 min-h-screen sm:pb-20 sm:px-6 bg-neo-bg dotted-pattern relative overflow-hidden">
       {/* Floating shapes background - variety of shapes */}
       <motion.div
         className="absolute hidden sm:block left-30 top-20 w-16 h-16 bg-neo-yellow-1 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
@@ -21,7 +21,7 @@ const Hero = () => {
       />
 
       <motion.div
-        className="absolute top-4 sm:top-15 sm:right-40 right-5 w-12 h-12 bg-neo-indigo border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-full"
+        className="absolute top-[3vh] sm:top-15 sm:right-40 right-5 size-10 sm:size-12 bg-neo-indigo border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-full"
         animate={{
           y: [0, 10, 0],
           rotate: [0, -5, 5, 0]

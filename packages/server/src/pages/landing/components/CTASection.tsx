@@ -7,7 +7,7 @@ const CTASection = () => {
     <section className="py-16 sm:py-20 px-4 sm:px-6 bg-neo-yellow-1 border-t-4 border-black dotted-pattern relative">
       {/* More floating shapes */}
       <motion.div 
-        className="absolute top-12 left-5 w-6 h-6 bg-neo-yellow-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-full"
+        className="absolute top-12 left-6 w-6 h-6 bg-neo-yellow-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-full"
         animate={{ 
           scale: [1, 1.3, 1],
           rotate: [0, 180, 360]
