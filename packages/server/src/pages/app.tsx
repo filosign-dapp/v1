@@ -29,7 +29,7 @@ const rootRoute = createRootRoute({
 
 const uploadRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/',
+  path: '/upload',
   component: function Index() {
     return withPageErrorBoundary(Upload)({});
   },
@@ -37,7 +37,7 @@ const uploadRoute = createRoute({
 
 const landingRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/landing',
+  path: '/',
   component: function LandingPage() {
     return withPageErrorBoundary(Landing)({});
   },
@@ -76,7 +76,7 @@ const downloadRoute = createRoute({
   }),
 })
 
-const routeTree = rootRoute.addChildren([uploadRoute, landingRoute, historyRoute, linkRoute, downloadRoute])
+const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute])
 const router = createRouter({
   routeTree,
 })

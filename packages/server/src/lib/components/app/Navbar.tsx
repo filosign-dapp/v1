@@ -12,10 +12,10 @@ export default function Navbar() {
     <nav className="fixed top-0 gap-2 h-[var(--navbar-height)] w-full z-50 bg-background flex items-center justify-end px-4">
       <div className="flex gap-2">
         <Button
-          onClick={() => navigate({ to: currentPath === '/history' ? '/' : '/history' })}
+          onClick={() => navigate({ to: currentPath === '/history' ? '/upload' : '/history' })}
           className="flex items-center gap-2 relative rounded-sm"
         >
-          {currentPath === '/' ? <Icon name="History" className="w-4 h-4" /> : <Icon name="CloudUpload" className="w-4 h-4" />}
+          {currentPath === '/history' ? <Icon name="CloudUpload" className="w-4 h-4" /> : <Icon name="History" className="w-4 h-4" />}
         </Button>
 
         <Connect />

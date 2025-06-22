@@ -18,6 +18,7 @@ const server = serve({
     console: true,
   } : false,
   idleTimeout: 30,
+  port: 3000,
   routes: {
     "/api": new Response(JSON.stringify({
       message: "Bun Server",
