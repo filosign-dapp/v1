@@ -19,7 +19,7 @@ const app = (
   <StrictMode>
     <ErrorBoundary>
       <QueryClientProvider>
-        <ThemeProvider defaultTheme="dark" storageKey="theme">
+        <ThemeProvider defaultTheme="light" storageKey="theme">
           <PrivyProvider>
             <WagmiProvider>
               <RouterProvider router={router} />

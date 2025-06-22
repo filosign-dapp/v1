@@ -253,9 +253,7 @@
   @apply backdrop-filter backdrop-blur-[8px];
 }
 
-@layer utilities {
-  .dotted-pattern {
-    background-image: radial-gradient(var(--color-zinc-300) 1px, transparent 1px);
-    background-size: 1.5rem 1.5rem;
-  }
+@utility dotted-pattern {
+  background-image: radial-gradient(var(--color-zinc-300) 1px, transparent 1px);
+  background-size: 1.5rem 1.5rem;
 }

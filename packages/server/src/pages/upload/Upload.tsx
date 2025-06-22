@@ -6,7 +6,7 @@ import { Button } from '@/src/lib/components/ui/button'
 import { Switch } from '@/src/lib/components/ui/switch'
 import { Progress } from '@/src/lib/components/ui/progress'
 import Icon from '@/src/lib/components/custom/Icon'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { cn, handleError } from '@/src/lib/utils'
 import { useApi } from '@/src/lib/hooks/use-api'
 import { useUploadHistory, useUploadSession, type UploadHistoryItem } from '@/src/lib/hooks/use-store'
@@ -483,13 +483,13 @@ export default function UploadPage() {
                         variant="outline"
                         size="sm"
                         onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(createDownloadLink(result.cid, result.name, result.key))
-                          setCopiedLink(createDownloadLink(result.cid, result.name, result.key))
-                        } catch (err) {
-                          console.error('Failed to copy link:', err)
-                        }
-                      }}>
+                          try {
+                            await navigator.clipboard.writeText(createDownloadLink(result.cid, result.name, result.key))
+                            setCopiedLink(createDownloadLink(result.cid, result.name, result.key))
+                          } catch (err) {
+                            console.error('Failed to copy link:', err)
+                          }
+                        }}>
                         {copiedLink === createDownloadLink(result.cid, result.name, result.key) ? (
                           <>
                             <Icon name="CircleCheck" className="size-3 mr-1" />
