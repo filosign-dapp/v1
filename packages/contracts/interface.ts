@@ -28,32 +28,27 @@ class Contracts {
   get interfaces() {
     return {
       portalOrchestrator: viem.getContract({
-        abi: AbiPortalOrchestrator,
-        address: definitions.portalOrchestrator,
+        ...definitions.PortalOrchestrator,
         client: this.client,
       }),
 
       iam: viem.getContract({
-        abi: AbiIAM,
-        address: definitions.iam,
+        ...definitions.IAM,
         client: this.client,
       }),
 
       subHandler: viem.getContract({
-        abi: AbiSubHandler,
-        address: definitions.subHandler,
+        ...definitions.SubHandler,
         client: this.client,
       }),
 
       keyManager: viem.getContract({
-        abi: AbiKeyManager,
-        address: definitions.keyManager,
+        ...definitions.KeyManager,
         client: this.client,
       }),
 
       usdfc: viem.getContract({
-        abi: AbiERC20,
-        address: definitions.usdfc,
+        ...definitions.usdfc,
         client: this.client,
       }),
     };
@@ -79,9 +74,5 @@ class Contracts {
     return this.interfaces.usdfc;
   }
 }
-
-const contracts = new Contracts({} as any)
-
-contracts.portalOrchestrator.read.
 
 export default Contracts;
