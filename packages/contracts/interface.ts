@@ -6,14 +6,13 @@ const primaryChain = filecoinCalibration;
 
 class Contracts {
   private client: viem.Client;
+  static chain = primaryChain;
 
-  constructor(account: viem.Account) {
-    this.client = viem
-      .createWalletClient({
-        transport: viem.http(primaryChain.rpcUrls.default.http[0]),
-        account,
-      })
-      .extend(viem.publicActions);
+  constructor(client_: viem.WalletClient) {
+    this.client = client_.extend(viem.publicActions);
+    client_.switchChain({
+      id: Contracts.chain.id,
+    });
   }
 
   set account(account: viem.Account | undefined) {
