@@ -4,6 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 
 import PortalOrchestrator from "../artifacts/contracts/PortalOrchestrator.sol/PortalOrchestrator.json";
 import IAM from "../artifacts/contracts/IAM.sol/IAM.json";
+// import usdfc from "../artifacts/contracts/usdfc.sol/usdfc.json";
 import SubHandler from "../artifacts/contracts/SubHandler.sol/SubHandler.json";
 import KeyManager from "../artifacts/contracts/KeyManager.sol/KeyManager.json";
 
@@ -33,24 +34,88 @@ async function main() {
   const orchestratorHash = await client.deployContract({
     abi: PortalOrchestrator.abi,
     bytecode: PortalOrchestrator.bytecode,
-    args: [],
+    args: ["0xb3042734b608a1B16e9e86B374A3f3e389B4cDf0"],
+    gas: 100_000_000n,
   });
   const orchestratorReceipt = await client.waitForTransactionReceipt({
     hash: orchestratorHash,
   });
   if (!orchestratorReceipt.contractAddress)
-    throw new Error("Orchestrator deployment failed");
+    throw new Error(
+      "Orchestrator deployment failed \nDetails : " +
+        "https://filecoin-testnet.blockscout.com/tx/" +
+        orchestratorReceipt.transactionHash
+    );
 
-  const orchestrator = client.getContract({
+  const orchestrator = viem.getContract({
     address: orchestratorReceipt.contractAddress,
     abi: PortalOrchestrator.abi,
-  })
+    client,
+  });
 
   definitions.push({
     name: "PortalOrchestrator",
-    abi: PortalOrchestrator.abi,
-    address: orchestratorReceipt.contractAddress,
+    abi: orchestrator.abi,
+    address: orchestrator.address,
   });
 
-  const iamAddress = await 
+  const iamAddress = await orchestrator.read.iam();
+  if (typeof iamAddress != "string" || !viem.isAddress(iamAddress))
+    throw new Error("IAM address not found");
+
+  const iam = viem.getContract({
+    address: iamAddress,
+    abi: IAM.abi,
+    client,
+  });
+  definitions.push({
+    name: "IAM",
+    abi: iam.abi,
+    address: iam.address,
+  });
+
+  const subHandlerAddress = await orchestrator.read.subHandler();
+  if (
+    typeof subHandlerAddress != "string" ||
+    !viem.isAddress(subHandlerAddress)
+  )
+    throw new Error("SubHandler address not found");
+  const subHandler = viem.getContract({
+    address: subHandlerAddress,
+    abi: SubHandler.abi,
+    client,
+  });
+  definitions.push({
+    name: "SubHandler",
+    abi: subHandler.abi,
+    address: subHandler.address,
+  });
+
+  const keyManagerAddress = await orchestrator.read.keyManager();
+  if (
+    typeof keyManagerAddress != "string" ||
+    !viem.isAddress(keyManagerAddress)
+  )
+    throw new Error("KeyManager address not found");
+  const keyManager = viem.getContract({
+    address: keyManagerAddress,
+    abi: KeyManager.abi,
+    client,
+  });
+  definitions.push({
+    name: "KeyManager",
+    abi: keyManager.abi,
+    address: keyManager.address,
+  });
 }
+
+main()
+  .then(() => {
+    console.log("Deployment successful");
+    console.log("Definitions:", JSON.stringify(definitions, null, 2));
+    definitionsFile.write(JSON.stringify(definitions, null, 2));
+  })
+  .catch((error) => {
+    console.error("Deployment failed:", error);
+    process.exit(1);
+  });
