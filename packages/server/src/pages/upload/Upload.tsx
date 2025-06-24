@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { CloudUpload, Shield, X, Plus, Upload, CheckCircle, FolderUp, Copy, Link } from 'lucide-react'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
 import { Button } from '@/src/lib/components/ui/button'
 import { Switch } from '@/src/lib/components/ui/switch'
 import { Progress } from '@/src/lib/components/ui/progress'
 import Icon from '@/src/lib/components/custom/Icon'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { cn, handleError } from '@/src/lib/utils'
 import { useApi } from '@/src/lib/hooks/use-api'
 import { useUploadHistory, useUploadSession, type UploadHistoryItem } from '@/src/lib/hooks/use-store'
@@ -266,17 +265,8 @@ export default function UploadPage() {
   const isProcessing = isUploading || isUploadingDirectory
 
   return (
-    <div className="flex items-center justify-center min-h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
+    <div className="flex items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20">
       <div className="container mx-auto max-w-4xl space-y-8 text-center px-4">
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <Icon name="ShieldCheck" className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground mr-2">Portal</h1>
-          </div>
-          <p className="text-lg text-muted-foreground">Secure file sharing made simple</p>
-        </div>
-
         {/* Upload Area */}
         <Card className="relative overflow-hidden">
           <motion.div
@@ -295,7 +285,7 @@ export default function UploadPage() {
           >
             {isProcessing ? (
               <div className="space-y-2">
-                {isDirectoryMode ? <FolderUp className="w-16 h-16 mx-auto text-muted-foreground" /> : <Icon name="CloudUpload" className="w-16 h-16 mx-auto text-muted-foreground" />}
+                {isDirectoryMode ? <Icon name="FolderUp" className="w-16 h-16 mx-auto text-muted-foreground" /> : <Icon name="CloudUpload" className="w-16 h-16 mx-auto text-muted-foreground" />}
                 <h3 className="text-lg font-semibold">
                   {isDirectoryMode ? 'Creating directory...' : `Uploading ${selectedFiles.length} file${selectedFiles.length !== 1 ? 's' : ''}...`}
                 </h3>
@@ -309,7 +299,7 @@ export default function UploadPage() {
                   animate={isDragOver ? { scale: 1.1 } : { scale: 1 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <CloudUpload className="w-16 h-16 mx-auto text-muted-foreground" />
+                  <Icon name="CloudUpload" className="w-16 h-16 mx-auto text-muted-foreground" />
                 </motion.div>
                 <div className="space-y-2">
                   <h3 className="text-xl font-semibold">Drag & Drop Your Files</h3>
@@ -366,7 +356,7 @@ export default function UploadPage() {
                   className="flex items-center gap-2"
                   disabled={isProcessing}
                 >
-                  <Plus className="w-4 h-4" />
+                  <Icon name="Plus" className="w-4 h-4" />
                   Add More Files
                 </Button>
               </div>
@@ -399,7 +389,7 @@ export default function UploadPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {selectedFile.status === 'success' && <CheckCircle className="w-4 h-4 text-green-600" />}
+                        {selectedFile.status === 'success' && <Icon name="CircleCheck" className="w-4 h-4 text-green-600" />}
                         {selectedFile.status === 'uploading' && <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />}
                         {selectedFile.status !== 'uploading' && (
                           <Button
@@ -408,7 +398,7 @@ export default function UploadPage() {
                             onClick={() => removeFile(selectedFile.id)}
                             className="flex-shrink-0"
                           >
-                            <X className="w-4 h-4" />
+                            <Icon name="X" className="w-4 h-4" />
                           </Button>
                         )}
                       </div>
@@ -423,7 +413,7 @@ export default function UploadPage() {
                 className="w-full flex items-center gap-2"
                 size="lg"
               >
-                {isDirectoryMode ? <FolderUp className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
+                {isDirectoryMode ? <Icon name="FolderUp" className="w-5 h-5" /> : <Icon name="Upload" className="w-5 h-5" />}
                 {isDirectoryMode
                   ? `Create Directory (${selectedFiles.length} files)`
                   : `Upload ${selectedFiles.length} File${selectedFiles.length !== 1 ? 's' : ''}`
@@ -444,7 +434,7 @@ export default function UploadPage() {
                   onClick={clearSession}
                   className="flex items-center gap-2"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Icon name="Plus" className="w-4 h-4" />
                   Start New Upload
                 </Button>
               </div>
@@ -455,7 +445,7 @@ export default function UploadPage() {
                     className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <Icon name="CircleCheck" className="w-5 h-5 text-green-600" />
                       <div>
                         <p className="font-medium">{result.name}</p>
                         <p className="text-sm text-muted-foreground">{result.size}</p>
@@ -476,7 +466,7 @@ export default function UploadPage() {
                           }
                         })}
                       >
-                        <Link className="size-3 mr-1" />
+                        <Icon name="Link" className="size-3 mr-1" />
                         View Link
                       </Button>
 
@@ -484,21 +474,21 @@ export default function UploadPage() {
                         variant="outline"
                         size="sm"
                         onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(createDownloadLink(result.cid, result.name, result.key))
-                          setCopiedLink(createDownloadLink(result.cid, result.name, result.key))
-                        } catch (err) {
-                          console.error('Failed to copy link:', err)
-                        }
-                      }}>
+                          try {
+                            await navigator.clipboard.writeText(createDownloadLink(result.cid, result.name, result.key))
+                            setCopiedLink(createDownloadLink(result.cid, result.name, result.key))
+                          } catch (err) {
+                            console.error('Failed to copy link:', err)
+                          }
+                        }}>
                         {copiedLink === createDownloadLink(result.cid, result.name, result.key) ? (
                           <>
-                            <CheckCircle className="size-3 mr-1" />
+                            <Icon name="CircleCheck" className="size-3 mr-1" />
                             Copied!
                           </>
                         ) : (
                           <>
-                            <Copy className="size-3 mr-1" />
+                            <Icon name="Copy" className="size-3 mr-1" />
                             Copy Link
                           </>
                         )}
@@ -509,13 +499,6 @@ export default function UploadPage() {
               </div>
             </div>
           </Card>
-        )}
-
-        {address && (
-          <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
-            <span>Your address: {address}</span>
-            <span>Balance: {balance?.value ? formatEther(balance.value) : '0'} ETH</span>
-          </div>
         )}
 
         {/* Security Notice */}
