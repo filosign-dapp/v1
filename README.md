@@ -81,14 +81,9 @@ bun run deploy       # Deploy contracts
 - **Decentralized Storage**: Files on IPFS, not centralized servers
 - **Smart Contract Enforcement**: Pro features enforced by blockchain
 
-## 👥 Team
-
-- **Kartikay Tiwari** - [kartik100100@gmail.com](mailto:kartik100100@gmail.com)
-- **Spandan Barve** - [marsian83@gmail.com](mailto:marsian83@gmail.com)
-
 ## 🔗 Links
 
-- **Demo**: [https://fblsd54i.pinit.eth.limo](https://fblsd54i.pinit.eth.limo)
+- **Demo**: [https://portal-plgenesis.onrender.com](Live)
 
 ---
 
