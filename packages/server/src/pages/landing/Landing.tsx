@@ -3,7 +3,7 @@ import Problem from "./components/Problem";
 import Solution from "./components/Solution";
 import TwoTierModel from "./components/Pricing";
 import Footer from "./components/Footer";
-import Navbar from "./components/Nav";
+import Navbar from "./components/LandingNav";
 
 const Index = () => {
   return (

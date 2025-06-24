@@ -11,6 +11,7 @@ import Upload from "./upload";
 import History from "./history";
 import LinkGenerated from "./link";
 import Download from "./download";
+import Profile from "./profile";
 import { z } from 'zod';
 import { useAnalytics } from '../lib/hooks/use-analytics';
 
@@ -76,7 +77,15 @@ const downloadRoute = createRoute({
   }),
 })
 
-const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute])
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/profile',
+  component: function ProfilePage() {
+    return withPageErrorBoundary(Profile)({});
+  },
+})
+
+const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute])
 const router = createRouter({
   routeTree,
 })

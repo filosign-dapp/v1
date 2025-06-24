@@ -57,6 +57,25 @@ const parseValue = (value: string): any => {
   return value;
 };
 
+// Helper function to read envKeys from env.ts
+async function getEnvKeys(): Promise<string[]> {
+  const envFilePath = path.resolve(process.cwd(), "env.ts");
+  try {
+    const content = await Bun.file(envFilePath).text();
+    const match = content.match(/const envKeys = \[([\s\S]*?)\] as const;/);
+    if (match && match[1]) {
+      const keys = match[1]
+        .split('\n')
+        .map(line => line.trim().replace(/[",]/g, ''))
+        .filter(line => line.length > 0);
+      return keys;
+    }
+  } catch (error) {
+    console.error(`Error reading or parsing env.ts: ${error}`);
+  }
+  return [];
+}
+
 // Magical argument parser that converts CLI args to BuildConfig
 function parseArgs(): Partial<BuildConfig> {
   const config: Record<string, any> = {};
@@ -142,6 +161,23 @@ console.log("\n🚀 Starting build process...\n");
     .filter(dir => !dir.includes("node_modules"));
   console.log(`📄 Found ${entrypoints.length} HTML ${entrypoints.length === 1 ? "file" : "files"} to process\n`);
 
+  // Dynamically define process.env variables that should be inlined for the client
+  const allEnvKeys = await getEnvKeys();
+  const clientEnvVariables = allEnvKeys.filter(key => key.startsWith("BUN_PUBLIC_") || key === "BUN_VERSION");
+
+  const defineEnv: Record<string, string> = {
+    "process.env.NODE_ENV": JSON.stringify("production"),
+  };
+
+  for (const envKey of clientEnvVariables) {
+    if (process.env[envKey] !== undefined) {
+      defineEnv[`process.env.${envKey}`] = JSON.stringify(process.env[envKey]);
+    } else {
+      console.warn(`⚠️ Warning: Environment variable ${envKey} is not set. It will be defined as undefined in the client bundle.`);
+      defineEnv[`process.env.${envKey}`] = JSON.stringify(undefined);
+    }
+  }
+
   // Build all the HTML files
   const result = await build({
     entrypoints,
@@ -150,9 +186,7 @@ console.log("\n🚀 Starting build process...\n");
     minify: true,
     target: "browser",
     sourcemap: "linked",
-    define: {
-        "process.env.NODE_ENV": JSON.stringify("production"),
-    },
+    define: defineEnv,
     ...cliConfig, // Merge in any CLI-provided options
   });
 

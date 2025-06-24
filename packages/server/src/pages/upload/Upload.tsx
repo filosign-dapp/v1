@@ -265,17 +265,8 @@ export default function UploadPage() {
   const isProcessing = isUploading || isUploadingDirectory
 
   return (
-    <div className="flex items-center justify-center min-h-full p-4 bg-gradient-to-br from-background via-background/80 to-muted/20">
+    <div className="flex items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20">
       <div className="container mx-auto max-w-4xl space-y-8 text-center px-4">
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <Icon name="ShieldCheck" className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground mr-2">Portal</h1>
-          </div>
-          <p className="text-lg text-muted-foreground">Secure file sharing made simple</p>
-        </div>
-
         {/* Upload Area */}
         <Card className="relative overflow-hidden">
           <motion.div
@@ -508,13 +499,6 @@ export default function UploadPage() {
               </div>
             </div>
           </Card>
-        )}
-
-        {address && (
-          <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
-            <span>Your address: {address}</span>
-            <span>Balance: {balance?.value ? formatEther(balance.value) : '0'} ETH</span>
-          </div>
         )}
 
         {/* Security Notice */}
