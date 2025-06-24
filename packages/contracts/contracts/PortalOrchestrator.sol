@@ -33,7 +33,7 @@ contract PortalOrchestrator {
         // Iam no need to be a spender
 
         usdfc = ERC20(usdfc_);
-        ONE_USDFC = 10 ** usdfc.decimals();
+        ONE_USDFC = 10 ** 18; //usdfc.decimals();
     }
 
     modifier onlyAdmin() {
