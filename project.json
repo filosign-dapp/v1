@@ -1,0 +1,22 @@
+{
+    "name": "Portal",
+    "tagline": "Share files like a NINJA.",
+    "description": "A trustless tool to share files to anyone, privately. Unlike other services, we never see or store your file. It's encrypted in your browser before it's uploaded to IPFS, and the link you share is the only key. It’s the most private way to share & keep sensitive files.",
+    "team": [
+        {
+            "name": "Kartikay Tiwari",
+            "email": "kartik100100@gmail.com"
+        },
+        {
+            "name": "Spandan Barve",
+            "email": "spandan567@gmail.com"
+        },
+        {
+            "name": "Riya Jain",
+            "email": "riya1jain567@gmail.com"
+        }
+    ],
+    "demo_url": "https://fblsd54i.pinit.eth.limo",
+    "video_url": "",
+    "technologies": ["Solidity", "FVM", "Filecoin", "Privy", "Storacha", "Web3.storage", "IPFS", "React", "Hono", "Bun"]
+}

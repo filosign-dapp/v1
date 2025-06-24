@@ -10,7 +10,7 @@ const Navbar = () => {
       <div className="px-4 py-4 mx-auto max-w-7xl sm:px-6 lg:px-8 lg:py-6">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-neo-yellow-1 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+            <div className="size-10 bg-neo-yellow-1 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
               <span className="text-sm font-black text-zinc-950 sm:text-lg">P</span>
             </div>
             <span className="text-lg font-black sm:text-2xl text-zinc-900">PORTAL</span>

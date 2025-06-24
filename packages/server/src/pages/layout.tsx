@@ -1,7 +1,6 @@
 import Navbar from "@/src/lib/components/app/Navbar";
 import Sidebar from "@/src/lib/components/app/Sidebar";
 import ThemeSwitch from "@/src/lib/components/custom/ThemeSwitch";
-import Connect from "@/src/lib/components/app/Connect";
 
 export default function Layout({
   children,
@@ -9,7 +8,7 @@ export default function Layout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-background [--navbar-height:4rem] sm:[--sidebar-width:0rem] overflow-auto [--paddingx:1rem] sm:[--paddingx:2rem]">
+    <div className="bg-background [--navbar-height:4.5rem] sm:[--sidebar-width:0rem] overflow-auto [--paddingx:1rem] sm:[--paddingx:2rem]">
       <Navbar />
       {/* <Sidebar /> */}
 
