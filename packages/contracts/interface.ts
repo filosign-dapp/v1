@@ -1,11 +1,6 @@
 import definitions from "./definitions";
 import * as viem from "viem";
 import { filecoinCalibration } from "viem/chains";
-import { abi as AbiPortalOrchestrator } from "./artifacts/contracts/PortalOrchestrator.sol/PortalOrchestrator.json";
-import { abi as AbiIAM } from "./artifacts/contracts/IAM.sol/IAM.json";
-import { abi as AbiSubHandler } from "./artifacts/contracts/SubHandler.sol/SubHandler.json";
-import { abi as AbiKeyManager } from "./artifacts/contracts/KeyManager.sol/KeyManager.json";
-import { abi as AbiERC20 } from "./artifacts/@openzeppelin/contracts/token/ERC20/IERC20.sol/IERC20.json";
 
 const primaryChain = filecoinCalibration;
 
@@ -84,5 +79,9 @@ class Contracts {
     return this.interfaces.usdfc;
   }
 }
+
+const contracts = new Contracts({} as any)
+
+contracts.portalOrchestrator.read.
 
 export default Contracts;
