@@ -14,7 +14,8 @@ import Download from "./download";
 import Profile from "./profile";
 import { z } from 'zod';
 import { useAnalytics } from '../lib/hooks/use-analytics';
-
+import Test from './test';
+  
 const rootRoute = createRootRoute({
   component: () => {
     useAnalytics();
@@ -85,7 +86,15 @@ const profileRoute = createRoute({
   },
 })
 
-const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute])
+const testRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/test',
+  component: function TestPage() {
+    return withPageErrorBoundary(Test)({});
+  },
+})
+
+const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute, testRoute])
 const router = createRouter({
   routeTree,
 })

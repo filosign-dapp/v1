@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import useWeb3 from "../context/contractsContext";
+import useWeb3 from "../context/contracts-provider";
 import { useMutation } from "@tanstack/react-query";
 import { useSwitchChain } from "wagmi";
 import { Contracts } from "contracts";

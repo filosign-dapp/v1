@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Contracts } from "contracts";
 import { useWalletClient } from "wagmi";
 import { hashMessage } from "viem";
-import type { Chain } from "viem";
 
 type Status =
   | "disconnected"

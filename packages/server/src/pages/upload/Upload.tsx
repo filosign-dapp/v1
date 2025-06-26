@@ -6,13 +6,12 @@ import { Button } from '@/src/lib/components/ui/button'
 import { Switch } from '@/src/lib/components/ui/switch'
 import { Progress } from '@/src/lib/components/ui/progress'
 import Icon from '@/src/lib/components/custom/Icon'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { cn, handleError } from '@/src/lib/utils'
 import { useApi } from '@/src/lib/hooks/use-api'
 import { useUploadHistory, useUploadSession, type UploadHistoryItem } from '@/src/lib/hooks/use-store'
 import { formatFileSize, compressFile, encryptFile, sanitizeFile, basicFileChecks, createDownloadLink } from '@/src/lib/utils/files'
-import { useAccount, useBalance } from 'wagmi'
-import { formatEther } from 'viem'
+import useContracts from '@/src/lib/hooks/use-contracts'
 
 interface SelectedFile {
   id: string
@@ -42,12 +41,9 @@ export default function UploadPage() {
   const { mutateAsync: uploadDirectoryMutation, isPending: isUploadingDirectory } = uploadDirectory
   const { addToHistory } = useUploadHistory()
   const { lastUploadResults, setLastUploadResults, clearLastUploadResults } = useUploadSession()
-  const [copiedLink, setCopiedLink] = useState("")
+  const [copiedLink, setCopiedLink] = useState("");
 
-  const { address } = useAccount();
-  const { data: balance } = useBalance({ address })
 
-  // Initialize upload results from session store on component mount
   useEffect(() => {
     if (lastUploadResults.length > 0 && uploadResults.length === 0) {
       setUploadResults(lastUploadResults)
@@ -265,7 +261,7 @@ export default function UploadPage() {
   const isProcessing = isUploading || isUploadingDirectory
 
   return (
-    <div className="flex items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20">
+    <div className="flex items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20 px-[var(--paddingx)]">
       <div className="container mx-auto max-w-4xl space-y-8 text-center px-4">
         {/* Upload Area */}
         <Card className="relative overflow-hidden">
