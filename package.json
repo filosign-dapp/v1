@@ -24,5 +24,7 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "module": "index.ts",
+  "type": "module"
 }

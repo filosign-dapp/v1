@@ -1,30 +1,42 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "hardhat/console.sol";
+import "./PortalOrchestrator.sol";
 
 contract KeyManager {
     struct Key {
         address uploader;
-        string cid;
+        address owner;
         uint256 timestamp;
         bytes32 seed;
     }
 
+    PortalOrchestrator private _orchestrator;
+
     mapping(string => Key) public uploads;
 
+    constructor() {
+        _orchestrator = PortalOrchestrator(msg.sender);
+    }
+
     function registerUpload(string calldata cid) external {
-        require(bytes(uploads[cid].cid).length == 0, "Already registered");
+        require(uploads[cid].timestamp == 0, "Already registered");
+        require(bytes(cid).length > 0, "CID cannot be empty");
+        require(
+            _orchestrator.iam().registered(msg.sender),
+            "User not registered"
+        );
+
         uploads[cid] = Key(
+            _orchestrator.iam().resolvePublicKey(msg.sender),
             msg.sender,
-            cid,
             block.timestamp,
             bytes32(abi.encodePacked("seed-", cid, "-", block.number))
         );
     }
 
     function getKey(string calldata cid) external view returns (Key memory) {
-        require(bytes(uploads[cid].cid).length != 0, "Not registered");
+        require(uploads[cid].timestamp != 0, "Not registered");
         return uploads[cid];
     }
 }

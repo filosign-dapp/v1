@@ -6,23 +6,18 @@ export default function Test() {
 
   async function handleClick() {
     contracts.mutate(async (contracts) => {
-        const tx = await contracts.iam.write.register([
-            address,
-            signature
-        ]);
-        console.log(tx)
-    })
+      const tx = await contracts.iam.write.register([address, signature]);
+      console.log(tx);
+    });
   }
 
-  return <div className="flex flex-col gap-4 items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20 px-[var(--paddingx)] h-screen">
-    <Button onClick={handleClick}>
-        do something
-    </Button>
+  return (
+    <div className="flex flex-col gap-4 items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20 px-[var(--paddingx)] h-screen">
+      <Button onClick={handleClick}>do something</Button>
 
-    <div className="text-sm text-muted-foreground">
-        <div className="text-sm text-muted-foreground">
-            nothing
-        </div>
+      <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground">nothing</div>
+      </div>
     </div>
-  </div>;
+  );
 }
