@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Contracts } from "contracts";
 import { useWalletClient } from "wagmi";
-import { hashMessage } from "viem";
 
 type Status =
   | "disconnected"
@@ -14,7 +13,7 @@ interface Web3ContextType {
   //   contracts: Contracts | null;
   ready: boolean;
   status: Status;
-  act: (fn: (contracts: Contracts) => Promise<void>) => Promise<void>;
+  act: <T>(fn: (contracts: Contracts) => Promise<T>) => Promise<T>;
 }
 
 const Web3Context = React.createContext<Web3ContextType>({
@@ -23,23 +22,19 @@ const Web3Context = React.createContext<Web3ContextType>({
   ready: false,
   act: async (fn) => {
     console.warn("Web3Context not initialized yet, cannot perform action");
-    return Promise.resolve();
+    return Promise.resolve({} as any);
   },
 });
 
-export function Web3ContextProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function Web3Provider({ children }: { children: React.ReactNode }) {
   const flag = useRef("");
   const [contracts, setContracts] = useState<Contracts | null>(null);
   const { data: walletClient } = useWalletClient();
   const [status, setStatus] = useState<Status>("disconnected");
 
   useEffect(() => {
-    if (hashMessage(JSON.stringify(walletClient)) != flag.current) {
-      flag.current = hashMessage(JSON.stringify(walletClient));
+    if (JSON.stringify(walletClient) != flag.current) {
+      flag.current = JSON.stringify(walletClient);
 
       if (walletClient) {
         setStatus("initializing");
@@ -68,8 +63,8 @@ export function Web3ContextProvider({
     }
   }, [walletClient, contracts]);
 
-  async function act(fn: (contracts: Contracts) => Promise<void>) {
-    return new Promise<void>((resolve, reject) => {
+  async function act<T>(fn: (contracts: Contracts) => Promise<T>) {
+    return new Promise<T>((resolve, reject) => {
       if (!contracts) {
         console.warn("Web3Context not initialized yet, cannot perform action");
         return reject(new Error("Web3Context not initialized"));
@@ -78,8 +73,8 @@ export function Web3ContextProvider({
       setStatus("pending");
 
       fn(contracts)
-        .then(() => {
-          resolve();
+        .then((result) => {
+          resolve(result);
         })
         .catch((error) => {
           console.error("Error in Web3Context action:", error);

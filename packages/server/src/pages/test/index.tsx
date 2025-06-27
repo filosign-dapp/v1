@@ -2,11 +2,10 @@ import { Button } from "@/src/lib/components/ui/button";
 import { Input } from "@/src/lib/components/ui/input";
 import useContracts from "@/src/lib/hooks/use-contracts";
 import { useAccount } from "wagmi";
-import { useSignTypedData } from 'wagmi'
+import { useSignTypedData } from "wagmi";
 import { toast } from "sonner";
 import Navbar from "@/src/lib/components/app/Navbar";
 import { useState } from "react";
-
 
 export default function Test() {
   const { mutate } = useContracts();
@@ -24,11 +23,8 @@ export default function Test() {
 
     mutate(async (contracts) => {
       const result = await contracts.iam.read.determineNextSeed();
+      console.log("asdad ", result);
       setPrivateKey(result);
-    }, {
-      onSuccess: (data) => {
-        console.log({ data, privateKey });
-      }
     });
 
     return;

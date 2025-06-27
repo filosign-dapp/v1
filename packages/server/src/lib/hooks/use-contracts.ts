@@ -8,13 +8,13 @@ export default function () {
   const { act, ready, status } = useWeb3();
   const { switchChain } = useSwitchChain();
   return useMutation({
-    mutationFn: async (fn: (contracts: Contracts) => Promise<void>) => {
-      if (!ready) return toast.error("ugh");
+    mutationFn: async (fn: Parameters<typeof act>[0]) => {
+      if (!ready) throw toast.error("ugh");
 
       if (status === "disconnected")
-        return toast.error("Please connect your wallet to continue.");
+        throw toast.error("Please connect your wallet to continue.");
       if (status === "unsupported-chain")
-        return toast.error(
+        throw toast.error(
           "Unsupported chain. Please switch to the correct network.",
           {
             action: {
@@ -26,7 +26,7 @@ export default function () {
           }
         );
       if (status === "panic")
-        return toast.error(
+        throw toast.error(
           "An error occurred. Please reload the page and try again later.",
           {
             action: {
