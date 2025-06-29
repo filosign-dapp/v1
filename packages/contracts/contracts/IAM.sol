@@ -6,7 +6,8 @@ import "./SignatureVerifier.sol";
 
 contract IAM is SignatureVerifier {
     struct Account {
-        address pub;
+        bytes pub;
+        address pubAddr;
         bytes32 seed;
     }
 
@@ -23,37 +24,91 @@ contract IAM is SignatureVerifier {
         return _nonce;
     }
 
-    function resolvePublicKey(address addr_) external view returns (address) {
+    function resolvePublicKey(
+        address addr_
+    ) external view returns (bytes memory) {
         return accounts[addr_].pub;
+    }
+
+    function resolvePublicKeyAddress(
+        address addr_
+    ) external view returns (address) {
+        return accounts[addr_].pubAddr;
     }
 
     function incrementNonce() internal {
         _nonce++;
     }
 
-    function determineNextSeed() public view returns (bytes32) {
-        return bytes32(abi.encodePacked(msg.sender, _nonce));
+    function determineNextSeed(address for_) public view returns (bytes32) {
+        return bytes32(abi.encodePacked(for_, _nonce));
     }
 
-    function register(address pub_, bytes calldata signature_) external {
-        require(accounts[msg.sender].pub == address(0), "Already registered");
+    function register(
+        bytes memory pub_,
+        address pubAddr_,
+        bytes calldata signature_
+    ) external {
+        require(
+            accounts[msg.sender].pubAddr == address(0),
+            "Already registered"
+        );
+        require(isValidPubKey(msg.sender, pub_), "Invalid public key");
 
-        bytes32 seed = determineNextSeed();
-        require(validate(msg.sender, seed, signature_), "Invalid signature");
+        bytes32 seed = determineNextSeed(msg.sender);
+        // require(validate(pub_, seed, signature_), "Invalid signature");
+        bytes32 digest = keccak256(abi.encodePacked(msg.sender, seed));
+        console.log("seed on chain :");
+        console.logBytes32(seed);
+        require(
+            verifySignature(pubAddr_, digest, signature_),
+            "Invalid signature"
+        );
 
-        accounts[msg.sender] = Account(pub_, seed);
+        accounts[msg.sender] = Account(pub_, pubAddr_, seed);
         registered[msg.sender] = true;
 
         incrementNonce();
     }
 
-    function validate(
-        address from_,
-        bytes32 seed_,
-        bytes calldata signature_
-    ) private pure returns (bool) {
-        bytes32 digest = keccak256(abi.encodePacked(from_, seed_));
+    function isValidPubKey(
+        address addr,
+        bytes memory pubKey
+    ) public pure returns (bool) {
+        require(
+            pubKey.length == 64 || pubKey.length == 65,
+            "Invalid pubkey length"
+        );
 
-        return verifySignature(from_, digest, signature_);
+        // Remove leading 0x04 byte if uncompressed
+        bytes memory fullPubKey = pubKey;
+        if (pubKey.length == 65) {
+            require(pubKey[0] == 0x04, "Must be uncompressed pubkey");
+            fullPubKey = slice(pubKey, 1, 64); // remove 0x04
+        }
+
+        bytes32 hash = keccak256(fullPubKey);
+        address derived = address(uint160(uint256(hash)));
+
+        return derived == addr;
     }
+
+    function slice(
+        bytes memory data,
+        uint start,
+        uint len
+    ) internal pure returns (bytes memory) {
+        bytes memory out = new bytes(len);
+        for (uint i = 0; i < len; i++) {
+            out[i] = data[i + start];
+        }
+        return out;
+    }
+
+    // function validate(
+    //     address from_,
+    //     bytes32 seed_,
+    //     bytes calldata signature_
+    // ) private pure returns (bool) {
+    // }
 }

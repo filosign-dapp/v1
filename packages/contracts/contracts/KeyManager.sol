@@ -8,7 +8,7 @@ contract KeyManager {
         address uploader;
         address owner;
         uint256 timestamp;
-        bytes32 seed;
+        mapping(address => bytes) seeds;
     }
 
     PortalOrchestrator private _orchestrator;
@@ -19,24 +19,40 @@ contract KeyManager {
         _orchestrator = PortalOrchestrator(msg.sender);
     }
 
-    function registerUpload(string calldata cid) external {
-        require(uploads[cid].timestamp == 0, "Already registered");
-        require(bytes(cid).length > 0, "CID cannot be empty");
+    function registerUpload(
+        string calldata cid_,
+        address[] memory for_,
+        bytes[] memory values_
+    ) external {
+        require(uploads[cid_].timestamp == 0, "Already registered");
+        require(bytes(cid_).length > 0, "CID cannot be empty");
         require(
             _orchestrator.iam().registered(msg.sender),
             "User not registered"
         );
 
-        uploads[cid] = Key(
-            _orchestrator.iam().resolvePublicKey(msg.sender),
-            msg.sender,
-            block.timestamp,
-            bytes32(abi.encodePacked("seed-", cid, "-", block.number))
+        mapping(address => bytes) storage seeds = uploads[cid_].seeds;
+
+        uploads[cid_].uploader = _orchestrator.iam().resolvePublicKeyAddress(
+            msg.sender
         );
+        uploads[cid_].owner = msg.sender;
+        uploads[cid_].timestamp = block.timestamp;
+
+        for (uint256 i = 0; i < for_.length; i++) {
+            require(
+                _orchestrator.iam().registered(for_[i]),
+                "Recipient not registered"
+            );
+            seeds[for_[i]] = values_[i];
+        }
     }
 
-    function getKey(string calldata cid) external view returns (Key memory) {
-        require(uploads[cid].timestamp != 0, "Not registered");
-        return uploads[cid];
+    function getKeySeed(
+        string calldata cid_,
+        address for_
+    ) external view returns (bytes memory) {
+        require(uploads[cid_].timestamp != 0, "Not registered");
+        return uploads[cid_].seeds[for_];
     }
 }

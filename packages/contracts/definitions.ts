@@ -153,7 +153,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x62500ed734585c9f1f63f45a18fd81618ef5abe5"
+    "address": "0xc49535b1b87a5ed98c1507d606c917d1a7edd521"
   },
   "IAM": {
     "abi": [
@@ -173,8 +173,13 @@ const definitions = {
         "name": "accounts",
         "outputs": [
           {
-            "internalType": "address",
+            "internalType": "bytes",
             "name": "pub",
+            "type": "bytes"
+          },
+          {
+            "internalType": "address",
+            "name": "pubAddr",
             "type": "address"
           },
           {
@@ -187,7 +192,13 @@ const definitions = {
         "type": "function"
       },
       {
-        "inputs": [],
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "for_",
+            "type": "address"
+          }
+        ],
         "name": "determineNextSeed",
         "outputs": [
           {
@@ -216,7 +227,36 @@ const definitions = {
         "inputs": [
           {
             "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "pubKey",
+            "type": "bytes"
+          }
+        ],
+        "name": "isValidPubKey",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes",
             "name": "pub_",
+            "type": "bytes"
+          },
+          {
+            "internalType": "address",
+            "name": "pubAddr_",
             "type": "address"
           },
           {
@@ -260,6 +300,25 @@ const definitions = {
         "name": "resolvePublicKey",
         "outputs": [
           {
+            "internalType": "bytes",
+            "name": "",
+            "type": "bytes"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "addr_",
+            "type": "address"
+          }
+        ],
+        "name": "resolvePublicKeyAddress",
+        "outputs": [
+          {
             "internalType": "address",
             "name": "",
             "type": "address"
@@ -298,7 +357,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xE9c8c1A79670128201D75F1D4025AF72755537E5"
+    "address": "0x95e7aDA1BB5F7841B8dDaC320aBFE1660dCBE7aB"
   },
   "SubHandler": {
     "abi": [
@@ -524,7 +583,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xA8cF343Ac570BFa226C8a6CB55013b2Bf6ed6105"
+    "address": "0x009FB7A3342677BaC36d9f0438a09215AA441345"
   },
   "KeyManager": {
     "abi": [
@@ -537,38 +596,21 @@ const definitions = {
         "inputs": [
           {
             "internalType": "string",
-            "name": "cid",
+            "name": "cid_",
             "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "for_",
+            "type": "address"
           }
         ],
-        "name": "getKey",
+        "name": "getKeySeed",
         "outputs": [
           {
-            "components": [
-              {
-                "internalType": "address",
-                "name": "uploader",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-              },
-              {
-                "internalType": "uint256",
-                "name": "timestamp",
-                "type": "uint256"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "seed",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct KeyManager.Key",
+            "internalType": "bytes",
             "name": "",
-            "type": "tuple"
+            "type": "bytes"
           }
         ],
         "stateMutability": "view",
@@ -578,8 +620,18 @@ const definitions = {
         "inputs": [
           {
             "internalType": "string",
-            "name": "cid",
+            "name": "cid_",
             "type": "string"
+          },
+          {
+            "internalType": "address[]",
+            "name": "for_",
+            "type": "address[]"
+          },
+          {
+            "internalType": "bytes[]",
+            "name": "values_",
+            "type": "bytes[]"
           }
         ],
         "name": "registerUpload",
@@ -611,18 +663,13 @@ const definitions = {
             "internalType": "uint256",
             "name": "timestamp",
             "type": "uint256"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "seed",
-            "type": "bytes32"
           }
         ],
         "stateMutability": "view",
         "type": "function"
       }
     ],
-    "address": "0xD9f808b3d6DFc80CF0b8BbfF1418d042be44E2F9"
+    "address": "0x3dc72bCEad846e4823fDaa41F9DE1c77170a38b3"
   },
   "usdfc": {
     "abi": [
