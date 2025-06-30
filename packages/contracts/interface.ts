@@ -148,7 +148,7 @@ class Contracts {
   async publishEncryptedKeys(options: {
     cid: string;
     msg: string;
-    receipients: viem.Address[];
+    recipients: viem.Address[];
     safe?: boolean;
   }) {
     if (!(await this.isRegistered())) {
@@ -156,16 +156,19 @@ class Contracts {
     }
 
     const misses: Set<viem.Address> = new Set();
-    const { msg, receipients, safe } = options;
+    const { msg, recipients, safe } = options;
+
+    // Ensure the uploader is included as a recipient
+    const allRecipients = [...new Set([...recipients, this.client.account.address])];
 
     const publicKeys: { originalAddress: viem.Address; pubKey: viem.Hex }[] = (
       await Promise.all(
-        receipients.map(async (address) => {
+        allRecipients.map(async (address) => {
           try {
-            const pubKey = await this.iam.read.resolvePublicKeyAddress([
+            const pubKey = await this.iam.read.resolvePublicKey([
               address,
             ]);
-            if (!pubKey) {
+            if (!pubKey || pubKey === "0x") {
               misses.add(address);
               if (safe) {
                 throw new Error(
@@ -230,16 +233,29 @@ class Contracts {
     const address = this.client.account.address;
 
     const seed = await this.keyManager.read.getKeySeed([cid, address]);
-    if (!seed) {
+    if (!seed || seed === "0x" || seed.length <= 2) {
       throw new Error(
         `No key seed found for CID: ${cid} and address: ${address}`
       );
     }
 
+    // Get the uploader's address from the upload record
+    const upload = await this.keyManager.read.uploads([cid]);
+    const uploaderAddress = upload[0]; // uploader is the first element
+    
+    if (!uploaderAddress || uploaderAddress === "0x0000000000000000000000000000000000000000") {
+      throw new Error(`No uploader found for CID: ${cid}`);
+    }
+
     const encryptionKey = await this.getEncryptionKey();
+    // Get the actual uploader's public key
     const uploaderPublicKey = await this.iam.read.resolvePublicKey([
-      this.client.account.address,
+      uploaderAddress,
     ]);
+
+    if (!uploaderPublicKey || uploaderPublicKey === "0x") {
+      throw new Error(`No public key found for uploader: ${uploaderAddress}`);
+    }
 
     const aesKey = await deriveSharedKey(
       encryptionKey.replace(/^0x/, ""),

@@ -37,13 +37,20 @@ export default function Test() {
   async function handleUpload() {
     await mutateContractsAsync(async (contracts) => {
       const tx = await contracts.publishEncryptedKeys({
-        cid: "bafkreih4psykh5lmzrn2eq6ejxvnpz3y52gz6b5ztaw2sx4in257ojpliq",
-        msg: "test",
-        receipients: ["0x5D56b71abE6cA1Dc208Ed85926178f9758fa879c"],
+        cid: "bafkreihl6eos6cyvfltwmu2jof4sqfkpmlra5uqm6wcihz66z6smubdkhu",
+        msg: "slc+xK7ylDJFe68PKLXSnsDCq7Y1mplYM6daF3vWDso=:D5AlDffQIHaNVvvG",
+        recipients: ["0x5D56b71abE6cA1Dc208Ed85926178f9758fa879c"],
         safe: false,
-      })
+      });
 
       console.log(tx);
+    });
+  }
+
+  async function handleDownload() {
+    await mutateContractsAsync(async (contracts) => {
+      const key = await contracts.getKeyForFile("bafkreihl6eos6cyvfltwmu2jof4sqfkpmlra5uqm6wcihz66z6smubdkhu");
+      console.log(key);
     });
   }
 
@@ -51,7 +58,9 @@ export default function Test() {
     <div>
       <Navbar />
       <div className="flex flex-col gap-4 items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20 px-[var(--paddingx)] h-screen">
+        <Button onClick={handleRegister}>register</Button>
         <Button onClick={handleUpload}>upload</Button>
+        <Button onClick={handleDownload}>download</Button>
         <p className="text-sm text-muted-foreground">
           address: {connectedAccount.address}
         </p>
