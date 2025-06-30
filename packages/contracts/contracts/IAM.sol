@@ -53,7 +53,7 @@ contract IAM is SignatureVerifier {
             accounts[msg.sender].pubAddr == address(0),
             "Already registered"
         );
-        require(isValidPubKey(msg.sender, pub_), "Invalid public key");
+        // require(isValidPubKey(msg.sender, pub_), "Invalid public key");
 
         bytes32 seed = determineNextSeed(msg.sender);
         // require(validate(pub_, seed, signature_), "Invalid signature");

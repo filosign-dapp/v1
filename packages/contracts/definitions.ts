@@ -153,7 +153,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xc49535b1b87a5ed98c1507d606c917d1a7edd521"
+    "address": "0xd6ba862da242b793d940345f926d2937b5d9d7be"
   },
   "IAM": {
     "abi": [
@@ -357,7 +357,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x95e7aDA1BB5F7841B8dDaC320aBFE1660dCBE7aB"
+    "address": "0x5ab814b47700EED7561fDecd930d63350cAebac4"
   },
   "SubHandler": {
     "abi": [
@@ -583,7 +583,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x009FB7A3342677BaC36d9f0438a09215AA441345"
+    "address": "0xA9b08B1B3B291ee0b17805B9f563F48816e8039e"
   },
   "KeyManager": {
     "abi": [
@@ -669,7 +669,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x3dc72bCEad846e4823fDaa41F9DE1c77170a38b3"
+    "address": "0x9AA558D2F58E4170F4a8DE45DD7f92C5D6db8e7A"
   },
   "usdfc": {
     "abi": [
