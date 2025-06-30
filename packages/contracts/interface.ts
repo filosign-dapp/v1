@@ -11,12 +11,6 @@ import {
   unpackEncrypted,
 } from "./utils";
 import { privateKeyToAccount } from "viem/accounts";
-import {
-  createCipheriv,
-  createDecipheriv,
-  randomBytes,
-  createHash,
-} from "crypto";
 
 const primaryChain = filecoinCalibration;
 
@@ -124,8 +118,8 @@ class Contracts {
     });
 
     await this.iam.write.register([
-      encryptionWallet.account.address,
       encryptionWallet.account.publicKey,
+      encryptionWallet.account.address,
       verificationSignature,
     ]);
   }
@@ -207,11 +201,11 @@ class Contracts {
         continue;
       }
 
-      const aesKey = deriveSharedKey(
+      const aesKey = await deriveSharedKey(
         encryptionKey.replace(/^0x/, ""),
         entry.pubKey.replace(/^0x/, "")
       );
-      const encryptedData = encryptAES(msg, aesKey);
+      const encryptedData = await encryptAES(msg, aesKey);
       const packed = packEncrypted(
         encryptedData.encrypted,
         encryptedData.iv,
@@ -245,13 +239,13 @@ class Contracts {
       this.client.account.address,
     ]);
 
-    const aesKey = deriveSharedKey(
+    const aesKey = await deriveSharedKey(
       encryptionKey.replace(/^0x/, ""),
       uploaderPublicKey.replace(/^0x/, "")
     );
 
     const unpacked = unpackEncrypted(seed);
-    const decrypted = decryptAES(
+    const decrypted = await decryptAES(
       unpacked.encrypted,
       aesKey,
       unpacked.iv,

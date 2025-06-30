@@ -1,19 +1,8 @@
-import { toast } from "sonner";
 import { Button } from "@/src/lib/components/ui/button";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useSignMessage } from "wagmi";
-import { extractPrivateKeyFromSignature } from "@/src/lib/utils";
 import Navbar from "@/src/lib/components/app/Navbar";
 import useContracts from "@/src/lib/hooks/use-contracts";
-import {
-  createWalletClient,
-  encodePacked,
-  http,
-  keccak256,
-  type TransactionReceipt,
-} from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { filecoinCalibration } from "viem/chains";
 import { useState } from "react";
 
 export default function Test() {
@@ -30,6 +19,16 @@ export default function Test() {
   });
 
   async function handleRegister() {
+    let isRegistered = false;
+    await mutateContractsAsync(async (contracts) => {
+      isRegistered = await contracts.isRegistered();
+    });
+
+    if (isRegistered) {
+      console.log("already registered");
+      return;
+    }
+
     await mutateContractsAsync(async (contracts) => {
       await contracts.register();
     });
