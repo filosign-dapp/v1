@@ -1,14 +1,13 @@
 import { Button } from "@/src/lib/components/ui/button";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
-import { useSignMessage } from "wagmi";
 import Navbar from "@/src/lib/components/app/Navbar";
 import useContracts from "@/src/lib/hooks/use-contracts";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Test() {
   const connectedAccount = useAccount();
   const { mutateAsync: mutateContractsAsync } = useContracts();
-  const { signMessageAsync } = useSignMessage();
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
   const {
     data: txReceipt,
@@ -25,12 +24,26 @@ export default function Test() {
     });
 
     if (isRegistered) {
-      console.log("already registered");
+      toast.warning("You are already registered");
       return;
     }
 
     await mutateContractsAsync(async (contracts) => {
-      await contracts.register();
+      const txHash = await contracts.register();
+      setTxHash(txHash);
+    });
+  }
+
+  async function handleUpload() {
+    await mutateContractsAsync(async (contracts) => {
+      const tx = await contracts.publishEncryptedKeys({
+        cid: "bafkreih4psykh5lmzrn2eq6ejxvnpz3y52gz6b5ztaw2sx4in257ojpliq",
+        msg: "test",
+        receipients: ["0x5D56b71abE6cA1Dc208Ed85926178f9758fa879c"],
+        safe: false,
+      })
+
+      console.log(tx);
     });
   }
 
@@ -38,7 +51,7 @@ export default function Test() {
     <div>
       <Navbar />
       <div className="flex flex-col gap-4 items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20 px-[var(--paddingx)] h-screen">
-        <Button onClick={handleRegister}>register</Button>
+        <Button onClick={handleUpload}>upload</Button>
         <p className="text-sm text-muted-foreground">
           address: {connectedAccount.address}
         </p>

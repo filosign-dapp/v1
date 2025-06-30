@@ -117,11 +117,13 @@ class Contracts {
       },
     });
 
-    await this.iam.write.register([
+    const tx = await this.iam.write.register([
       encryptionWallet.account.publicKey,
       encryptionWallet.account.address,
       verificationSignature,
     ]);
+
+    return tx;
   }
 
   async isRegistered() {
@@ -220,7 +222,7 @@ class Contracts {
     return { misses };
   }
 
-  async getKeyForUpload(cid: string) {
+  async getKeyForFile(cid: string) {
     if (!(await this.isRegistered())) {
       throw new Error("You are not registered. Please register first.");
     }

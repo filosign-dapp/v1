@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import useWeb3 from "../context/contracts-provider";
 import { useMutation } from "@tanstack/react-query";
 import { useSwitchChain } from "wagmi";
@@ -9,43 +8,32 @@ export default function () {
   const { switchChain } = useSwitchChain();
   return useMutation({
     mutationFn: async (fn: Parameters<typeof act>[0]) => {
-      if (!ready) throw toast.error("ugh");
+      if (!ready) {
+        console.error("ugh");
+        throw new Error("ugh");
+      }
 
-      if (status === "disconnected")
-        throw toast.error("Please connect your wallet to continue.");
-      if (status === "unsupported-chain")
-        throw toast.error(
-          "Unsupported chain. Please switch to the correct network.",
-          {
-            action: {
-              label: "Switch",
-              onClick: () => {
-                switchChain({ chainId: Contracts.chain.id });
-              },
-            },
-          }
-        );
-      if (status === "panic")
-        throw toast.error(
-          "An error occurred. Please reload the page and try again later.",
-          {
-            action: {
-              label: "Reload",
-              onClick: () => {
-                window.location.reload();
-              },
-            },
-          }
-        );
+      if (status === "disconnected") {
+        console.error("Please connect your wallet to continue.");
+        throw new Error("Please connect your wallet to continue.");
+      }
+      if (status === "unsupported-chain") {
+        console.error("Unsupported chain. Please switch to the correct network.");
+        throw new Error("Unsupported chain. Please switch to the correct network.");
+      }
+      if (status === "panic") {
+        console.error("An error occurred. Please reload the page and try again later.");
+        throw new Error("An error occurred. Please reload the page and try again later.");
+      }
 
       return act(fn);
     },
     onError: (error) => {
       console.error("Error in useContracts mutation:", error);
-      toast.error("An error occurred while processing your request on chain.");
+      console.error("An error occurred while processing your request on chain.");
     },
     onSuccess: () => {
-      toast.success("Operation completed successfully!");
+      console.log("Transaction successful!");
     },
   });
 }
