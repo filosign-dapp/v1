@@ -79,3 +79,13 @@ export const useUploadSession = create<UploadSessionStore>((set) => ({
   setLastUploadResults: (results) => set({ lastUploadResults: results }),
   clearLastUploadResults: () => set({ lastUploadResults: [] })
 }));
+
+interface UserStore {
+  isRegistered: boolean;
+  setIsRegistered: (isRegistered: boolean) => void;
+}
+
+export const useUserStore = create<UserStore>((set) => ({
+  isRegistered: false,
+  setIsRegistered: (isRegistered) => set({ isRegistered })
+}));

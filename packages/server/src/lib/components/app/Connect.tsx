@@ -13,6 +13,7 @@ import {
 } from "../ui/dropdown-menu"
 import Icon from "../custom/Icon";
 import { Link } from "@tanstack/react-router";
+import { useUserStore } from "../../hooks/use-store";
 
 export default function Connect() {
     const { ready, authenticated, user, login, logout } = usePrivy();
@@ -56,7 +57,9 @@ export default function Connect() {
                     Billing
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => logout()}>
+                <DropdownMenuItem onClick={() => {
+                    logout();
+                }}>
                     <Icon name="LogOut" className="mr-2 w-4 h-4" />
                     Disconnect
                 </DropdownMenuItem>

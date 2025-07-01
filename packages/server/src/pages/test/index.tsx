@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 export default function Test() {
   const connectedAccount = useAccount();
-  const { mutateAsync: mutateContractsAsync } = useContracts();
+  const { mutateAsync: mutateContractsAsync } = useContracts().mutate;
 
   async function handleRegister() {
     try {

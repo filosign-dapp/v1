@@ -77,9 +77,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
           resolve(result);
         })
         .catch((error) => {
-          console.error("Error in Web3Context action:", error);
-          //   setStatus("panic");
-          reject();
+          reject(error);
         })
         .finally(() => {
           setStatus("idle");
