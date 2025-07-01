@@ -13,7 +13,6 @@ import {
 } from "../ui/dropdown-menu"
 import Icon from "../custom/Icon";
 import { Link } from "@tanstack/react-router";
-import { useUserStore } from "../../hooks/use-store";
 
 export default function Connect() {
     const { ready, authenticated, user, login, logout } = usePrivy();

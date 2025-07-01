@@ -75,6 +75,7 @@
   --neo-purple-dark: hsl(296, 94%, 35%);
 }
 
+/* 
 .dark {
   --background: hsl(240 8% 6%);
   --foreground: hsl(0 0% 92%);
@@ -139,7 +140,7 @@
   --neo-beige-2-dark: hsl(33, 61%, 40%);
   --neo-cyan-dark: hsl(169, 57%, 35%);
   --neo-purple-dark: hsl(296, 94%, 35%);
-}
+} */
 
 @theme inline {
   --font-manrope: "Manrope", sans-serif;

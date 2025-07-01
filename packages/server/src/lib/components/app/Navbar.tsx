@@ -2,8 +2,7 @@ import Icon from "../custom/Icon";
 import { Button } from "../ui/button";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import Connect from "./Connect";
-import Premium from "./Premium";
-import { usePrivy } from "@privy-io/react-auth";
+import PremiumButton from "./PremiumButton";
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -17,7 +16,7 @@ export default function Navbar() {
       </Link>
 
       <div className="flex gap-2">
-        <Premium />
+        <PremiumButton />
 
         <Button
           onClick={() => navigate({ to: currentPath !== '/upload' ? '/upload' : '/history' })}

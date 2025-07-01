@@ -127,6 +127,7 @@ class Contracts {
   }
 
   async isRegistered() {
+    console.log(this.client.account.address);
     return await this.iam.read.registered([this.client.account.address]);
   }
 

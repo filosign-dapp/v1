@@ -1,20 +1,14 @@
 import { PrivyProvider as PrivyProviderBase } from '@privy-io/react-auth';
-import { useTheme } from './theme-provider';
 
 export function PrivyProvider({ children }: { children: React.ReactNode }) {
-    const {theme} = useTheme();
     return (
         <PrivyProviderBase
             appId={process.env.BUN_PUBLIC_PRIVY_APP_ID!}
             config={{
-                loginMethods: ["email", "wallet", "google"],
-                embeddedWallets: {
-                    ethereum: {
-                        createOnLogin: "users-without-wallets",
-                    },
-                },
+                loginMethods: ["wallet"],
                 appearance: {
-                    theme: theme === "dark" ? "dark" : "light",
+                    theme: "light",
+                    landingHeader: "Sign in to Portal"
                 }
             }}
         >
