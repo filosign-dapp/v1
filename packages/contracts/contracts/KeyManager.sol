@@ -52,7 +52,7 @@ contract KeyManager {
         string calldata cid_,
         address for_
     ) external view returns (bytes memory) {
-        require(uploads[cid_].timestamp != 0, "Not registered");
+        require(uploads[cid_].timestamp != 0, "File not exist");
         return uploads[cid_].seeds[for_];
     }
 }

@@ -159,15 +159,15 @@ class Contracts {
     const { msg, recipients, safe } = options;
 
     // Ensure the uploader is included as a recipient
-    const allRecipients = [...new Set([...recipients, this.client.account.address])];
+    const allRecipients = [
+      ...new Set([...recipients, this.client.account.address]),
+    ];
 
     const publicKeys: { originalAddress: viem.Address; pubKey: viem.Hex }[] = (
       await Promise.all(
         allRecipients.map(async (address) => {
           try {
-            const pubKey = await this.iam.read.resolvePublicKey([
-              address,
-            ]);
+            const pubKey = await this.iam.read.resolvePublicKey([address]);
             if (!pubKey || pubKey === "0x") {
               misses.add(address);
               if (safe) {
@@ -241,20 +241,23 @@ class Contracts {
 
     // Get the uploader's address from the upload record
     const upload = await this.keyManager.read.uploads([cid]);
-    const uploaderAddress = upload[0]; // uploader is the first element
-    
-    if (!uploaderAddress || uploaderAddress === "0x0000000000000000000000000000000000000000") {
+    const ownerAddress = upload[1]; // uploader is the first element
+
+    if (
+      !ownerAddress ||
+      ownerAddress === "0x0000000000000000000000000000000000000000"
+    ) {
       throw new Error(`No uploader found for CID: ${cid}`);
     }
 
     const encryptionKey = await this.getEncryptionKey();
     // Get the actual uploader's public key
     const uploaderPublicKey = await this.iam.read.resolvePublicKey([
-      uploaderAddress,
+      ownerAddress,
     ]);
 
     if (!uploaderPublicKey || uploaderPublicKey === "0x") {
-      throw new Error(`No public key found for uploader: ${uploaderAddress}`);
+      throw new Error(`No public key found for uploader: ${ownerAddress}`);
     }
 
     const aesKey = await deriveSharedKey(
