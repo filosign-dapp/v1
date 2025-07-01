@@ -8,7 +8,7 @@ export default function Layout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-background [--navbar-height:4.5rem] sm:[--sidebar-width:0rem] overflow-auto [--paddingx:1rem] sm:[--paddingx:2rem]">
+    <div className="bg-background [--navbar-height:5rem] sm:[--sidebar-width:0rem] overflow-auto [--paddingx:1rem] sm:[--paddingx:2rem]">
       <Navbar />
       {/* <Sidebar /> */}
 

@@ -57,13 +57,7 @@ export default function Pro() {
         }
     }, [readyContracts, authenticated]);
 
-    if (!ready || !authenticated) return null;
-
-    if (!readyContracts || isLoading) return (
-        <Button disabled className="px-3 py-5">
-            <Skeleton className="w-24 h-2" />
-        </Button>
-    );
+    if (!ready || !authenticated || !readyContracts || isLoading) return null;
 
     return (
         <PremiumSheet
@@ -71,18 +65,14 @@ export default function Pro() {
             onOpenChange={setIsSheetOpen}
             onRegister={handleRegister}
         >
-            <Button onClick={handleButtonClick} variant="outline" className="px-3 py-5">
-                <span className="">
-                    {isRegistered ? (
-                        <div className="flex items-center gap-2">
-                            <p className="font-semibold">Premium</p>
-                            <Icon name="Sparkles" className="size-4 text-primary" />
-                        </div>
-                    ) : (
-                        <p className="text-primary font-semibold">Get Premium</p>
-                    )}
-                </span>
-            </Button>
+            {!isRegistered && (
+                <Button 
+                    onClick={handleButtonClick} 
+                    className="bg-neo-purple border-4 border-black text-zinc-950 font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all uppercase text-sm hover:bg-white rounded-none px-3 py-2"
+                >
+                    <span className="font-black">Get Premium</span>
+                </Button>
+            )}
         </PremiumSheet>
     );
 }

@@ -18,47 +18,51 @@ export default function Connect() {
     const { ready, authenticated, user, login, logout } = usePrivy();
 
     if (!ready) return (
-        <Button disabled className="px-3 py-5">
-            <Skeleton className="w-24 h-2" />
+        <Button disabled variant="neo" className="rounded-sm">
+            <Skeleton className="w-24 h-2 bg-neo-beige-1-dark" />
         </Button>
     );
 
     if (!authenticated) return (
-        <Button onClick={() => login()} className="px-3 py-5">
+        <Button 
+            onClick={() => login()} 
+            variant="neo"
+            className="py-1 px-5 rounded-sm"
+        >
             Connect Wallet
         </Button>
     );
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger>
-                <div className="flex gap-2 justify-center items-center py-1 w-36 text-sm rounded-sm border hover:bg-accent/30">
-                    <Avatar className="size-8">
+            <DropdownMenuTrigger asChild>
+                <Button variant="neo" className="rounded-sm">
+                    <Avatar className="size-6">
                         <AvatarImage src={localStorage.getItem(`profile_image_${user?.id}`) || undefined} className="object-cover" />
-                        <AvatarFallback className="text-2xl">
+                        <AvatarFallback className="text-xs font-black bg-neo-yellow-1 border border-black">
                             {user?.wallet?.address?.slice(0, 1)?.toUpperCase() || "U"}
                         </AvatarFallback>
                     </Avatar>
-                    <span>{truncateAddress(user?.wallet?.address ?? "")}</span>
-                </div>
+                    <span className="font-bold text-zinc-950 text-xs">{truncateAddress(user?.wallet?.address ?? "")}</span>
+                </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="mt-1 w-48">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+            <DropdownMenuContent align="end" className="mt-2 w-48 bg-neo-bg border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none">
+                <DropdownMenuLabel className="font-black uppercase text-zinc-900">My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-black h-[2px]" />
                 <DropdownMenuItem asChild>
-                    <Link to="/profile" className="flex items-center cursor-pointer">
+                    <Link to="/profile" className="flex items-center cursor-pointer font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
                         <Icon name="User" className="mr-2 w-4 h-4" />
                         Profile
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
                     <Icon name="CreditCard" className="mr-2 w-4 h-4" />
                     Billing
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-black h-[2px]" />
                 <DropdownMenuItem onClick={() => {
                     logout();
-                }}>
+                }} className="font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
                     <Icon name="LogOut" className="mr-2 w-4 h-4" />
                     Disconnect
                 </DropdownMenuItem>

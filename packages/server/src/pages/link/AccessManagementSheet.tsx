@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'motion/react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
@@ -10,16 +10,10 @@ import useContracts from '@/src/lib/hooks/use-contracts'
 import { toast } from 'sonner'
 
 // Mock data for existing access - replace with real data later
-const mockExistingAccess = [
+const mockExistingAccess: { address: string, grantedAt: string }[] = [
   {
     address: '0x5D56b71abE6cA1Dc208Ed85926178f9758fa879c',
     grantedAt: '2024-01-15',
-    nickname: 'Alice'
-  },
-  {
-    address: '0x742d35Cc6C4563C7B8Dd2E9a4b2d71cA0b23F4a1',
-    grantedAt: '2024-01-14',
-    nickname: 'Bob'
   }
 ]
 
@@ -30,11 +24,11 @@ interface AccessManagementSheetProps {
   encryptionKey: string
 }
 
-export default function AccessManagementSheet({ 
-  isOpen, 
-  onOpenChange, 
-  cid, 
-  encryptionKey 
+export default function AccessManagementSheet({
+  isOpen,
+  onOpenChange,
+  cid,
+  encryptionKey
 }: AccessManagementSheetProps) {
   const [recipients, setRecipients] = useState<string[]>([''])
   const [isPublishing, setIsPublishing] = useState(false)
@@ -60,20 +54,20 @@ export default function AccessManagementSheet({
   const handlePublishEncryptedKeys = async () => {
     try {
       setIsPublishing(true)
-      
+
       // Filter out empty addresses
       const validRecipients = recipients.filter(addr => addr.trim() !== '')
-      
+
       if (validRecipients.length === 0) {
         toast.error("Please enter at least one recipient address")
         return
       }
 
       // Validate Ethereum addresses (basic validation)
-      const invalidAddresses = validRecipients.filter(addr => 
+      const invalidAddresses = validRecipients.filter(addr =>
         !addr.match(/^0x[a-fA-F0-9]{40}$/)
       )
-      
+
       if (invalidAddresses.length > 0) {
         toast.error("Please enter valid Ethereum addresses")
         return
@@ -88,12 +82,11 @@ export default function AccessManagementSheet({
         });
 
         console.log('Transaction:', tx);
-        toast.success(`Successfully shared file access with ${validRecipients.length} recipient(s)!`)
+        toast.success(`Request submitted!`)
       });
-      
+
       // Reset recipients after successful submission
-      setRecipients([''])
-      onOpenChange(false)
+      setRecipients(['']);
     } catch (error) {
       console.error('Error publishing encrypted keys:', error)
       toast.error("Failed to share file access. Please try again.")
@@ -108,14 +101,14 @@ export default function AccessManagementSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-md w-full bg-neo-beige-2 overflow-y-auto p-0">
+      <SheetContent className="overflow-y-auto p-0 w-full sm:max-w-md bg-neo-beige-2">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="p-6"
         >
-          <SheetHeader className="text-center space-y-4">
+          <SheetHeader className="space-y-4 text-center">
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
@@ -124,10 +117,10 @@ export default function AccessManagementSheet({
             >
               <Icon name="Users" className="size-8 text-zinc-950" />
             </motion.div>
-            
+
             <div>
               <SheetTitle className="text-2xl font-bold">Manage File Access</SheetTitle>
-              <SheetDescription className="text-base mt-2">
+              <SheetDescription className="mt-2 text-base">
                 Control who has direct access to your file through their premium accounts.
               </SheetDescription>
             </div>
@@ -136,17 +129,12 @@ export default function AccessManagementSheet({
           {/* Add New Recipients Section */}
           <Card className="p-6 bg-neo-beige-1 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mt-6">
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="flex-shrink-0 w-8 h-8 bg-neo-purple border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center">
-                  <Icon name="Plus" className="size-4 text-zinc-950" />
-                </div>
-                <h4 className="font-black text-lg uppercase tracking-wide text-zinc-900">Grant New Access</h4>
-              </div>
-              
+              <h4 className="text-lg font-black tracking-wide uppercase text-zinc-900">Grant New Access</h4>
+
               <div className="space-y-3">
                 {recipients.map((recipient, index) => (
-                  <motion.div 
-                    key={index} 
+                  <motion.div
+                    key={index}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -156,7 +144,7 @@ export default function AccessManagementSheet({
                       placeholder="0x... (Ethereum address)"
                       value={recipient}
                       onChange={(e) => updateRecipient(index, e.target.value)}
-                      className="font-mono text-sm border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-none focus:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] transition-all duration-150"
+                      className="font-mono text-sm border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 rounded-sm"
                     />
                     {recipients.length > 1 && (
                       <Button
@@ -170,13 +158,13 @@ export default function AccessManagementSheet({
                     )}
                   </motion.div>
                 ))}
-                
+
                 <div className="flex gap-2">
                   <Button
-                    variant="outline"
+                    variant="neo"
                     size="sm"
                     onClick={addRecipientField}
-                    className="flex items-center gap-2 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] rounded-none bg-neo-cyan transition-all duration-150"
+                    className="bg-neo-beige-2 rounded-none"
                   >
                     <Icon name="Plus" className="w-4 h-4 text-zinc-950" />
                     <span className="font-bold text-zinc-950">Add Recipient</span>
@@ -186,15 +174,17 @@ export default function AccessManagementSheet({
                 <Button
                   onClick={handlePublishEncryptedKeys}
                   disabled={isPublishing}
-                  className="w-full bg-neo-yellow-1 border-4 border-black text-zinc-950 font-black py-6 text-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 uppercase tracking-wide hover:bg-white rounded-none"
+                  variant={"neo"}
+                  className="w-full bg-neo-beige-2"
+                  size={"neo-lg"}
                 >
                   {isPublishing ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <div className="flex gap-2 items-center">
+                      <div className="w-4 h-4 rounded-full border-2 border-current animate-spin border-t-transparent" />
                       Granting Access...
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
+                    <div className="flex gap-2 items-center">
                       <Icon name="Users" className="size-5" />
                       Grant File Access
                     </div>
@@ -207,46 +197,42 @@ export default function AccessManagementSheet({
           {/* Existing Access List */}
           <Card className="p-6 bg-neo-beige-1 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mt-6">
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="flex-shrink-0 w-8 h-8 bg-neo-purple border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center">
-                  <Icon name="Users" className="size-4 text-zinc-950" />
-                </div>
-                <h4 className="font-black text-lg uppercase tracking-wide text-zinc-900">Current Access</h4>
-                <span className="text-xs bg-neo-cyan border-2 border-black text-zinc-950 px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-bold uppercase tracking-wide">
-                  {mockExistingAccess.length} users
-                </span>
+              <div className="flex gap-2 items-center justify-between">
+                <h4 className="text-lg font-black tracking-wide uppercase text-zinc-900">Current Access</h4>
+                <Button variant={"neo-static"} className="bg-neo-beige-2 size-7 rounded-none ml-auto">
+                  {mockExistingAccess.length}
+                </Button>
               </div>
 
               <div className="space-y-3">
                 {mockExistingAccess.length > 0 ? (
                   mockExistingAccess.map((access, index) => (
-                    <motion.div 
-                      key={index} 
+                    <motion.div
+                      key={index}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
                       className={cn(
-                        "flex items-center justify-between p-4 transition-all duration-150",
+                        "flex justify-between items-center p-4 transition-all duration-150",
                         "bg-neo-bg border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]"
                       )}
                     >
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-sm text-zinc-950">{access.nickname}</span>
+                        <div className="flex gap-2 items-center">
                           <span className="text-xs bg-neo-green border border-black text-zinc-950 px-2 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-bold uppercase tracking-wide">
                             Active
                           </span>
                         </div>
-                        <p className="font-mono text-xs text-zinc-700 font-bold">
+                        <p className="font-mono text-xs font-bold text-zinc-700">
                           {formatAddress(access.address)}
                         </p>
-                        <p className="text-xs text-zinc-600 font-bold">
+                        <p className="text-xs font-bold text-zinc-600">
                           Granted on {access.grantedAt}
                         </p>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] rounded-none bg-neo-pink text-zinc-950 font-bold hover:bg-white transition-all duration-150"
                       >
                         Revoke
@@ -255,7 +241,7 @@ export default function AccessManagementSheet({
                   ))
                 ) : (
                   <div className="text-center p-8 text-zinc-600 bg-neo-bg border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                    <Icon name="Users" className="w-12 h-12 mx-auto mb-3 opacity-50 text-zinc-500" />
+                    <Icon name="Users" className="mx-auto mb-3 w-12 h-12 opacity-50 text-zinc-500" />
                     <p className="text-sm font-bold">No users have been granted access yet</p>
                   </div>
                 )}

@@ -22,11 +22,16 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        neo:
+          "bg-neo-beige-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all hover:bg-neo-beige-2 font-bold rounded-none",
+        "neo-static": "bg-neo-beige-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]  transition-all font-bold cursor-default rounded-none",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        
+        "neo-lg": "h-12 px-8 has-[>svg]:px-6 text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]",
         icon: "size-9",
       },
     },
