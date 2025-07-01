@@ -2,6 +2,7 @@ import useWeb3 from "../context/contracts-provider";
 import { useMutation } from "@tanstack/react-query";
 import { useSwitchChain } from "wagmi";
 import { Contracts } from "contracts";
+import { toast } from "sonner";
 
 export default function () {
   const { act, ready, status } = useWeb3();
@@ -9,31 +10,33 @@ export default function () {
   return useMutation({
     mutationFn: async (fn: Parameters<typeof act>[0]) => {
       if (!ready) {
-        console.error("ugh");
-        throw new Error("ugh");
+        toast.error("Web3 client not ready");
+        return;
       }
 
       if (status === "disconnected") {
-        console.error("Please connect your wallet to continue.");
-        throw new Error("Please connect your wallet to continue.");
+        toast.error("Please connect your wallet to continue.");
+        return;
       }
+
       if (status === "unsupported-chain") {
-        console.error("Unsupported chain. Please switch to the correct network.");
-        throw new Error("Unsupported chain. Please switch to the correct network.");
+        toast.error("Unsupported chain. Please switch to the correct network.");
+        return;
       }
+
       if (status === "panic") {
-        console.error("An error occurred. Please reload the page and try again later.");
-        throw new Error("An error occurred. Please reload the page and try again later.");
+        toast.error("An error occurred. Please reload the page and try again later.");
+        return;
       }
 
       return act(fn);
     },
     onError: (error) => {
       console.error("Error in useContracts mutation:", error);
-      console.error("An error occurred while processing your request on chain.");
+      toast.error("An error occurred while processing your request on chain.");
     },
     onSuccess: () => {
-      console.log("Transaction successful!");
+      toast.success("Transaction submitted successfully!");
     },
   });
 }
