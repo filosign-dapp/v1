@@ -175,7 +175,7 @@ export default function LinkGenerated() {
           <Link to="/upload">
             <Button
               variant={"neo"}
-              className="bg-neo-beige-2 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+              className="border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
               size={"lg"}
             >
               <div className="flex gap-3 items-center">

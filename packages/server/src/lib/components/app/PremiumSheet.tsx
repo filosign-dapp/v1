@@ -84,7 +84,7 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
                 {children}
             </SheetTrigger>
             
-            <SheetContent className="sm:max-w-md w-full bg-neo-beige-2 overflow-y-auto p-0">
+            <SheetContent className="sm:max-w-md w-full bg-neo-bg overflow-y-auto p-0">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -97,7 +97,7 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
                             animate={{ scale: 1 }}
                             transition={{ duration: 0.3, delay: 0.1 }}
                             className={cn(
-                                "mx-auto w-16 h-16 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-full flex items-center justify-center",
+                                "mx-auto w-16 h-16 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center",
                                 isRegistered ? "bg-neo-yellow-1" : "bg-neo-indigo"
                             )}
                         >
@@ -105,10 +105,10 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
                         </motion.div>
                         
                         <div>
-                            <SheetTitle className="text-2xl font-bold">
+                            <SheetTitle className="text-2xl font-bold text-zinc-900">
                                 {isRegistered ? "Premium Active" : "Unlock Premium"}
                             </SheetTitle>
-                            <SheetDescription className="text-base mt-2">
+                            <SheetDescription className="text-base mt-2 text-zinc-600 font-medium">
                                 {isRegistered 
                                     ? "You have access to all premium Web3 features powered by smart contracts"
                                     : "Get access to powerful Web3 features powered by smart contracts"
@@ -117,9 +117,9 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
                         </div>
                     </SheetHeader>
 
-                    <Card className="p-6 bg-neo-beige-1 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                    <Card className="p-6 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg mt-6">
                         <div className="space-y-6">
-                            <h3 className="text-lg font-black text-center uppercase tracking-wide text-zinc-900">
+                            <h3 className="text-lg font-bold text-center uppercase tracking-wide text-zinc-900">
                                 {isRegistered ? "Your Premium Features" : "Premium Features"}
                             </h3>
                             
@@ -132,15 +132,15 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
                                         transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
                                         className={cn(
                                             "flex items-start gap-4 p-4 rounded-lg transition-all duration-150",
-                                            "bg-neo-bg border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]"
+                                            "bg-neo-beige-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]"
                                         )}
                                     >
-                                        <div className="flex-shrink-0 w-10 h-10 bg-neo-purple border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center">
+                                        <div className="flex-shrink-0 w-10 h-10 bg-neo-purple border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center">
                                             <Icon name={feature.icon as any} className="size-5 text-zinc-950" />
                                         </div>
                                         <div className="space-y-1">
-                                            <h4 className="font-semibold text-sm">{feature.title}</h4>
-                                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                            <h4 className="font-semibold text-sm text-zinc-900">{feature.title}</h4>
+                                            <p className="text-sm text-zinc-600 leading-relaxed">
                                                 {feature.description}
                                             </p>
                                         </div>
@@ -154,17 +154,17 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: 0.6 }}
-                        className="space-y-4 mt-8 mx-4"
+                        className="space-y-4 mt-8"
                     >
                         {isRegistered ? (
-                            <div className="p-4 bg-neo-cyan border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg text-center">
+                            <div className="p-4 bg-neo-green border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg text-center">
                                 <div className="flex items-center justify-center gap-2 mb-2">
                                     <Icon name="CircleCheck" className="size-5 text-zinc-950" />
-                                    <span className="text-sm font-black text-zinc-950 uppercase tracking-wide">
+                                    <span className="text-sm font-bold text-zinc-950 uppercase tracking-wide">
                                         Premium Active
                                     </span>
                                 </div>
-                                <p className="text-sm text-zinc-800 font-bold">
+                                <p className="text-sm text-zinc-800 font-medium">
                                     All features above are active and ready to use!
                                 </p>
                             </div>
@@ -172,7 +172,8 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
                             <Button
                                 onClick={handleRegister}
                                 disabled={isRegistering}
-                                className="w-full bg-neo-yellow-1 border-4 border-black text-zinc-950 font-black py-6 text-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 uppercase tracking-wide hover:bg-white rounded-none"
+                                variant="neo"
+                                className="w-full bg-neo-yellow-1 border-2 border-black text-zinc-950 font-bold py-6 text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all duration-150 uppercase tracking-wide hover:bg-white rounded-lg"
                                 size="lg"
                             >
                                 {isRegistering ? (
@@ -189,7 +190,7 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
                             </Button>
                         )}
 
-                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center justify-center gap-2 text-sm text-zinc-600 font-medium">
                             <Icon name="Lock" className="size-4" />
                             <span>Filecoin Calibration Network</span>
                         </div>

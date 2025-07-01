@@ -65,12 +65,15 @@ export default function Pro() {
             onOpenChange={setIsSheetOpen}
             onRegister={handleRegister}
         >
-            {!isRegistered && (
+            {isRegistered && (
                 <Button 
-                    onClick={handleButtonClick} 
-                    className="bg-neo-purple border-4 border-black text-zinc-950 font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all uppercase text-sm hover:bg-white rounded-none px-3 py-2"
+                    onClick={handleButtonClick}
+                    variant={"neo"}
+                    className="rounded-sm bg-white hover:bg-white"
                 >
-                    <span className="font-black">Get Premium</span>
+                    <span className="font-semibold bg-gradient-to-r from-blue-600 via-orange-500 to-red-500 bg-clip-text text-transparent">Get Pro</span>
+                    
+                    <Icon name="Zap" className="size-4 text-red-500" />
                 </Button>
             )}
         </PremiumSheet>

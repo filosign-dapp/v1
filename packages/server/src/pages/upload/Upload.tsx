@@ -414,17 +414,17 @@ export default function UploadPage() {
                   <div
                     key={selectedFile.id}
                     className={cn(
-                      "p-3 border-2 border-black transition-colors rounded-md",
+                      "p-3 border-2 border-black transition-colors bg-neo-bg rounded-md",
                       selectedFile.status === 'pending' && "bg-neo-bg",
-                      selectedFile.status === 'uploading' && "bg-neo-cyan/20 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
-                      selectedFile.status === 'success' && "bg-neo-green/30 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
-                      selectedFile.status === 'error' && "bg-red-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                      selectedFile.status === 'uploading' && "shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+                      selectedFile.status === 'success' && "shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+                      selectedFile.status === 'error' && "shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                     )}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <Icon name="File" className=" text-zinc-800 size-10" />
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 items-start">
                           <p className="font-semibold text-zinc-800 truncate">{selectedFile.file.name}</p>
                           <div className="flex gap-2">
                             <Badge className='rounded-sm bg-neo-beige-1 text-zinc-800 border border-zinc-500'>
@@ -434,15 +434,11 @@ export default function UploadPage() {
                               {selectedFile.file.type || 'Unknown type'}
                             </Badge>
                           </div>
-                          {selectedFile.status === 'uploading' && (
-                            <div className="mt-2">
-                              <Progress value={selectedFile.progress} className="h-2" />
-                            </div>
-                          )}
+                          
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {selectedFile.status === 'success' && <Icon name="CircleCheck" className="w-4 h-4 text-green-600" />}
+                        {selectedFile.status === 'success' && <Icon name="CircleCheck" className="w-4 h-4 text-neo-cyan-dark" />}
                         {selectedFile.status === 'uploading' && <div className="w-4 h-4 border-2 border-zinc-600 border-t-transparent rounded-full animate-spin" />}
                         {selectedFile.status !== 'uploading' && (
                           <Button
@@ -483,15 +479,20 @@ export default function UploadPage() {
 
         {/* Upload Results */}
         {uploadResults.length > 0 && (
-          <Card className="p-6 bg-neo-green/20 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg">
+          <Card className="p-6 bg-neo-beige-1 border-2 border-neo-cyan-dark shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-green-700">
-                  ✓ Upload Complete!
-                </h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-neo-green border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md flex items-center justify-center">
+                    <Icon name="Check" className="w-4 h-4 text-zinc-900" />
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900">
+                    Upload Complete
+                  </h3>
+                </div>
                 <Button
                   variant="neo"
-                  className="bg-neo-yellow-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  className="bg-neo-yellow-1 rounded-none"
                   size="sm"
                   onClick={clearSession}
                 >
@@ -505,22 +506,22 @@ export default function UploadPage() {
                 {uploadResults.map((result, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-neo-beige-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md"
+                    className="flex items-center justify-between p-3 bg-neo-bg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md"
                   >
                     <div className="flex items-center gap-3">
-                      <Icon name="CircleCheck" className="w-5 h-5 text-green-600" />
-                      <div>
+                      <Icon name="CircleCheck" className="w-5 h-5 text-neo-cyan-dark" />
+                      <div className="flex flex-col gap-1">
                         <p className="font-medium text-zinc-900">{result.name}</p>
-                        <span className="px-2 py-1 border border-black bg-neo-bg text-xs font-medium text-zinc-900 rounded-sm">
+                        <Badge className='rounded-sm bg-white text-zinc-800 border border-zinc-500'>
                           {result.size}
-                        </span>
+                        </Badge>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <Button
                         variant="neo"
-                        className="bg-neo-cyan border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                        className="bg-neo-beige-2"
                         size="sm"
                         onClick={() => navigate({
                           to: '/link/$cid',
@@ -533,14 +534,14 @@ export default function UploadPage() {
                         })}
                       >
                         <div className="flex items-center gap-1">
-                          <Icon name="Link" className="size-3" />
-                          <span className="font-medium text-sm">View Link</span>
+                          <Icon name="File" className="size-3" />
+                          <span className="font-medium text-sm">View Upload</span>
                         </div>
                       </Button>
 
                       <Button
                         variant="neo"
-                        className="bg-neo-beige-2 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                        className="bg-neo-beige-2"
                         size="sm"
                         onClick={async () => {
                           try {
