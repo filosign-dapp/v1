@@ -13,7 +13,7 @@ const Navbar = () => {
             <div className="size-10 bg-neo-yellow-1 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
               <span className="text-sm font-black text-zinc-950 sm:text-lg">P</span>
             </div>
-            <span className="text-lg font-black sm:text-2xl text-zinc-900">PORTAL</span>
+            <span className="text-lg font-black ml-1 mt-1 sm:text-2xl text-zinc-900">PORTAL</span>
           </Link>
 
           <div className="hidden items-center space-x-8 md:flex lg:space-x-12">

@@ -12,7 +12,7 @@ export default function Layout({
       <Navbar />
       {/* <Sidebar /> */}
 
-      <div className="mt-[calc(var(--navbar-height))] ml-[var(--sidebar-width)] h-[calc(100dvh-var(--navbar-height))] @container/main">
+      <div className="ml-[var(--sidebar-width)] h-[calc(100dvh-var(--navbar-height))] @container/main">
         {children}
       </div>
 

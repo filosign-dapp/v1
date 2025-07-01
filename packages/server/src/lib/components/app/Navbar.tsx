@@ -10,7 +10,7 @@ export default function Navbar() {
   const currentPath = router.state.location.pathname
 
   return (
-    <nav className="fixed top-0 gap-2 h-[var(--navbar-height)] w-full bg-background flex items-center justify-between px-[var(--paddingx)] border-b">
+    <nav className="gap-2 h-[var(--navbar-height)] w-full bg-background flex items-center justify-between px-[var(--paddingx)] border-b">
       <Link to="/" className="size-10 bg-background border-4 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center shadow-foreground hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all">
         <span className="text-sm font-black text-foreground sm:text-lg">P</span>
       </Link>

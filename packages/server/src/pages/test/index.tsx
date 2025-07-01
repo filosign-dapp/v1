@@ -28,7 +28,7 @@ export default function Test() {
     }
   }
 
-  async function handleUpload() {
+  async function handlePublishEncryptedKeys() {
     try {
       await mutateContractsAsync(async (contracts) => {
         const tx = await contracts.publishEncryptedKeys({
@@ -61,7 +61,7 @@ export default function Test() {
       <Navbar />
       <div className="flex flex-col gap-4 items-center justify-center min-h-full bg-gradient-to-br from-background via-background/80 to-muted/20 px-[var(--paddingx)] h-screen">
         <Button onClick={handleRegister}>register</Button>
-        <Button onClick={handleUpload}>upload</Button>
+        <Button onClick={handlePublishEncryptedKeys}>publish encrypted keys</Button>
         <Button onClick={handleDownload}>download</Button>
         <p className="text-sm text-muted-foreground">
           address: {connectedAccount.address}
