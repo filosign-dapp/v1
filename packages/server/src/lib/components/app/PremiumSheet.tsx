@@ -191,7 +191,7 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
 
                         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                             <Icon name="Lock" className="size-4" />
-                            <span>Secured by blockchain technology</span>
+                            <span>Filecoin Calibration Network</span>
                         </div>
                     </motion.div>
                 </motion.div>

@@ -75,7 +75,7 @@ export default function Pro() {
                 <span className="">
                     {isRegistered ? (
                         <div className="flex items-center gap-2">
-                            <p className="text-primary font-semibold">Premium</p>
+                            <p className="font-semibold">Premium</p>
                             <Icon name="Sparkles" className="size-4 text-primary" />
                         </div>
                     ) : (

@@ -6,9 +6,11 @@ import { Card } from '@/src/lib/components/ui/card'
 import { Input } from '@/src/lib/components/ui/input'
 import { useSearch, useNavigate, useParams } from '@tanstack/react-router'
 import { createDownloadLink } from '@/src/lib/utils/files'
+import { useUserStore } from '@/src/lib/hooks/use-store'
 
 export default function LinkGenerated() {
   const [copied, setCopied] = useState(false)
+  const { isRegistered } = useUserStore();
   const navigate = useNavigate()
 
   const { cid } = useParams({
