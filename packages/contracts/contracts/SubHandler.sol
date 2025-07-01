@@ -16,7 +16,9 @@ contract SubHandler is Ownable {
 
     PortalOrchestrator private _orchestrator;
 
-    constructor(address admin) Ownable(admin) {}
+    constructor(address admin) Ownable(admin) {
+        _orchestrator = PortalOrchestrator(msg.sender);
+    }
 
     modifier onlyRegistered() {
         require(

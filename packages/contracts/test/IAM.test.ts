@@ -1,7 +1,18 @@
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { getAddress, keccak256, encodeAbiParameters, type Address } from "viem";
+import {
+  getAddress,
+  keccak256,
+  encodeAbiParameters,
+  type Address,
+  createWalletClient,
+  http,
+  encodePacked,
+} from "viem";
+import { extractPrivateKeyFromSignature } from "../utils";
+import { hardhat } from "viem/chains";
+import { privateKeyToAccount } from "viem/accounts";
 
 describe("IAM", function () {
   async function deployIAMFixture() {
@@ -21,22 +32,29 @@ describe("IAM", function () {
     const iamAsUser = await hre.viem.getContractAt("IAM", iam.address, {
       client: { wallet: user },
     });
+    console.log(iam.address, user.account.address);
 
-    const seed = await iamAsUser.read.determineNextSeed();
-    const digest = keccak256(
-      encodeAbiParameters(
-        [{ type: "address" }, { type: "bytes32" }],
-        [getAddress(user.account.address), seed]
-      )
-    );
-
+    const seed = await iamAsUser.read.determineNextSeed([user.account.address]);
     const signature = await user.signMessage({
-      message: { raw: digest },
+      message: seed,
     });
 
+    const encryptionKey = extractPrivateKeyFromSignature(signature);
+    const encryptionWallet = createWalletClient({
+      chain: hardhat,
+      transport: http(),
+      account: privateKeyToAccount(encryptionKey),
+    });
+
+    const digest = keccak256(
+      encodePacked(["address", "bytes32"], [user.account.address, seed])
+    );
+
+    console.log("seed in viem ", seed);
+
     await iamAsUser.write.register([
-      getAddress(user.account.address),
-      signature,
+      encryptionWallet.account.address,
+      await encryptionWallet.signMessage({ message: { raw: digest } }),
     ]);
 
     return { iamAsUser, seed, digest, signature };

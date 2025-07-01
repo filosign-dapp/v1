@@ -11,7 +11,7 @@ declare module "wagmi" {
   }
 }
 
-const config = createConfig({
+export const config = createConfig({
   chains: [filecoinCalibration],
   transports: {
     [filecoinCalibration.id]: http(),

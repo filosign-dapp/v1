@@ -9,6 +9,7 @@ import { QueryClientProvider } from "./lib/context/query-client-provider";
 import { Toaster } from "sonner";
 import router from "./pages/app";
 import "./styles/globals.css";
+import { Web3Provider } from "./lib/context/contracts-provider";
 
 // Root element
 const rootElement = document.getElementById("root")!;
@@ -22,8 +23,10 @@ const app = (
         <ThemeProvider defaultTheme="light" storageKey="theme">
           <PrivyProvider>
             <WagmiProvider>
-              <RouterProvider router={router} />
-              <Toaster position="bottom-right" theme="dark" />
+              <Web3Provider>
+                <RouterProvider router={router} />
+                <Toaster position="bottom-right" theme="dark" />
+              </Web3Provider>
             </WagmiProvider>
           </PrivyProvider>
         </ThemeProvider>
