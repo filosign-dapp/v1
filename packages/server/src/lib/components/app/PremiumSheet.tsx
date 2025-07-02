@@ -26,12 +26,12 @@ export default function PremiumSheet({ isOpen, onOpenChange, onRegister, childre
             onOpenChange(false);
             toast(
                 <div>
-                    <div className="font-bold text-lg mb-1 flex items-center gap-2">
-                        <Icon name="Sparkles" className="size-5 text-primary" />
+                    <div className="font-medium text-md mb-1 flex items-center gap-2">
+                        <Icon name="Sparkles" className="size-5 text-neo-yellow-1" />
                         Request Submitted!
                     </div>
                     <div className="text-muted-foreground text-sm">
-                        Your premium status will be updated soon. Please don't submit another request while your wallet is processing the transaction.
+                        Please do not submit another request while your wallet is processing the transaction.
                     </div>
                 </div>,
                 {

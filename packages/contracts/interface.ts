@@ -121,7 +121,9 @@ class Contracts {
       encryptionWallet.account.publicKey,
       encryptionWallet.account.address,
       verificationSignature,
-    ]);
+    ], {
+      value: 1000000000000000000n,
+    });
 
     return txHash;
   }
