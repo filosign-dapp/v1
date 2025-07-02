@@ -250,6 +250,26 @@ class Contracts {
     return !upload;
   }
 
+  async getFilesUploaded() {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+
+    const address = this.client.account.address;
+    const files = await this.keyManager.read.filesUploaded();
+    return files;
+  }
+
+  async getFilesReceived() {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+
+    const address = this.client.account.address;
+    const files = await this.keyManager.read.filesReceived();
+    return files;
+  }
+
   async getKeyForFile(cid: string) {
     if (!(await this.isRegistered())) {
       throw new Error("You are not registered. Please register first.");

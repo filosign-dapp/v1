@@ -171,7 +171,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x15baafe2e65111d6811596ea236557294f5bf693"
+    "address": "0xe8dbfc3b845560d247de8029976cb74d3f12f0b0"
   },
   "IAM": {
     "abi": [
@@ -388,7 +388,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xb579240eF6Acf562F8af8b6C04136DCe5221d718"
+    "address": "0x34ebe248c3cfC3630283cd2Cb2E539Ca00fbBe40"
   },
   "SubHandler": {
     "abi": [
@@ -614,7 +614,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x8aE449D1e584595D3056F7242f9B9726039a3DB8"
+    "address": "0xd9DB59fCB58E79517f8264bc22A1C498f7b35314"
   },
   "KeyManager": {
     "abi": [
@@ -622,6 +622,32 @@ const definitions = {
         "inputs": [],
         "stateMutability": "nonpayable",
         "type": "constructor"
+      },
+      {
+        "inputs": [],
+        "name": "filesReceived",
+        "outputs": [
+          {
+            "internalType": "string[]",
+            "name": "",
+            "type": "string[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "filesUploaded",
+        "outputs": [
+          {
+            "internalType": "string[]",
+            "name": "",
+            "type": "string[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
       },
       {
         "inputs": [
@@ -782,7 +808,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xA1222f7498202BB8e0c8f2B4fA05182852b79Dc4"
+    "address": "0xAA6cc49C5BD55698d8748Ce8DE43cF710bAD753c"
   },
   "usdfc": {
     "abi": [
