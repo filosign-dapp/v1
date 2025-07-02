@@ -18,6 +18,8 @@ contract KeyManager {
     PortalOrchestrator private _orchestrator;
 
     mapping(string => Key) private uploads;
+    mapping(address => string[]) private userReceivedFiles;
+    mapping(address => string[]) private userUploadedFiles;
 
     constructor() {
         _orchestrator = PortalOrchestrator(msg.sender);
@@ -49,6 +51,26 @@ contract KeyManager {
         return uploads[cid_].irrevocable;
     }
 
+    function filesReceived() external view returns (string[] memory) {
+        address recepient = msg.sender;
+
+        require(
+            _orchestrator.iam().registered(recepient),
+            "User not registered"
+        );
+        return userReceivedFiles[recepient];
+    }
+
+    function filesUploaded() external view returns (string[] memory) {
+        address uploader = msg.sender;
+
+        require(
+            _orchestrator.iam().registered(uploader),
+            "User not registered"
+        );
+        return userUploadedFiles[uploader];
+    }
+
     function registerUpload(
         string calldata cid_,
         address[] memory for_,
@@ -61,6 +83,10 @@ contract KeyManager {
         require(
             _orchestrator.iam().registered(msg.sender),
             "User not registered"
+        );
+        require(
+            for_.length == values_.length,
+            "Recipients and values length mismatch"
         );
 
         mapping(address => bytes) storage seeds = uploads[cid_].seeds;
@@ -79,7 +105,13 @@ contract KeyManager {
                 "Recipient not registered"
             );
             seeds[for_[i]] = values_[i];
+            userReceivedFiles[for_[i]][
+                userReceivedFiles[for_[i]].length
+            ] = cid_;
         }
+        userUploadedFiles[msg.sender][
+            userUploadedFiles[msg.sender].length
+        ] = cid_;
     }
 
     function revoke(string calldata cid_, address for_) external {
