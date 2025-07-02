@@ -12,6 +12,7 @@ contract KeyManager {
         mapping(address => bool) paid;
         uint256 expiration;
         uint256 cost;
+        bool irrevocable;
     }
 
     PortalOrchestrator private _orchestrator;
@@ -30,6 +31,17 @@ contract KeyManager {
     function getOwner(string calldata cid_) external view returns (address) {
         require(uploads[cid_].timestamp != 0, "File not exist");
         return uploads[cid_].owner;
+    }
+
+    function makeIrrevocable(string calldata cid_) external {
+        require(uploads[cid_].timestamp != 0, "File not exist");
+        require(
+            msg.sender == uploads[cid_].owner,
+            "Only owner can make irrevocable"
+        );
+        require(!uploads[cid_].irrevocable, "Already irrevocable");
+
+        uploads[cid_].irrevocable = true;
     }
 
     function registerUpload(
@@ -72,6 +84,7 @@ contract KeyManager {
             "No key registered for this address"
         );
         require(msg.sender == uploads[cid_].owner, "Only owner can revoke");
+        require(!uploads[cid_].irrevocable, "Cannot revoke an irrevocable key");
 
         delete uploads[cid_].seeds[for_];
     }
