@@ -175,7 +175,6 @@ export default function LinkGenerated() {
           <Link to="/upload">
             <Button
               variant={"neo"}
-              className="border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
               size={"lg"}
             >
               <div className="flex gap-3 items-center">
@@ -190,31 +189,33 @@ export default function LinkGenerated() {
             <Button
               onClick={() => setIsSheetOpen(true)}
               variant={"neo"}
-              className="bg-neo-purple border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+              className="bg-neo-purple hover:bg-neo-purple/70"
               size={"lg"}
             >
               <div className="flex gap-3 items-center">
                 <Icon name="Shield" className="w-5 h-5" />
-                <span className="font-medium">Manage Access [{mockExistingAccess.length}]</span>
+                <span className="font-bold">Manage Access</span>
               </div>
             </Button>
           )}
         </motion.div>
 
         {/* Security Notice */}
-        <motion.div
-          className="p-3 border-2 border-black bg-neo-yellow-1/60 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm">
-            <Icon name="Shield" className="size-4 text-zinc-700" />
-            <span className="font-medium text-zinc-800 text-center">
-              Your link is secure and encrypted. Share with confidence.
-            </span>
-          </div>
-        </motion.div>
+        <div className="flex items-center justify-center w-full">
+          <motion.div
+            className="p-3 py-1 border-2 border-black bg-neo-yellow-1/70 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md w-fit"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm">
+              <Icon name="Zap" className="size-4 text-zinc-700" />
+              <span className="font-medium text-zinc-800 text-center">
+                Your link is secure and encrypted. Share with confidence.
+              </span>
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Access Management Sheet */}
@@ -223,6 +224,8 @@ export default function LinkGenerated() {
         onOpenChange={setIsSheetOpen}
         cid={cid || ''}
         encryptionKey={key || ''}
+        fileName={fileData.name}
+        fileSize={fileData.size}
       />
     </div>
   )

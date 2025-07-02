@@ -389,7 +389,7 @@ export default function UploadPage() {
 
         {/* Selected Files */}
         {hasFiles && (
-          <Card className="p-6 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg">
+          <Card className="p-6 bg-neo-beige-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-zinc-900">
@@ -397,7 +397,7 @@ export default function UploadPage() {
                 </h3>
                 <Button
                   variant="neo"
-                  className="bg-neo-yellow-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  className="bg-neo-beige-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isProcessing}
@@ -427,10 +427,10 @@ export default function UploadPage() {
                         <div className="flex flex-col gap-1 items-start">
                           <p className="font-semibold text-zinc-800 truncate">{selectedFile.file.name}</p>
                           <div className="flex gap-2">
-                            <Badge className='rounded-sm bg-neo-beige-1 text-zinc-800 border border-zinc-500'>
+                            <Badge className='rounded-sm bg-neo-beige-2 text-zinc-800 border border-zinc-500'>
                               {selectedFile.size}
                             </Badge>
-                            <Badge className='rounded-sm bg-neo-beige-1 text-zinc-800 border border-zinc-500'>
+                            <Badge className='rounded-sm bg-neo-beige-2 text-zinc-800 border border-zinc-500'>
                               {selectedFile.file.type || 'Unknown type'}
                             </Badge>
                           </div>
@@ -439,7 +439,7 @@ export default function UploadPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         {selectedFile.status === 'success' && <Icon name="CircleCheck" className="w-4 h-4 text-neo-cyan-dark" />}
-                        {selectedFile.status === 'uploading' && <div className="w-4 h-4 border-2 border-zinc-600 border-t-transparent rounded-full animate-spin" />}
+                        {selectedFile.status === 'uploading' && <Icon name='LoaderCircle' className="w-4 h-4 animate-spin" />}
                         {selectedFile.status !== 'uploading' && (
                           <Button
                             variant="ghost"
@@ -460,12 +460,12 @@ export default function UploadPage() {
                 onClick={handleSubmit}
                 disabled={!canSubmit}
                 variant="neo"
-                className="w-full bg-neo-purple border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                className="w-full bg-neo-beige-1 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
                 size="lg"
               >
                 <div className="flex items-center gap-2 justify-center">
-                  {isDirectoryMode ? <Icon name="FolderUp" className="w-5 h-5" /> : <Icon name="Upload" className="w-5 h-5" />}
-                  <span className="font-medium">
+                  {isDirectoryMode ? <Icon name="FolderUp" className="w-5 h-5" /> : <Icon name="CloudUpload" className="w-5 h-5" />}
+                  <span className="font-semibold">
                     {isDirectoryMode
                       ? `Create Directory (${selectedFiles.length} files)`
                       : `Upload ${selectedFiles.length} File${selectedFiles.length !== 1 ? 's' : ''}`
@@ -574,7 +574,7 @@ export default function UploadPage() {
         {/* Security Notice */}
         <div className="flex items-center justify-center w-full">
           <motion.div
-            className="p-3 py-1 border-2 border-black bg-neo-yellow-1/60 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md w-fit"
+            className="p-3 py-1 border-2 border-black bg-neo-yellow-1/70 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md w-fit"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}

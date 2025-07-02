@@ -65,7 +65,7 @@ export default function Pro() {
             onOpenChange={setIsSheetOpen}
             onRegister={handleRegister}
         >
-            {isRegistered && (
+            {!isRegistered && (
                 <Button 
                     onClick={handleButtonClick}
                     variant={"neo"}

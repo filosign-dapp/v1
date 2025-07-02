@@ -22,13 +22,17 @@ interface AccessManagementSheetProps {
   onOpenChange: (open: boolean) => void
   cid: string
   encryptionKey: string
+  fileName?: string
+  fileSize?: string
 }
 
 export default function AccessManagementSheet({
   isOpen,
   onOpenChange,
   cid,
-  encryptionKey
+  encryptionKey,
+  fileName,
+  fileSize
 }: AccessManagementSheetProps) {
   const [recipients, setRecipients] = useState<string[]>([''])
   const [isPublishing, setIsPublishing] = useState(false)
@@ -125,6 +129,31 @@ export default function AccessManagementSheet({
               </SheetDescription>
             </div>
           </SheetHeader>
+
+          {/* File Information Card */}
+          <Card className="p-4 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg mt-6">
+            <div className="space-y-3">
+              <div className="flex gap-2 items-center">
+                <Icon name="File" className="size-5 text-zinc-700" />
+                <h4 className="text-lg font-bold tracking-wide uppercase text-zinc-900">File Details</h4>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between items-center p-3 border-2 border-black bg-neo-bg rounded-md">
+                  <span className="text-sm font-bold text-zinc-700">Name:</span>
+                  <span className="font-medium text-zinc-950 text-right break-all max-w-[60%]">
+                    {fileName || 'Unknown file'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-3 border-2 border-black bg-neo-bg rounded-md">
+                  <span className="text-sm font-bold text-zinc-700">Size:</span>
+                  <span className="font-medium text-zinc-950">
+                    {fileSize || '0 B'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Card>
 
           {/* Add New Recipients Section */}
           <Card className="p-6 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg mt-6">
