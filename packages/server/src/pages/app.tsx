@@ -15,6 +15,7 @@ import Profile from "./profile";
 import { z } from 'zod';
 import { useAnalytics } from '../lib/hooks/use-analytics';
 import Test from './test';
+import SharedWithYou from './shared';
   
 const rootRoute = createRootRoute({
   component: () => {
@@ -86,6 +87,15 @@ const profileRoute = createRoute({
   },
 })
 
+const notificationsRoute = createRoute({
+
+  getParentRoute: () => rootRoute,
+  path: '/notifications',
+  component: function NotificationsPage() {
+    return withPageErrorBoundary(SharedWithYou)({});
+  },
+})
+
 const testRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/test',
@@ -94,7 +104,7 @@ const testRoute = createRoute({
   },
 })
 
-const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute, testRoute])
+const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute, testRoute, notificationsRoute])
 const router = createRouter({
   routeTree,
 })

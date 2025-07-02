@@ -20,8 +20,8 @@ export default function Navbar() {
           <div
             className="flex relative items-center space-x-3"
           >
-            <Link 
-            to="/upload" className="size-10 bg-neo-yellow-1 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <Link
+              to="/upload" className="size-10 bg-neo-yellow-1 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
               <span className="text-sm font-black text-zinc-950 sm:text-lg">P</span>
             </Link>
             <span className="mt-1 text-xl font-black sm:text-2xl text-zinc-900">
@@ -36,19 +36,23 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="items-center space-x-4 flex">
+          <div className="items-center space-x-3 flex">
             <Pro />
 
             <Button
-              onClick={() => navigate({ to: currentPath !== '/upload' ? '/upload' : '/history' })}
+              onClick={() => navigate({ to: '/notifications' })}
               variant={"neo"}
               className="rounded-sm"
             >
-              {currentPath !== '/upload' ? (
-                <Icon name="CloudUpload" className="w-4 h-4 lg:w-5 lg:h-5" />
-              ) : (
-                <Icon name="History" className="w-4 h-4 lg:w-5 lg:h-5" />
-              )}
+              <Icon name="Bell" className="w-4 h-4 lg:w-5 lg:h-5" />
+            </Button>
+
+            <Button
+              onClick={() => navigate({ to: '/history' })}
+              variant={"neo"}
+              className="rounded-sm"
+            >
+              <Icon name="History" className="w-4 h-4 lg:w-5 lg:h-5" />
             </Button>
 
             <Connect />
