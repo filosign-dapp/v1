@@ -10,11 +10,12 @@ import Icon from '@/src/lib/components/custom/Icon'
 import { useNavigate } from '@tanstack/react-router'
 import { cn, handleError } from '@/src/lib/utils'
 import { useApi } from '@/src/lib/hooks/use-api'
-import { useUploadHistory, useUploadSession, type UploadHistoryItem } from '@/src/lib/hooks/use-store'
+import { useUploadHistory, useUploadSession, useUserStore, type UploadHistoryItem } from '@/src/lib/hooks/use-store'
 import { formatFileSize, compressFile, encryptFile, sanitizeFile, basicFileChecks, createDownloadLink } from '@/src/lib/utils/files'
 import useContracts from '@/src/lib/hooks/use-contracts'
 import { Badge } from '@/src/lib/components/ui/badge'
 import { Label } from '@/src/lib/components/ui/label'
+import AccessManagementSheet from '../link/AccessManagementSheet'
 
 interface SelectedFile {
   id: string
@@ -142,13 +143,25 @@ export default function UploadPage() {
   const { mutateAsync: uploadDirectoryMutation, isPending: isUploadingDirectory } = uploadDirectory
   const { addToHistory } = useUploadHistory()
   const { lastUploadResults, setLastUploadResults, clearLastUploadResults } = useUploadSession()
-  const [copiedLink, setCopiedLink] = useState("");
+  const { isRegistered } = useUserStore()
+  const [copiedResultId, setCopiedResultId] = useState<string | null>(null)
+  const [accessManagementResult, setAccessManagementResult] = useState<UploadResult | null>(null)
 
   useEffect(() => {
     if (lastUploadResults.length > 0 && uploadResults.length === 0) {
       setUploadResults(lastUploadResults)
     }
   }, [lastUploadResults, uploadResults.length])
+
+  const copyToClipboard = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedResultId(id)
+      setTimeout(() => setCopiedResultId(null), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
 
   // Generate preview for file
   const generatePreview = useCallback(async (file: File): Promise<string | undefined> => {
@@ -693,44 +706,157 @@ export default function UploadPage() {
               </div>
 
               <div className="space-y-3">
-                {uploadResults.map((result, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-neo-bg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon name="CircleCheck" className="w-5 h-5 text-neo-cyan-dark" />
-                      <div className="flex flex-col gap-1">
-                        <p className="font-medium text-zinc-900">{result.name}</p>
-                        <Badge className='rounded-sm bg-white text-zinc-800 border border-zinc-500'>
-                          {result.size}
-                        </Badge>
+                {uploadResults.map((result, index) => {
+                  const downloadUrl = createDownloadLink(result.cid, result.name, result.key)
+                  const resultId = `${result.cid}-${index}`
+                  
+                  return (
+                    <div
+                      key={index}
+                      className="p-4 bg-neo-bg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-md"
+                    >
+                      {/* Main content layout */}
+                      <div className="flex gap-3 items-start">
+                        {/* File info */}
+                        <div className="flex gap-3 items-start flex-1 min-w-0">
+                          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-neo-green border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Icon name="CircleCheck" className="w-6 h-6 sm:w-7 sm:h-7 text-zinc-900" />
+                          </div>
+
+                          <div className="flex flex-col gap-1 items-start flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold tracking-tight leading-tight break-words sm:text-xl text-zinc-900 pr-2">{result.name}</h3>
+                            <div className="flex gap-2 items-center font-medium">
+                              <Badge className="h-6 rounded-sm border bg-neo-beige-2 text-zinc-800 border-zinc-500">
+                                {result.size}
+                              </Badge>
+                              <Badge className="h-6 rounded-sm border bg-neo-beige-2 text-zinc-800 border-zinc-500">
+                                Just uploaded
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action buttons - Right side on desktop */}
+                        <div className="hidden lg:flex gap-2 items-start flex-shrink-0 ml-4">
+                          <Button
+                            variant="neo"
+                            size="sm"
+                            title="Download File"
+                            onClick={() => window.open(downloadUrl, '_blank')}
+                            className="w-8 h-8 p-0 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900"
+                          >
+                            <Icon name="ExternalLink" className="w-4 h-4" />
+                          </Button>
+
+                          <Button
+                            variant="neo"
+                            size="sm"
+                            title={copiedResultId === resultId ? 'Copied!' : 'Copy Link'}
+                            onClick={() => copyToClipboard(downloadUrl, resultId)}
+                            className="w-8 h-8 p-0 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                          >
+                            {copiedResultId === resultId ? (
+                              <Icon name="Check" className="w-4 h-4" />
+                            ) : (
+                              <Icon name='Copy' className="w-4 h-4" />
+                            )}
+                          </Button>
+
+                          <Button
+                            variant="neo"
+                            size="sm"
+                            title="View Details"
+                            onClick={() => navigate({
+                              to: '/link/$cid',
+                              params: { cid: result.cid },
+                              search: {
+                                name: result.name,
+                                key: result.key,
+                                size: result.size,
+                              }
+                            })}
+                            className="w-8 h-8 p-0 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                          >
+                            <Icon name='File' className="w-4 h-4" />
+                          </Button>
+
+                          {/* Premium Access - Inline on desktop */}
+                          {isRegistered && (
+                            <Button
+                              variant="neo"
+                              size="sm"
+                              onClick={() => setAccessManagementResult(result)}
+                              className="w-8 h-8 p-0 bg-amber-200 border-2 border-amber-600 hover:bg-amber-300"
+                              title="Manage Access (Premium)"
+                            >
+                              <Icon name="Crown" className="w-4 h-4 text-amber-800" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Mobile action buttons - Bottom on mobile/tablet */}
+                      <div className="pt-3 mt-3 border-t-2 border-black lg:hidden">
+                        <div className={`grid gap-2 ${isRegistered ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                          <Button
+                            variant="neo"
+                            size="sm"
+                            title="Download File"
+                            onClick={() => window.open(downloadUrl, '_blank')}
+                            className="h-10 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900"
+                          >
+                            <Icon name="ExternalLink" className="w-4 h-4" />
+                          </Button>
+
+                          <Button
+                            variant="neo"
+                            size="sm"
+                            title={copiedResultId === resultId ? 'Copied!' : 'Copy Link'}
+                            onClick={() => copyToClipboard(downloadUrl, resultId)}
+                            className="h-10 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                          >
+                            {copiedResultId === resultId ? (
+                              <Icon name="Check" className="w-4 h-4" />
+                            ) : (
+                              <Icon name='Copy' className="w-4 h-4" />
+                            )}
+                          </Button>
+
+                          <Button
+                            variant="neo"
+                            size="sm"
+                            title="View Details"
+                            onClick={() => navigate({
+                              to: '/link/$cid',
+                              params: { cid: result.cid },
+                              search: {
+                                name: result.name,
+                                key: result.key,
+                                size: result.size,
+                              }
+                            })}
+                            className="h-10 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                          >
+                            <Icon name='File' className="w-4 h-4" />
+                          </Button>
+
+                          {/* Premium Access - Mobile */}
+                          {isRegistered && (
+                            <Button
+                              variant="neo"
+                              size="sm"
+                              onClick={() => setAccessManagementResult(result)}
+                              className="h-10 bg-amber-200 border-2 border-amber-600 hover:bg-amber-300 text-amber-800"
+                              title="Manage Access (Premium)"
+                            >
+                              <Icon name="Crown" className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="neo"
-                        className="bg-neo-beige-2"
-                        size="sm"
-                        onClick={() => navigate({
-                          to: '/link/$cid',
-                          params: { cid: result.cid },
-                          search: {
-                            name: result.name,
-                            key: result.key,
-                            size: result.size,
-                          }
-                        })}
-                      >
-                        <div className="flex items-center gap-1">
-                          <Icon name="File" className="size-3" />
-                          <span className="font-medium text-sm">View Upload</span>
-                        </div>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </Card>
@@ -753,6 +879,18 @@ export default function UploadPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Access Management Sheet */}
+      {accessManagementResult && (
+        <AccessManagementSheet
+          isOpen={!!accessManagementResult}
+          onOpenChange={(open) => !open && setAccessManagementResult(null)}
+          cid={accessManagementResult.cid}
+          encryptionKey={accessManagementResult.key}
+          fileName={accessManagementResult.name}
+          fileSize={accessManagementResult.size}
+        />
+      )}
     </div>
   )
 } 
