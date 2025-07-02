@@ -171,7 +171,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x200f618a15a078e18b44df58c26bd38b5870266e"
+    "address": "0x15baafe2e65111d6811596ea236557294f5bf693"
   },
   "IAM": {
     "abi": [
@@ -388,7 +388,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xD5615781aa5429aF935264261f22790690b5B08d"
+    "address": "0xb579240eF6Acf562F8af8b6C04136DCe5221d718"
   },
   "SubHandler": {
     "abi": [
@@ -614,7 +614,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xD8D5e200C39f272C11CEC69Ac1f109223F7267bB"
+    "address": "0x8aE449D1e584595D3056F7242f9B9726039a3DB8"
   },
   "KeyManager": {
     "abi": [
@@ -680,6 +680,25 @@ const definitions = {
             "internalType": "address",
             "name": "",
             "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
+            "type": "string"
+          }
+        ],
+        "name": "isIrrevocable",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
           }
         ],
         "stateMutability": "view",
@@ -763,7 +782,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x970ed9CA6a0E4B7D4e8E525c607fB60a9f9b2907"
+    "address": "0xA1222f7498202BB8e0c8f2B4fA05182852b79Dc4"
   },
   "usdfc": {
     "abi": [

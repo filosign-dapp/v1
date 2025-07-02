@@ -44,6 +44,11 @@ contract KeyManager {
         uploads[cid_].irrevocable = true;
     }
 
+    function isIrrevocable(string calldata cid_) external view returns (bool) {
+        require(uploads[cid_].timestamp != 0, "File not exist");
+        return uploads[cid_].irrevocable;
+    }
+
     function registerUpload(
         string calldata cid_,
         address[] memory for_,

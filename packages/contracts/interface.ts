@@ -234,6 +234,22 @@ class Contracts {
     return { misses };
   }
 
+  async makeIrrevocable(cid: string) {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+    const txHash = await this.keyManager.write.makeIrrevocable([cid]);
+    return txHash;
+  }
+
+  async isRevocable(cid: string) {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+    const upload = await this.keyManager.read.isIrrevocable([cid]);
+    return !upload;
+  }
+
   async getKeyForFile(cid: string) {
     if (!(await this.isRegistered())) {
       throw new Error("You are not registered. Please register first.");
