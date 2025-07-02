@@ -151,9 +151,27 @@ const definitions = {
         ],
         "stateMutability": "view",
         "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to_",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount_",
+            "type": "uint256"
+          }
+        ],
+        "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
       }
     ],
-    "address": "0xd6ba862da242b793d940345f926d2937b5d9d7be"
+    "address": "0x7f7293c9b22704b9738c39e88e8d0538e5a353e3"
   },
   "IAM": {
     "abi": [
@@ -357,7 +375,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x5ab814b47700EED7561fDecd930d63350cAebac4"
+    "address": "0xFd97972E8E659313ecFdC9687BE093a853f97c06"
   },
   "SubHandler": {
     "abi": [
@@ -583,7 +601,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xA9b08B1B3B291ee0b17805B9f563F48816e8039e"
+    "address": "0xB6593dD56E4ab594fa3e75396F6d6Fdb2927d603"
   },
   "KeyManager": {
     "abi": [
@@ -622,6 +640,44 @@ const definitions = {
             "internalType": "string",
             "name": "cid_",
             "type": "string"
+          }
+        ],
+        "name": "getOwner",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
+            "type": "string"
+          }
+        ],
+        "name": "getUploader",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
+            "type": "string"
           },
           {
             "internalType": "address[]",
@@ -632,6 +688,16 @@ const definitions = {
             "internalType": "bytes[]",
             "name": "values_",
             "type": "bytes[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiration_",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "cost_",
+            "type": "uint256"
           }
         ],
         "name": "registerUpload",
@@ -643,33 +709,35 @@ const definitions = {
         "inputs": [
           {
             "internalType": "string",
-            "name": "",
+            "name": "cid_",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "for_",
+            "type": "address"
+          }
+        ],
+        "name": "revoke",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
             "type": "string"
           }
         ],
-        "name": "uploads",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "uploader",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
+        "name": "unlockKeySeed",
+        "outputs": [],
+        "stateMutability": "payable",
         "type": "function"
       }
     ],
-    "address": "0x9AA558D2F58E4170F4a8DE45DD7f92C5D6db8e7A"
+    "address": "0x187Ef8729BA664694fA19E10B2c8344C9b6c4b20"
   },
   "usdfc": {
     "abi": [

@@ -149,6 +149,8 @@ class Contracts {
     cid: string;
     msg: string;
     recipients: viem.Address[];
+    expiration?: number;
+    cost?: bigint;
     safe?: boolean;
   }) {
     if (!(await this.isRegistered())) {
@@ -156,7 +158,7 @@ class Contracts {
     }
 
     const misses: Set<viem.Address> = new Set();
-    const { msg, recipients, safe } = options;
+    const { msg, recipients, expiration, cost, safe } = options;
 
     // Ensure the uploader is included as a recipient
     const allRecipients = [
@@ -221,7 +223,13 @@ class Contracts {
       values_.push(packed);
     }
 
-    await this.keyManager.write.registerUpload([options.cid, for_, values_]);
+    await this.keyManager.write.registerUpload([
+      options.cid,
+      for_,
+      values_,
+      BigInt(expiration ?? 0),
+      BigInt(cost ?? 0),
+    ]);
     return { misses };
   }
 
@@ -240,8 +248,8 @@ class Contracts {
     }
 
     // Get the uploader's address from the upload record
-    const upload = await this.keyManager.read.uploads([cid]);
-    const ownerAddress = upload[1]; // uploader is the first element
+    const ownerAddress = await this.keyManager.read.getOwner([cid]);
+    // const ownerAddress = upload[1]; // uploader is the first element
 
     if (
       !ownerAddress ||
