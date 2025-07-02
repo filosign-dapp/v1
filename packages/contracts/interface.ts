@@ -91,7 +91,7 @@ class Contracts {
   }
 
   async register() {
-    console.log("Tits");
+    console.log("Called register..");
     const seed = await this.iam.read.determineNextSeed([
       this.client.account.address,
     ]);
@@ -117,13 +117,13 @@ class Contracts {
       },
     });
 
-    const tx = await this.iam.write.register([
+    const txHash = await this.iam.write.register([
       encryptionWallet.account.publicKey,
       encryptionWallet.account.address,
       verificationSignature,
     ]);
 
-    return tx;
+    return txHash;
   }
 
   async isRegistered() {
@@ -131,6 +131,7 @@ class Contracts {
   }
 
   private async getEncryptionKey() {
+    console.log("Called getEncryptionKey..");
     if (!(await this.isRegistered())) {
       throw new Error("You are not registered. Please register first.");
     }

@@ -43,7 +43,6 @@ export default function UploadPage() {
   const { lastUploadResults, setLastUploadResults, clearLastUploadResults } = useUploadSession()
   const [copiedLink, setCopiedLink] = useState("");
 
-
   useEffect(() => {
     if (lastUploadResults.length > 0 && uploadResults.length === 0) {
       setUploadResults(lastUploadResults)
