@@ -6,8 +6,10 @@
     "dev": "bun --hot dev.ts",
     "start": "NODE_ENV=production bun prod.ts",
     "build": "bun run build.ts",
+    "build:new": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
     "analyze": "bun install --analyze src/**/*.tsx"
   },
+
   "dependencies": {
     "@hono/zod-validator": "^0.7.0",
     "@hookform/resolvers": "^4.1.0",
