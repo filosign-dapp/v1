@@ -8,16 +8,12 @@ export default function Layout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-background [--navbar-height:5rem] sm:[--sidebar-width:0rem] overflow-auto [--paddingx:1rem] sm:[--paddingx:2rem]">
+    <div className="bg-background [--navbar-height:6rem] sm:[--sidebar-width:0rem] overflow-auto [--paddingx:1rem] sm:[--paddingx:2rem]">
       <Navbar />
       {/* <Sidebar /> */}
 
       <div className="ml-[var(--sidebar-width)] h-[calc(100dvh-var(--navbar-height))] @container/main">
         {children}
-      </div>
-
-      <div className="fixed bottom-4 right-4">
-        <ThemeSwitch />
       </div>
     </div>
   )

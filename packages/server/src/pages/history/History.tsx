@@ -18,7 +18,7 @@ import {
 } from '@/src/lib/components/ui/alert-dialog'
 import { useUploadHistory, type UploadHistoryItem } from '@/src/lib/hooks/use-store'
 import { useUserStore } from '@/src/lib/hooks/use-store'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import Icon from '@/src/lib/components/custom/Icon'
 import AccessManagementSheet from '../link/AccessManagementSheet'
 
@@ -54,6 +54,26 @@ export default function HistoryPage() {
     }).format(date)
   }
 
+  // Convert size string to bytes for proper sorting
+  const sizeToBytes = (sizeStr: string): number => {
+    const units: { [key: string]: number } = {
+      'B': 1,
+      'KB': 1024,
+      'MB': 1024 * 1024,
+      'GB': 1024 * 1024 * 1024,
+      'TB': 1024 * 1024 * 1024 * 1024
+    }
+    
+    const match = sizeStr.match(/^([\d.]+)\s*([A-Z]+)$/i)
+    if (!match) return 0
+    
+    const [, numberStr, unit] = match
+    const number = parseFloat(numberStr)
+    const multiplier = units[unit.toUpperCase()] || 1
+    
+    return number * multiplier
+  }
+
   const goToUpload = () => {
     navigate({ to: '/' })
   }
@@ -85,8 +105,8 @@ export default function HistoryPage() {
           return a.name.localeCompare(b.name)
         case 'size':
           // Convert size strings to bytes for comparison
-          const aBytes = parseInt(a.size.replace(/[^\d]/g, ''))
-          const bBytes = parseInt(b.size.replace(/[^\d]/g, ''))
+          const aBytes = sizeToBytes(a.size)
+          const bBytes = sizeToBytes(b.size)
           return bBytes - aBytes
         default:
           return 0
@@ -148,17 +168,18 @@ export default function HistoryPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <Button
-                onClick={goToUpload}
-                variant="neo"
-                className="w-full bg-neo-cyan border-2 border-black font-bold uppercase tracking-wide"
-                size="lg"
-              >
-                <div className="flex gap-2 justify-center items-center">
-                  <Icon name="Upload" className="w-5 h-5" />
-                  <span>Upload Your First File</span>
-                </div>
-              </Button>
+              <Link to="/">
+                <Button
+                  variant="neo"
+                  className="w-full bg-neo-cyan border-2 border-black font-bold uppercase tracking-wide"
+                  size="lg"
+                >
+                  <div className="flex gap-2 justify-center items-center">
+                    <Icon name="Upload" className="w-5 h-5" />
+                    <span>Upload Your First File</span>
+                  </div>
+                </Button>
+              </Link>
             </motion.div>
 
             {/* Security Notice */}
@@ -198,9 +219,57 @@ export default function HistoryPage() {
             <h1 className="text-4xl font-bold tracking-tight leading-tight uppercase sm:text-5xl lg:text-6xl text-zinc-900">
               Upload History
             </h1>
-            <p className="mt-2 font-medium text-zinc-600">
+            <p className="font-medium text-zinc-600">
               {filteredHistory.length} upload{filteredHistory.length !== 1 ? 's' : ''} found
             </p>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 justify-center items-center mt-8">
+              <Link to="/upload">
+                <Button
+                  variant="neo"
+                  className="h-10 bg-neo-cyan border-2 border-black font-bold uppercase tracking-wide rounded-sm"
+                  size="sm"
+                >
+                  <Icon name='Upload' className='w-4 h-4' />
+                  <span className="ml-1 sm:inline">Upload File</span>
+                </Button>
+              </Link>
+
+              {history.length > 0 && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="neo"
+                      className="h-10 bg-red-200 border-2 border-red-600 hover:bg-red-100 text-red-900 font-bold uppercase tracking-wide rounded-sm"
+                      size="sm"
+                    >
+                      <Icon name='Trash' className="w-4 h-4" />
+                      <span className="ml-1 sm:inline">Clear all</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="mx-4 sm:mx-0 bg-neo-beige-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-xl font-bold tracking-tight uppercase text-zinc-900">Clear All History?</AlertDialogTitle>
+                      <AlertDialogDescription className="font-bold text-zinc-700">
+                        This action cannot be undone. This will permanently delete all {history.length} upload{history.length !== 1 ? 's' : ''} from your history.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-col gap-3 sm:flex-row">
+                      <AlertDialogCancel className="w-full sm:w-auto bg-neo-beige-2 border-2 border-black font-bold">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={clearHistory}
+                        className="w-full sm:w-auto bg-red-500 border-2 border-red-700 font-bold hover:bg-red-600 text-white uppercase"
+                      >
+                        Clear All
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
           </div>
 
           {/* Search and Filters */}
@@ -243,53 +312,6 @@ export default function HistoryPage() {
                         <SelectItem value="size" className="font-bold">Largest First</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-
-                  {/* Simplified Actions */}
-                  <div className="flex gap-2">
-                    <Button
-                      variant="neo"
-                      onClick={goToUpload}
-                      className="h-10 bg-neo-cyan border-2 border-black font-bold uppercase tracking-wide rounded-sm"
-                      size="sm"
-                    >
-                      <Icon name='Upload' className='w-4 h-4' />
-                      <span className="hidden ml-2 sm:inline">Upload</span>
-                    </Button>
-
-                    {history.length > 0 && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="neo"
-                            className="h-10 bg-red-200 border-2 border-red-600 hover:bg-red-100 text-red-900 font-bold uppercase tracking-wide rounded-sm"
-                            size="sm"
-                          >
-                            <Icon name='Trash' className="w-4 h-4" />
-                            <span className="hidden ml-2 sm:inline">Clear</span>
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="mx-4 sm:mx-0 bg-neo-beige-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle className="text-xl font-bold tracking-tight uppercase text-zinc-900">Clear All History?</AlertDialogTitle>
-                            <AlertDialogDescription className="font-bold text-zinc-700">
-                              This action cannot be undone. This will permanently delete all {history.length} upload{history.length !== 1 ? 's' : ''} from your history.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter className="flex-col gap-3 sm:flex-row">
-                            <AlertDialogCancel className="w-full sm:w-auto bg-neo-beige-2 border-2 border-black font-bold">
-                              Cancel
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={clearHistory}
-                              className="w-full sm:w-auto bg-red-500 border-2 border-red-700 font-bold hover:bg-red-600 text-white uppercase"
-                            >
-                              Clear All
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
                   </div>
                 </div>
               </div>
@@ -338,33 +360,34 @@ export default function HistoryPage() {
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
                 <Card className="p-4 sm:p-6 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg relative">
-                  <div className="space-y-4">
-                    {/* Premium Access - Top Right */}
-                    {isRegistered && (
-                      <div className="absolute top-4 right-4">
-                        <Button
-                          variant="neo"
-                          size="sm"
-                          onClick={() => setAccessManagementItem(item)}
-                          className="w-8 h-8 p-0 bg-amber-200 border-2 border-amber-600 hover:bg-amber-300"
-                          title="Manage Access (Premium)"
-                        >
-                          <Icon name="Crown" className="w-3 h-3 text-amber-800" />
-                        </Button>
-                      </div>
-                    )}
+                  {/* Premium Access - Top Right (mobile/tablet only) */}
+                  {isRegistered && (
+                    <div className="absolute top-4 right-4 lg:hidden">
+                      <Button
+                        variant="neo"
+                        size="sm"
+                        onClick={() => setAccessManagementItem(item)}
+                        className="w-8 h-8 p-0 bg-amber-200 border-2 border-amber-600 hover:bg-amber-300"
+                        title="Manage Access (Premium)"
+                      >
+                        <Icon name="Crown" className="w-3 h-3 text-amber-800" />
+                      </Button>
+                    </div>
+                  )}
 
-                    {/* Main content */}
-                    <div className="flex gap-3 items-start pr-10 sm:gap-4">
+                  {/* Main content layout */}
+                  <div className="flex gap-3 items-start">
+                    {/* File icon and info */}
+                    <div className="flex gap-3 items-start flex-1 min-w-0">
                       <div className="w-12 h-12 sm:w-14 sm:h-14 bg-neo-beige-2 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center flex-shrink-0">
                         <Icon name={item.type === 'directory' ? 'FolderOpen' : 'File'} className='w-6 h-6 sm:w-7 sm:h-7 text-zinc-800' />
                       </div>
 
-                      <div className="flex flex-col gap-1 items-start">
+                      <div className="flex flex-col gap-1 items-start flex-1 min-w-0">
                         {/* Title */}
-                        <h3 className="text-lg font-semibold tracking-tight leading-tight break-words sm:text-xl text-zinc-900">{item.name}</h3>
+                        <h3 className="text-lg font-semibold tracking-tight leading-tight break-words sm:text-xl text-zinc-900 pr-2">{item.name}</h3>
 
-                        {/* Simplified Metadata */}
+                        {/* Metadata */}
                         <div className="flex gap-2 items-center font-medium">
                           <Badge className="h-6 rounded-sm border bg-neo-beige-2 text-zinc-800 border-zinc-500">
                             {item.size}
@@ -376,11 +399,36 @@ export default function HistoryPage() {
                       </div>
                     </div>
 
-                    {/* Simplified Actions */}
-                    <div className="pt-4 space-y-3 border-t-2 border-black">
-                      {/* Primary Action */}
+                    {/* Action buttons - Right side on desktop */}
+                    <div className="hidden lg:flex gap-2 items-start flex-shrink-0 ml-4">
                       <Button
                         variant="neo"
+                        size="sm"
+                        title="Download File"
+                        onClick={() => window.open(item.downloadUrl, '_blank')}
+                        className="w-8 h-8 p-0 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900"
+                      >
+                        <Icon name="ExternalLink" className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        variant="neo"
+                        size="sm"
+                        title={copiedId === item.id ? 'Copied!' : 'Copy Link'}
+                        onClick={() => copyToClipboard(item.downloadUrl, item.id)}
+                        className="w-8 h-8 p-0 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                      >
+                        {copiedId === item.id ? (
+                          <Icon name="Check" className="w-4 h-4" />
+                        ) : (
+                          <Icon name='Copy' className="w-4 h-4" />
+                        )}
+                      </Button>
+
+                      <Button
+                        variant="neo"
+                        size="sm"
+                        title="View Details"
                         onClick={() => navigate({
                           to: '/link/$cid',
                           params: { cid: item.cid },
@@ -390,61 +438,90 @@ export default function HistoryPage() {
                             size: item.size,
                           }
                         })}
-                        className="w-full h-12 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900 tracking-wide"
+                        className="w-8 h-8 p-0 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
                       >
-                        <div className="flex gap-2 justify-center items-center">
-                          <Icon name="Eye" className="w-5 h-5" />
-                          <span>View Upload</span>
-                        </div>
+                        <Icon name='File' className="w-4 h-4" />
                       </Button>
 
-                      {/* Secondary Actions - Simplified */}
-                      <div className="grid grid-cols-3 gap-3">
+                      {/* Premium Access - Inline on desktop */}
+                      {isRegistered && (
                         <Button
                           variant="neo"
                           size="sm"
-                          title={copiedId === item.id ? 'Copied!' : 'Copy Link'}
-                          onClick={() => copyToClipboard(item.downloadUrl, item.id)}
-                          className="h-10 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                          onClick={() => setAccessManagementItem(item)}
+                          className="w-8 h-8 p-0 bg-amber-200 border-2 border-amber-600 hover:bg-amber-300"
+                          title="Manage Access (Premium)"
                         >
-                          <div className="flex gap-2 justify-center items-center">
-                            {copiedId === item.id ? (
-                              <Icon name="Check" className="w-4 h-4" />
-                            ) : (
-                              <Icon name='Copy' className="w-4 h-4" />
-                            )}
-                            <span className="hidden lg:inline">
-                              {copiedId === item.id ? 'Copied!' : 'Copy'}
-                            </span>
-                          </div>
+                          <Icon name="Crown" className="w-4 h-4 text-amber-800" />
                         </Button>
+                      )}
 
-                        <Button
-                          variant="neo"
-                          size="sm"
-                          title="Open in New Tab"
-                          onClick={() => window.open(item.downloadUrl, '_blank')}
-                          className="h-10 bg-neo-yellow-1 border-2 border-black text-zinc-900 font-bold"
-                        >
-                          <div className="flex gap-2 justify-center items-center">
-                            <Icon name='ExternalLink' className="w-4 h-4" />
-                            <span className="hidden lg:inline">Open</span>
-                          </div>
-                        </Button>
+                      <Button
+                        variant="neo"
+                        size="sm"
+                        title="Delete from History"
+                        onClick={() => removeFromHistory(item.id)}
+                        className="w-8 h-8 p-0 bg-red-300 border-2 border-red-600 hover:bg-red-400 text-red-900 font-bold"
+                      >
+                        <Icon name='Trash' className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
 
-                        <Button
-                          variant="neo"
-                          size="sm"
-                          title="Delete from History"
-                          onClick={() => removeFromHistory(item.id)}
-                          className="h-10 bg-red-300 border-2 border-red-600 hover:bg-red-400 text-red-900 font-bold"
-                        >
-                          <div className="flex gap-2 justify-center items-center">
-                            <Icon name='Trash' className="w-4 h-4" />
-                            <span className="hidden lg:inline">Delete</span>
-                          </div>
-                        </Button>
-                      </div>
+                  {/* Mobile action buttons - Bottom on mobile/tablet */}
+                  <div className="pt-3 mt-3 border-t-2 border-black lg:hidden">
+                    <div className={`grid gap-2 grid-cols-4`}>
+                      <Button
+                        variant="neo"
+                        size="sm"
+                        title="Download File"
+                        onClick={() => window.open(item.downloadUrl, '_blank')}
+                        className="h-10 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900"
+                      >
+                        <Icon name="ExternalLink" className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        variant="neo"
+                        size="sm"
+                        title={copiedId === item.id ? 'Copied!' : 'Copy Link'}
+                        onClick={() => copyToClipboard(item.downloadUrl, item.id)}
+                        className="h-10 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                      >
+                        {copiedId === item.id ? (
+                          <Icon name="Check" className="w-4 h-4" />
+                        ) : (
+                          <Icon name='Copy' className="w-4 h-4" />
+                        )}
+                      </Button>
+
+                      <Button
+                        variant="neo"
+                        size="sm"
+                        title="View Details"
+                        onClick={() => navigate({
+                          to: '/link/$cid',
+                          params: { cid: item.cid },
+                          search: {
+                            name: item.name,
+                            key: item.key,
+                            size: item.size,
+                          }
+                        })}
+                        className="h-10 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                      >
+                        <Icon name='File' className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        variant="neo"
+                        size="sm"
+                        title="Delete from History"
+                        onClick={() => removeFromHistory(item.id)}
+                        className="h-10 bg-red-300 border-2 border-red-600 hover:bg-red-400 text-red-900 font-bold"
+                      >
+                        <Icon name='Trash' className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 </Card>

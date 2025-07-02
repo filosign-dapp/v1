@@ -14,7 +14,7 @@ export default function Navbar() {
   const { authenticated } = usePrivy();
 
   return (
-    <nav className="border-b-4 border-black bg-neo-bg">
+    <nav className="border-b-4 border-black bg-neo-bg w-full">
       <div className="px-4 py-4 mx-auto max-w-7xl sm:px-6 lg:px-8 lg:py-6">
         <div className="flex justify-between items-center">
           <div

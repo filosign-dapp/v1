@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { Card } from '@/src/lib/components/ui/card'
 import { TextShimmer } from '@/src/lib/components/ui/text-shimmer'
 import { Button } from '@/src/lib/components/ui/button'
 import { Switch } from '@/src/lib/components/ui/switch'
 import { Progress } from '@/src/lib/components/ui/progress'
+import { Input } from '@/src/lib/components/ui/input'
 import Icon from '@/src/lib/components/custom/Icon'
 import { useNavigate } from '@tanstack/react-router'
 import { cn, handleError } from '@/src/lib/utils'
@@ -18,9 +19,11 @@ import { Label } from '@/src/lib/components/ui/label'
 interface SelectedFile {
   id: string
   file: File
+  displayName: string // For the editable name
   size: string
   status: 'pending' | 'uploading' | 'success' | 'error'
   progress: number
+  previewUrl?: string // For image/video previews
 }
 
 interface UploadResult {
@@ -28,6 +31,102 @@ interface UploadResult {
   name: string
   key: string
   size: string
+}
+
+// File Preview Component
+function FilePreview({ file, previewUrl }: { file: File; previewUrl?: string }) {
+  const isImage = file.type.startsWith('image/')
+  const isVideo = file.type.startsWith('video/')
+
+  if (isImage && previewUrl) {
+    return (
+      <div className="w-16 h-16 bg-neo-beige-2 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg p-1 flex-shrink-0">
+        <img
+          src={previewUrl}
+          alt={file.name}
+          className="w-full h-full object-cover rounded-sm border border-black"
+        />
+      </div>
+    )
+  }
+
+  if (isVideo && previewUrl) {
+    return (
+      <div className="w-16 h-16 bg-neo-beige-2 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg p-1 flex-shrink-0 relative">
+        <img
+          src={previewUrl}
+          alt={file.name}
+          className="w-full h-full object-cover rounded-sm border border-black"
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-sm">
+          <Icon name="Play" className="w-4 h-4 text-white" />
+        </div>
+      </div>
+    )
+  }
+
+  // Default file icon with neobrutalism styling
+  return (
+    <div className="w-16 h-16 bg-neo-beige-2 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center flex-shrink-0">
+      <Icon name="File" className="w-8 h-8 text-zinc-800" />
+    </div>
+  )
+}
+
+// Inline Filename Editor Component
+function FilenameEditor({
+  displayName,
+  onChange,
+  disabled
+}: {
+  displayName: string;
+  onChange: (newName: string) => void;
+  disabled: boolean;
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState(displayName)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleSave = useCallback(() => {
+    const trimmedValue = editValue.trim()
+    if (trimmedValue && trimmedValue !== displayName) {
+      // Preserve the original extension
+      const originalExt = displayName.includes('.') ? '.' + displayName.split('.').pop() : ''
+      const newNameWithoutExt = trimmedValue.includes('.') ? trimmedValue.split('.').slice(0, -1).join('.') : trimmedValue
+      const finalName = newNameWithoutExt + originalExt
+      onChange(finalName)
+    }
+    setIsEditing(false)
+  }, [editValue, displayName, onChange])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave()
+    } else if (e.key === 'Escape') {
+      setEditValue(displayName)
+      setIsEditing(false)
+    }
+  }, [handleSave, displayName])
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+      // Select filename without extension
+      const nameWithoutExt = editValue.includes('.') ? editValue.split('.').slice(0, -1).join('.') : editValue
+      inputRef.current.setSelectionRange(0, nameWithoutExt.length)
+    }
+  }, [isEditing, editValue])
+
+  return (
+    <Input
+      ref={inputRef}
+      value={editValue}
+      onChange={(e) => setEditValue(e.target.value)}
+      onBlur={handleSave}
+      onKeyDown={handleKeyDown}
+      className="h-8 text-sm font-semibold text-zinc-800 border-2 border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] bg-white"
+    />
+  )
 }
 
 export default function UploadPage() {
@@ -50,6 +149,51 @@ export default function UploadPage() {
       setUploadResults(lastUploadResults)
     }
   }, [lastUploadResults, uploadResults.length])
+
+  // Generate preview for file
+  const generatePreview = useCallback(async (file: File): Promise<string | undefined> => {
+    if (file.type.startsWith('image/')) {
+      return URL.createObjectURL(file)
+    }
+
+    if (file.type.startsWith('video/')) {
+      return new Promise((resolve) => {
+        const video = document.createElement('video')
+        video.preload = 'metadata'
+        video.muted = true
+        video.playsInline = true
+
+        video.onloadedmetadata = () => {
+          video.currentTime = Math.min(5, video.duration / 2) // Seek to 5s or middle
+        }
+
+        video.onseeked = () => {
+          const canvas = document.createElement('canvas')
+          canvas.width = 160
+          canvas.height = 160
+          const ctx = canvas.getContext('2d')
+
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+            resolve(canvas.toDataURL())
+          } else {
+            resolve(undefined)
+          }
+
+          URL.revokeObjectURL(video.src)
+        }
+
+        video.onerror = () => {
+          URL.revokeObjectURL(video.src)
+          resolve(undefined)
+        }
+
+        video.src = URL.createObjectURL(file)
+      })
+    }
+
+    return undefined
+  }, [])
 
   // Clear session when user starts a new upload
   const clearSession = () => {
@@ -74,10 +218,10 @@ export default function UploadPage() {
     e.target.value = ''
   }
 
-  function addFiles(files: File[]) {
+  async function addFiles(files: File[]) {
     const newFiles: SelectedFile[] = []
 
-    files.forEach(file => {
+    for (const file of files) {
       // Check if file is already selected (by name and size to handle duplicates)
       const isDuplicate = selectedFiles.some(selected =>
         selected.file.name === file.name &&
@@ -86,15 +230,19 @@ export default function UploadPage() {
       )
 
       if (!isDuplicate) {
+        const previewUrl = await generatePreview(file)
+
         newFiles.push({
           id: `${file.name}-${Date.now()}-${Math.random()}`,
           file,
+          displayName: file.name,
           size: formatFileSize(file.size),
           status: 'pending',
-          progress: 0
+          progress: 0,
+          previewUrl
         })
       }
-    })
+    }
 
     if (newFiles.length > 0) {
       setSelectedFiles(prev => [...prev, ...newFiles])
@@ -102,12 +250,22 @@ export default function UploadPage() {
   }
 
   function removeFile(id: string) {
+    const fileToRemove = selectedFiles.find(f => f.id === id)
+    if (fileToRemove?.previewUrl) {
+      URL.revokeObjectURL(fileToRemove.previewUrl)
+    }
     setSelectedFiles(prev => prev.filter(f => f.id !== id))
   }
 
   const updateFileStatus = (id: string, status: SelectedFile['status'], progress = 0) => {
     setSelectedFiles(prev => prev.map(f =>
       f.id === id ? { ...f, status, progress } : f
+    ))
+  }
+
+  const updateFileName = (id: string, newDisplayName: string) => {
+    setSelectedFiles(prev => prev.map(f =>
+      f.id === id ? { ...f, displayName: newDisplayName } : f
     ))
   }
 
@@ -127,9 +285,15 @@ export default function UploadPage() {
         let sharedSecretKey: string | undefined = undefined
 
         for (const selectedFile of selectedFiles) {
-          const { file } = selectedFile
-          basicFileChecks(file);
-          const sanitizedFile = sanitizeFile(file);
+          // Create a new File with the updated name
+          const originalFile = selectedFile.file
+          const renamedFile = new File([originalFile], selectedFile.displayName, {
+            type: originalFile.type,
+            lastModified: originalFile.lastModified
+          })
+
+          basicFileChecks(renamedFile);
+          const sanitizedFile = sanitizeFile(renamedFile);
           updateFileStatus(selectedFile.id, 'uploading', 50)
 
           const compressedBuffer = await compressFile(sanitizedFile);
@@ -181,19 +345,26 @@ export default function UploadPage() {
           fileCount: selectedFiles.length,
           uploadedAt: new Date().toISOString(),
           downloadUrl: createDownloadLink(result.cid, directoryName, sharedSecretKey),
-          fileNames: selectedFiles.map(f => f.file.name)
+          fileNames: selectedFiles.map(f => f.displayName)
         }
         addToHistory(historyItem)
 
         setSelectedFiles([])
       } else {
         const uploadPromises = selectedFiles.map(async (selectedFile) => {
-          const { file, id } = selectedFile
+          const { file, id, displayName } = selectedFile
 
           try {
             updateFileStatus(id, 'uploading', 30)
-            basicFileChecks(file);
-            const sanitizedFile = sanitizeFile(file);
+
+            // Create a new File with the updated name
+            const renamedFile = new File([file], displayName, {
+              type: file.type,
+              lastModified: file.lastModified
+            })
+
+            basicFileChecks(renamedFile);
+            const sanitizedFile = sanitizeFile(renamedFile);
 
             updateFileStatus(id, 'uploading', 50)
             const compressedBuffer = await compressFile(sanitizedFile);
@@ -257,15 +428,26 @@ export default function UploadPage() {
     }
   }
 
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      selectedFiles.forEach(file => {
+        if (file.previewUrl) {
+          URL.revokeObjectURL(file.previewUrl)
+        }
+      })
+    }
+  }, [])
+
   const hasFiles = selectedFiles.length > 0
   const canSubmit = hasFiles && !isUploading && !isUploadingDirectory
   const isProcessing = isUploading || isUploadingDirectory
 
   return (
-    <div className="flex items-center justify-center min-h-full bg-neo-bg px-[var(--paddingx)]">
+    <div className="py-8 flex items-center justify-center min-h-full bg-neo-bg px-[var(--paddingx)]">
       {/* Single subtle decorative element */}
       <motion.div
-        className="absolute top-36 right-24 lg:top-48 lg:right-56 size-14 bg-neo-green border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg hidden sm:flex items-center justify-center"
+        className="hidden md:flex absolute top-36 right-12 lg:top-48 lg:right-56 size-14 bg-neo-bg border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg items-center z-0 justify-center"
         animate={{
           y: [0, -8, 0],
           rotate: [0, 3, -3, 0]
@@ -279,7 +461,7 @@ export default function UploadPage() {
         <Icon name="CircleFadingPlus" className="size-6 text-zinc-900" />
       </motion.div>
 
-      <div className="container mx-auto max-w-4xl space-y-8 text-center px-4">
+      <div className="container mx-auto max-w-4xl space-y-8 text-center px-4 z-10">
         {/* Subtle Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -310,7 +492,7 @@ export default function UploadPage() {
         </motion.div>
 
         {/* Upload Area */}
-        <Card className="relative overflow-hidden bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg">
+        <Card>
           <motion.div
             className={cn(
               "border-2 border-dashed transition-all duration-200 p-12 cursor-pointer rounded-lg",
@@ -409,12 +591,12 @@ export default function UploadPage() {
                 </Button>
               </div>
 
-              <div className="space-y-3 max-h-60 overflow-y-auto">
+              <div className="space-y-3">
                 {selectedFiles.map((selectedFile) => (
                   <div
                     key={selectedFile.id}
                     className={cn(
-                      "p-3 border-2 border-black transition-colors bg-neo-bg rounded-md",
+                      "p-4 border-2 border-black transition-colors bg-neo-bg rounded-md",
                       selectedFile.status === 'pending' && "bg-neo-bg",
                       selectedFile.status === 'uploading' && "shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
                       selectedFile.status === 'success' && "shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
@@ -422,10 +604,16 @@ export default function UploadPage() {
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Icon name="File" className=" text-zinc-800 size-10" />
-                        <div className="flex flex-col gap-1 items-start">
-                          <p className="font-semibold text-zinc-800 truncate">{selectedFile.file.name}</p>
+                      <div className="flex items-center gap-4 min-w-0">
+                        <FilePreview file={selectedFile.file} previewUrl={selectedFile.previewUrl} />
+                        <div className="flex flex-col gap-2 min-w-0">
+                          <div className="w-full">
+                            <FilenameEditor
+                              displayName={selectedFile.displayName}
+                              onChange={(newName) => updateFileName(selectedFile.id, newName)}
+                              disabled={selectedFile.status === 'uploading'}
+                            />
+                          </div>
                           <div className="flex gap-2">
                             <Badge className='rounded-sm bg-neo-beige-2 text-zinc-800 border border-zinc-500'>
                               {selectedFile.size}
@@ -434,18 +622,19 @@ export default function UploadPage() {
                               {selectedFile.file.type || 'Unknown type'}
                             </Badge>
                           </div>
-                          
                         </div>
                       </div>
+
                       <div className="flex items-center gap-2">
-                        {selectedFile.status === 'success' && <Icon name="CircleCheck" className="w-4 h-4 text-neo-cyan-dark" />}
-                        {selectedFile.status === 'uploading' && <Icon name='LoaderCircle' className="w-4 h-4 animate-spin" />}
+                        {selectedFile.status === 'success' && <Icon name="CircleCheck" className="w-5 h-5 text-neo-cyan-dark" />}
+                        {selectedFile.status === 'uploading' && <Icon name='LoaderCircle' className="w-5 h-5 animate-spin" />}
+                        {selectedFile.status === 'error' && <Icon name="CircleX" className="w-5 h-5 text-red-600" />}
                         {selectedFile.status !== 'uploading' && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => removeFile(selectedFile.id)}
-                            className="hover:bg-red-100"
+                            className="hover:bg-red-100 h-8 w-8 p-0"
                           >
                             <Icon name="X" className="w-4 h-4" />
                           </Button>
@@ -502,7 +691,8 @@ export default function UploadPage() {
                   </div>
                 </Button>
               </div>
-              <div className="space-y-2">
+
+              <div className="space-y-3">
                 {uploadResults.map((result, index) => (
                   <div
                     key={index}
@@ -518,7 +708,7 @@ export default function UploadPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex gap-2">
                       <Button
                         variant="neo"
                         className="bg-neo-beige-2"
@@ -537,31 +727,6 @@ export default function UploadPage() {
                           <Icon name="File" className="size-3" />
                           <span className="font-medium text-sm">View Upload</span>
                         </div>
-                      </Button>
-
-                      <Button
-                        variant="neo"
-                        className="bg-neo-beige-2"
-                        size="sm"
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(createDownloadLink(result.cid, result.name, result.key))
-                            setCopiedLink(createDownloadLink(result.cid, result.name, result.key))
-                          } catch (err) {
-                            console.error('Failed to copy link:', err)
-                          }
-                        }}>
-                        {copiedLink === createDownloadLink(result.cid, result.name, result.key) ? (
-                          <div className="flex items-center gap-1">
-                            <Icon name="CircleCheck" className="size-3" />
-                            <span className="font-medium text-sm">Copied!</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1">
-                            <Icon name="Copy" className="size-3" />
-                            <span className="font-medium text-sm">Copy Link</span>
-                          </div>
-                        )}
                       </Button>
                     </div>
                   </div>
