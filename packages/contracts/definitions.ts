@@ -171,7 +171,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x7f7293c9b22704b9738c39e88e8d0538e5a353e3"
+    "address": "0x200f618a15a078e18b44df58c26bd38b5870266e"
   },
   "IAM": {
     "abi": [
@@ -179,6 +179,19 @@ const definitions = {
         "inputs": [],
         "stateMutability": "nonpayable",
         "type": "constructor"
+      },
+      {
+        "inputs": [],
+        "name": "REGISTRATION_FEE",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
       },
       {
         "inputs": [
@@ -285,7 +298,7 @@ const definitions = {
         ],
         "name": "register",
         "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "payable",
         "type": "function"
       },
       {
@@ -375,7 +388,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xFd97972E8E659313ecFdC9687BE093a853f97c06"
+    "address": "0xD5615781aa5429aF935264261f22790690b5B08d"
   },
   "SubHandler": {
     "abi": [
@@ -601,7 +614,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xB6593dD56E4ab594fa3e75396F6d6Fdb2927d603"
+    "address": "0xD8D5e200C39f272C11CEC69Ac1f109223F7267bB"
   },
   "KeyManager": {
     "abi": [
@@ -678,6 +691,19 @@ const definitions = {
             "internalType": "string",
             "name": "cid_",
             "type": "string"
+          }
+        ],
+        "name": "makeIrrevocable",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
+            "type": "string"
           },
           {
             "internalType": "address[]",
@@ -737,7 +763,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x187Ef8729BA664694fA19E10B2c8344C9b6c4b20"
+    "address": "0x970ed9CA6a0E4B7D4e8E525c607fB60a9f9b2907"
   },
   "usdfc": {
     "abi": [
