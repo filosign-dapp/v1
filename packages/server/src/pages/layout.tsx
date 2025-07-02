@@ -8,9 +8,10 @@ export default function Layout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-background [--navbar-height:6rem] sm:[--sidebar-width:0rem] overflow-auto [--paddingx:1rem] sm:[--paddingx:2rem]">
-      <Navbar />
-      {/* <Sidebar /> */}
+    <div className="bg-neo-bg [--navbar-height:5rem] sm:[--sidebar-width:0rem] [--paddingx:1rem] sm:[--paddingx:2rem]">
+      <div className="h-[var(--navbar-height)] border-b-4 border-black">
+        <Navbar />
+      </div>
 
       <div className="ml-[var(--sidebar-width)] h-[calc(100dvh-var(--navbar-height))] @container/main">
         {children}

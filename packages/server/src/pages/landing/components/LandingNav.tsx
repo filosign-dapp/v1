@@ -6,8 +6,8 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="border-b-4 border-black bg-neo-bg h-[6rem] w-full">
-      <div className="px-4 py-4 mx-auto max-w-7xl sm:px-6 lg:px-8 lg:py-6">
+    <nav className="border-b-4 border-black bg-neo-bg w-full">
+      <div className="px-4 py-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-3">
             <div className="size-10 bg-neo-yellow-1 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
@@ -48,7 +48,7 @@ const Navbar = () => {
             <a href="#solution" className="block px-4 py-2 text-lg font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1">Our Fix</a>
             <a href="#tiers" className="block px-4 py-2 text-lg font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1">Pricing</a>
             <div className="flex flex-col pt-4 space-y-4">
-              <Link to="/upload" className="bg-neo-yellow-1 border-4 border-black text-zinc-950 font-black px-6 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all uppercase text-lg hover:bg-white rounded-none">
+              <Link to="/upload" className="bg-neo-yellow-1 border-4 border-black text-zinc-950 font-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all uppercase text-lg hover:bg-white rounded-none">
                 Upload Files
               </Link>
             </div>
