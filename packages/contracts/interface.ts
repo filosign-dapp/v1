@@ -127,7 +127,6 @@ class Contracts {
   }
 
   async isRegistered() {
-    console.log(this.client.account.address);
     return await this.iam.read.registered([this.client.account.address]);
   }
 
@@ -151,6 +150,8 @@ class Contracts {
     cid: string;
     msg: string;
     recipients: viem.Address[];
+    expiration?: number;
+    cost?: bigint;
     safe?: boolean;
   }) {
     if (!(await this.isRegistered())) {
@@ -158,7 +159,7 @@ class Contracts {
     }
 
     const misses: Set<viem.Address> = new Set();
-    const { msg, recipients, safe } = options;
+    const { msg, recipients, expiration, cost, safe } = options;
 
     // Ensure the uploader is included as a recipient
     const allRecipients = [
@@ -223,8 +224,50 @@ class Contracts {
       values_.push(packed);
     }
 
-    await this.keyManager.write.registerUpload([options.cid, for_, values_]);
+    await this.keyManager.write.registerUpload([
+      options.cid,
+      for_,
+      values_,
+      BigInt(expiration ?? 0),
+      BigInt(cost ?? 0),
+    ]);
     return { misses };
+  }
+
+  async makeIrrevocable(cid: string) {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+    const txHash = await this.keyManager.write.makeIrrevocable([cid]);
+    return txHash;
+  }
+
+  async isRevocable(cid: string) {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+    const upload = await this.keyManager.read.isIrrevocable([cid]);
+    return !upload;
+  }
+
+  async getFilesUploaded() {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+
+    const address = this.client.account.address;
+    const files = await this.keyManager.read.filesUploaded();
+    return files;
+  }
+
+  async getFilesReceived() {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+
+    const address = this.client.account.address;
+    const files = await this.keyManager.read.filesReceived();
+    return files;
   }
 
   async getKeyForFile(cid: string) {
@@ -242,8 +285,8 @@ class Contracts {
     }
 
     // Get the uploader's address from the upload record
-    const upload = await this.keyManager.read.uploads([cid]);
-    const ownerAddress = upload[1]; // uploader is the second element
+    const ownerAddress = await this.keyManager.read.getOwner([cid]);
+    // const ownerAddress = upload[1]; // uploader is the first element
 
     if (
       !ownerAddress ||

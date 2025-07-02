@@ -151,9 +151,27 @@ const definitions = {
         ],
         "stateMutability": "view",
         "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to_",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount_",
+            "type": "uint256"
+          }
+        ],
+        "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
       }
     ],
-    "address": "0xd6ba862da242b793d940345f926d2937b5d9d7be"
+    "address": "0xe8dbfc3b845560d247de8029976cb74d3f12f0b0"
   },
   "IAM": {
     "abi": [
@@ -161,6 +179,19 @@ const definitions = {
         "inputs": [],
         "stateMutability": "nonpayable",
         "type": "constructor"
+      },
+      {
+        "inputs": [],
+        "name": "REGISTRATION_FEE",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
       },
       {
         "inputs": [
@@ -267,7 +298,7 @@ const definitions = {
         ],
         "name": "register",
         "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "payable",
         "type": "function"
       },
       {
@@ -357,7 +388,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x5ab814b47700EED7561fDecd930d63350cAebac4"
+    "address": "0x34ebe248c3cfC3630283cd2Cb2E539Ca00fbBe40"
   },
   "SubHandler": {
     "abi": [
@@ -583,7 +614,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xA9b08B1B3B291ee0b17805B9f563F48816e8039e"
+    "address": "0xd9DB59fCB58E79517f8264bc22A1C498f7b35314"
   },
   "KeyManager": {
     "abi": [
@@ -591,6 +622,32 @@ const definitions = {
         "inputs": [],
         "stateMutability": "nonpayable",
         "type": "constructor"
+      },
+      {
+        "inputs": [],
+        "name": "filesReceived",
+        "outputs": [
+          {
+            "internalType": "string[]",
+            "name": "",
+            "type": "string[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "filesUploaded",
+        "outputs": [
+          {
+            "internalType": "string[]",
+            "name": "",
+            "type": "string[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
       },
       {
         "inputs": [
@@ -622,6 +679,76 @@ const definitions = {
             "internalType": "string",
             "name": "cid_",
             "type": "string"
+          }
+        ],
+        "name": "getOwner",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
+            "type": "string"
+          }
+        ],
+        "name": "getUploader",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
+            "type": "string"
+          }
+        ],
+        "name": "isIrrevocable",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
+            "type": "string"
+          }
+        ],
+        "name": "makeIrrevocable",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
+            "type": "string"
           },
           {
             "internalType": "address[]",
@@ -632,6 +759,16 @@ const definitions = {
             "internalType": "bytes[]",
             "name": "values_",
             "type": "bytes[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiration_",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "cost_",
+            "type": "uint256"
           }
         ],
         "name": "registerUpload",
@@ -643,33 +780,35 @@ const definitions = {
         "inputs": [
           {
             "internalType": "string",
-            "name": "",
+            "name": "cid_",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "for_",
+            "type": "address"
+          }
+        ],
+        "name": "revoke",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "cid_",
             "type": "string"
           }
         ],
-        "name": "uploads",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "uploader",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
+        "name": "unlockKeySeed",
+        "outputs": [],
+        "stateMutability": "payable",
         "type": "function"
       }
     ],
-    "address": "0x9AA558D2F58E4170F4a8DE45DD7f92C5D6db8e7A"
+    "address": "0xAA6cc49C5BD55698d8748Ce8DE43cF710bAD753c"
   },
   "usdfc": {
     "abi": [

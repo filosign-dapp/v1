@@ -60,4 +60,15 @@ contract PortalOrchestrator {
 
         emit Payment(msg.sender, amount, reason);
     }
+
+    function withdraw(address to_, uint256 amount_) external onlyAdmin {
+        require(to_ != address(0), "Invalid address");
+        require(amount_ > 0, "Amount must be greater than zero");
+        require(
+            usdfc.balanceOf(address(this)) >= amount_ * ONE_USDFC,
+            "Insufficient balance"
+        );
+
+        usdfc.transfer(to_, amount_ * ONE_USDFC);
+    }
 }

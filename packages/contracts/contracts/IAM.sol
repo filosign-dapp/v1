@@ -12,12 +12,16 @@ contract IAM is SignatureVerifier {
     }
 
     uint256 private _nonce;
+    uint256 public constant REGISTRATION_FEE = 1 ether;
 
     mapping(address => Account) public accounts;
     mapping(address => bool) public registered;
 
+    address private _orchestrator;
+
     constructor() {
         _nonce = block.number;
+        _orchestrator = msg.sender; // assume the orchestrator to be the contract deployer
     }
 
     function getNonce() external view returns (uint256) {
@@ -48,7 +52,8 @@ contract IAM is SignatureVerifier {
         bytes memory pub_,
         address pubAddr_,
         bytes calldata signature_
-    ) external {
+    ) external payable {
+        require(msg.value >= REGISTRATION_FEE, "Insufficient registration fee");
         require(
             accounts[msg.sender].pubAddr == address(0),
             "Already registered"
@@ -69,6 +74,8 @@ contract IAM is SignatureVerifier {
         registered[msg.sender] = true;
 
         incrementNonce();
+
+        payable(address(_orchestrator)).transfer(msg.value);
     }
 
     function isValidPubKey(
