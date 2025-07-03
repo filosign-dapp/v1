@@ -2,9 +2,11 @@ import Icon from "../custom/Icon";
 import { Button } from "../ui/button";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import Connect from "./Connect";
-import Pro from "./PremiumButton";
+import PremiumButton from "./PremiumButton";
 import { useUserStore } from "../../hooks/use-store";
 import { usePrivy } from "@privy-io/react-auth";
+import { useState } from "react";
+import FaucetDialog from "./FaucetDialog";
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -12,6 +14,16 @@ export default function Navbar() {
   const currentPath = router.state.location.pathname
   const { isRegistered } = useUserStore();
   const { authenticated } = usePrivy();
+  const [showFaucet, setShowFaucet] = useState(false);
+
+  const handleProClick = () => {
+    // Add your Pro button logic here
+    console.log("Pro clicked from mobile menu");
+  };
+
+  const handleFaucetClick = () => {
+    setShowFaucet(true);
+  };
 
   return (
     <nav className="bg-neo-bg w-full">
@@ -37,28 +49,49 @@ export default function Navbar() {
           </div>
 
           <div className="items-center space-x-3 flex">
-            <Pro />
+            {/* Desktop buttons - hidden on mobile */}
+            <div className="hidden md:flex items-center space-x-3">
+              <PremiumButton />
+              
+              <FaucetDialog />
 
-            <Button
-              onClick={() => navigate({ to: '/notifications' })}
-              variant={"neo"}
-              className="rounded-sm"
-            >
-              <Icon name="Bell" className="w-4 h-4 lg:w-5 lg:h-5" />
-            </Button>
+              <Button
+                onClick={() => navigate({ to: '/notifications' })}
+                variant={"neo"}
+                className="rounded-sm"
+              >
+                <Icon name="Bell" className="w-4 h-4 lg:w-5 lg:h-5" />
+              </Button>
 
-            <Button
-              onClick={() => navigate({ to: '/history' })}
-              variant={"neo"}
-              className="rounded-sm"
-            >
-              <Icon name="History" className="w-4 h-4 lg:w-5 lg:h-5" />
-            </Button>
+              <Button
+                onClick={() => navigate({ to: '/history' })}
+                variant={"neo"}
+                className="rounded-sm"
+              >
+                <Icon name="History" className="w-4 h-4 lg:w-5 lg:h-5" />
+              </Button>
+            </div>
 
-            <Connect />
+            <div className="hidden md:block">
+              <Connect />
+            </div>
+            
+            <div className="md:hidden">
+              <Connect 
+                isMobile={true}
+                onProClick={handleProClick}
+                onFaucetClick={handleFaucetClick}
+              />
+            </div>
+            
           </div>
         </div>
       </div>
+
+      {/* Faucet Dialog for mobile */}
+      {showFaucet && (
+        <FaucetDialog />
+      )}
     </nav>
   )
 }

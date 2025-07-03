@@ -1,7 +1,5 @@
-import { toast } from "sonner";
 import useContracts from "../../hooks/use-contracts";
 import { useUserStore } from "../../hooks/use-store";
-import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import Icon from "../custom/Icon";
@@ -66,15 +64,17 @@ export default function Pro() {
             onRegister={handleRegister}
         >
             {!isRegistered && (
-                <Button 
-                    onClick={handleButtonClick}
-                    variant={"neo"}
-                    className="rounded-sm bg-white hover:bg-white"
-                >
-                    <span className="font-semibold bg-gradient-to-r from-blue-600 via-orange-500 to-red-500 bg-clip-text text-transparent">Get Pro</span>
-                    
-                    <Icon name="Zap" className="size-4 text-red-500" />
-                </Button>
+                <div>
+                    <Button
+                        onClick={handleButtonClick}
+                        variant={"neo"}
+                        className="flex rounded-sm bg-white hover:bg-white"
+                    >
+                        <span className="font-semibold bg-gradient-to-r from-blue-600 via-orange-500 to-red-500 bg-clip-text text-transparent">Get Pro</span>
+
+                        <Icon name="Zap" className="size-4 text-red-500" />
+                    </Button>
+                </div>
             )}
         </PremiumSheet>
     );

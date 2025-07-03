@@ -12,10 +12,19 @@ import {
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
 import Icon from "../custom/Icon";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import PremiumButton from "./PremiumButton";
+import FaucetDialog from "./FaucetDialog";
 
-export default function Connect() {
+interface ConnectProps {
+    isMobile?: boolean;
+    onProClick?: () => void;
+    onFaucetClick?: () => void;
+}
+
+export default function Connect({ isMobile = false, onProClick, onFaucetClick }: ConnectProps) {
     const { ready, authenticated, user, login, logout } = usePrivy();
+    const navigate = useNavigate();
 
     if (!ready) return (
         <Button disabled variant="neo" className="rounded-sm">
@@ -24,8 +33,8 @@ export default function Connect() {
     );
 
     if (!authenticated) return (
-        <Button 
-            onClick={() => login()} 
+        <Button
+            onClick={() => login()}
             variant="neo"
             className="py-1 px-5 rounded-sm"
         >
@@ -49,6 +58,31 @@ export default function Connect() {
             <DropdownMenuContent align="end" className="mt-2 w-48 bg-neo-bg border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none">
                 <DropdownMenuLabel className="font-black uppercase text-zinc-900">My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-black h-[2px]" />
+
+                {/* Mobile-only menu items */}
+                {isMobile && (
+                    <>
+                        <div className="p-2 flex items-center gap-2">
+                            <PremiumButton />
+                            <FaucetDialog />
+                        </div>
+                        <DropdownMenuSeparator className="bg-black h-[2px]" />
+                        <DropdownMenuItem asChild>
+                            <Link to="/notifications" className="flex items-center cursor-pointer font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
+                                <Icon name="FileSpreadsheet" className="mr-2 w-4 h-4" />
+                                Shared
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link to="/history" className="flex items-center cursor-pointer font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
+                                <Icon name="History" className="mr-2 w-4 h-4" />
+                                History
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-black h-[2px]" />
+                    </>
+                )}
+
                 <DropdownMenuItem asChild>
                     <Link to="/profile" className="flex items-center cursor-pointer font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
                         <Icon name="User" className="mr-2 w-4 h-4" />
