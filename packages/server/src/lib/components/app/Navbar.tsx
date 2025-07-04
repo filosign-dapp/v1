@@ -52,16 +52,18 @@ export default function Navbar() {
             {/* Desktop buttons - hidden on mobile */}
             <div className="hidden md:flex items-center space-x-3">
               <PremiumButton />
-              
+
               <FaucetDialog />
 
-              <Button
-                onClick={() => navigate({ to: '/notifications' })}
-                variant={"neo"}
-                className="rounded-sm"
-              >
-                <Icon name="Bell" className="w-4 h-4 lg:w-5 lg:h-5" />
-              </Button>
+              {isRegistered && (
+                <Button
+                  onClick={() => navigate({ to: '/notifications' })}
+                  variant={"neo"}
+                  className="rounded-sm"
+                >
+                  <Icon name="Bell" className="w-4 h-4 lg:w-5 lg:h-5" />
+                </Button>
+              )}
 
               <Button
                 onClick={() => navigate({ to: '/history' })}
@@ -75,15 +77,15 @@ export default function Navbar() {
             <div className="hidden md:block">
               <Connect />
             </div>
-            
+
             <div className="md:hidden">
-              <Connect 
+              <Connect
                 isMobile={true}
                 onProClick={handleProClick}
                 onFaucetClick={handleFaucetClick}
               />
             </div>
-            
+
           </div>
         </div>
       </div>
