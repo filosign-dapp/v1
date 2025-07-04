@@ -13,7 +13,6 @@ W3UpClient.getInstance().catch((error) => {
 // Start the server
 const server = serve({
   development: false,
-  port: 10000,
 
   routes: {
     "/api": new Response(JSON.stringify({

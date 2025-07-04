@@ -24,19 +24,35 @@ const server = serve({
       message: "Bun Server",
       version: "v1.0.0",
     })),
-    // CATCHES ONLY GET REQUESTS
+
+    // CATCHES ONLY API GET REQUESTS
     "/api/v1/*": (req) => {
       return hono.fetch(req);
     },
-    // "/*": isProd ? dist : html,
+    
+    "/static/*": (req) => {
+      const url = new URL(req.url);
+      const filePath = url.pathname.replace("/static/", "");
+      const file = Bun.file(`public/${filePath}`);
+      return new Response(file);
+    },
+
     "/*": html,
   },
 
   fetch(req) {
-    // CATCHES ALL OTHER METHODS
+    // CATCHES ALL OTHER API METHODS
     if (req.url.includes("/api/v1")) {
       return hono.fetch(req);
     }
+    
+    if (req.url.includes("/static/")) {
+      const url = new URL(req.url);
+      const filePath = url.pathname.replace("/static/", "");
+      const file = Bun.file(`public/${filePath}`);
+      return new Response(file);
+    }
+
     return new Response("Not Found", { status: 404 });
   },
 

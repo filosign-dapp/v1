@@ -1,12 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?&family=Manrope:wght@200..800&&&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-
 @import "tailwindcss";
+@custom-variant dark (&: is(.dark *));
 
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 
-@custom-variant dark (&: is(.dark *));
 
 :root {
   --background: hsl(0 0% 98%);
@@ -142,9 +139,8 @@
   --neo-purple-dark: hsl(296, 94%, 35%);
 } */
 
-@theme inline {
-  --font-manrope: "Manrope", sans-serif;
-  --font-epilogue: "Epilogue", sans-serif;
+@theme {
+  --font-manrope: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --color-grey-50: var(--grey-50);
   --color-grey-100: var(--grey-100);

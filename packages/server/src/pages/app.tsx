@@ -17,7 +17,7 @@ import { z } from 'zod';
 import { useAnalytics } from '../lib/hooks/use-analytics';
 import Test from './test';
 import SharedWithYou from './shared';
-  
+
 const rootRoute = createRootRoute({
   component: () => {
     useAnalytics();
@@ -90,7 +90,6 @@ const profileRoute = createRoute({
 })
 
 const notificationsRoute = createRoute({
-
   getParentRoute: () => rootRoute,
   path: '/notifications',
   component: function NotificationsPage() {
@@ -106,9 +105,10 @@ const testRoute = createRoute({
   },
 })
 
-const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute, testRoute, notificationsRoute])
+const routeTree = rootRoute.addChildren([
+  landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute, testRoute, notificationsRoute
+])
 
-// Create hash history for IPFS compatibility
 const hashHistory = createHashHistory()
 
 const router = createRouter({
