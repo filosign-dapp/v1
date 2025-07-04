@@ -27,8 +27,7 @@ export default function DownloadPage() {
   const [totalSize, setTotalSize] = useState<string>('')
 
   const { cid } = useParams({ from: '/download/$cid' })
-  const { name } = useSearch({ from: '/download/$cid' })
-  const secretKey = window.location.hash.slice(1)
+  const { name, key: secretKey } = useSearch({ from: '/download/$cid' })
 
   const { downloadFiles } = useApi()
   const { data: buffers, status: downloadStatus, error } = downloadFiles(cid)
@@ -44,10 +43,17 @@ export default function DownloadPage() {
         let totalSize = 0
         const fileItems: FileItem[] = []
         await Promise.all(buffers.map(async (item) => {
-          const decryptedBuffer = await decryptFile(item.buffer, secretKey);
+          if (!secretKey) {
+            throw new Error('Secret key is missing..');
+          }
+
+          const decodedName = decodeURIComponent(name || "default")
+          const decodedKey = decodeURIComponent(secretKey)
+
+          const decryptedBuffer = await decryptFile(item.buffer, decodedKey);
           const decompressedBuffer = await decompressFile(decryptedBuffer);
-          const file = new File([decompressedBuffer], item.name)
-          fileItems.push({ file, name: item.name, size: formatFileSize(file.size) })
+          const file = new File([decompressedBuffer], decodedName)
+          fileItems.push({ file, name: decodedName, size: formatFileSize(file.size) })
           totalSize += file.size
         }))
         setFileItems(fileItems)
@@ -88,7 +94,7 @@ export default function DownloadPage() {
     }
   }
 
-    async function handleDownloadAll() {
+  async function handleDownloadAll() {
     if (fileItems.length === 0) {
       toast.error('No files available for download');
       return
@@ -100,21 +106,21 @@ export default function DownloadPage() {
       setIsCreatingZip(true);
       // Create a new JSZip instance
       const zip = new JSZip();
-      
+
       // Add all files to the ZIP
       fileItems.forEach(fileItem => {
         zip.file(fileItem.name, fileItem.file);
       });
-      
+
       // Generate the ZIP file
-      const zipBlob = await zip.generateAsync({ 
+      const zipBlob = await zip.generateAsync({
         type: "blob",
         compression: "DEFLATE",
         compressionOptions: {
           level: 6
         }
       });
-      
+
       // Create download link for the ZIP file
       const url = URL.createObjectURL(zipBlob);
       const zipFileName = name ? `${name}.zip` : `files-${Date.now()}.zip`;
@@ -122,14 +128,14 @@ export default function DownloadPage() {
         href: url,
         download: zipFileName
       });
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
       toast.success(`ZIP file "${zipFileName}" downloaded successfully`);
-      
+
       window?.gtag?.('event', 'download', {
         event_category: 'download',
         event_label: `ZIP with ${fileItems.length} files`,
@@ -301,7 +307,7 @@ export default function DownloadPage() {
 
                 {/* Download All Button */}
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                    <Button
+                  <Button
                     onClick={handleDownloadAll}
                     disabled={downloadStatus !== 'success' || isCreatingZip}
                     variant="neo"

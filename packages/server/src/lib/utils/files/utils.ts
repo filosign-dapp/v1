@@ -1,7 +1,10 @@
 export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 export function createDownloadLink(cid: string, name: string, secretKey: string) {
-    return `${process.env.BUN_PUBLIC_APP_URL}/download/${cid}?name=${name}#${secretKey}`
+    const origin = window.location.origin
+    const encodedName = encodeURIComponent(name)
+    const encodedKey = encodeURIComponent(secretKey)
+    return `${origin}/#/download/${cid}?name=${encodedName}&key=${encodedKey}`
 }
 
 export function formatFileSize(bytes: number): string {

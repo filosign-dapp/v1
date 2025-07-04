@@ -4,6 +4,7 @@ import {
   createRouter,
   createRoute,
   createRootRoute,
+  createHashHistory,
 } from '@tanstack/react-router'
 import { withPageErrorBoundary } from "@/src/lib/components/errors/PageErrorBoundary";
 import Landing from "./landing";
@@ -76,6 +77,7 @@ const downloadRoute = createRoute({
   validateSearch: z.object({
     name: z.string().optional(),
     type: z.string().optional(),
+    key: z.string().optional(),
   }),
 })
 
@@ -105,8 +107,13 @@ const testRoute = createRoute({
 })
 
 const routeTree = rootRoute.addChildren([landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute, testRoute, notificationsRoute])
+
+// Create hash history for IPFS compatibility
+const hashHistory = createHashHistory()
+
 const router = createRouter({
   routeTree,
+  history: hashHistory,
 })
 
 declare module '@tanstack/react-router' {

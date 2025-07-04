@@ -2,7 +2,7 @@
 import { build, type BuildConfig } from "bun";
 import plugin from "bun-plugin-tailwind";
 import { existsSync } from "fs";
-import { rm } from "fs/promises";
+import { rm, cp } from "fs/promises";
 import path from "path";
 
 // Print help text if requested
@@ -201,6 +201,18 @@ console.log("\n🚀 Starting build process...\n");
 
   console.table(outputTable);
   const buildTime = (end - start).toFixed(2);
+
+  // Copy public directory contents to dist
+  const publicDir = path.join(process.cwd(), "public");
+  if (existsSync(publicDir)) {
+    console.log("📁 Copying public directory contents to dist...");
+    try {
+      await cp(publicDir, outdir, { recursive: true });
+      console.log("✅ Public files copied successfully");
+    } catch (error) {
+      console.error("❌ Error copying public files:", error);
+    }
+  }
 
   console.log(`\n✅ Build completed in ${buildTime}ms\n`);
 })();
