@@ -47,13 +47,11 @@ export default function DownloadPage() {
             throw new Error('Secret key is missing..');
           }
 
-          const decodedName = decodeURIComponent(name || "default")
           const decodedKey = decodeURIComponent(secretKey)
-
           const decryptedBuffer = await decryptFile(item.buffer, decodedKey);
           const decompressedBuffer = await decompressFile(decryptedBuffer);
-          const file = new File([decompressedBuffer], decodedName)
-          fileItems.push({ file, name: decodedName, size: formatFileSize(file.size) })
+          const file = new File([decompressedBuffer], item.name)
+          fileItems.push({ file, name: item.name, size: formatFileSize(file.size) })
           totalSize += file.size
         }))
         setFileItems(fileItems)

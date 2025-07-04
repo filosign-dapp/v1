@@ -7,9 +7,9 @@ import { db } from "@/api/lib/db/db";
 import { filesTable } from "@/api/lib/db/schema";
 import { zNumberString } from "@/api/lib/utils/zod";
 import { eq, inArray, lt } from "drizzle-orm";
-import { env } from "@/env";
-import { bearerAuth } from 'hono/bearer-auth'
 import { MAX_FILE_SIZE } from "@/src/lib/utils/files";
+import { bearerAuth } from 'hono/bearer-auth'
+import { env } from "@/env";
 
 const app = new Hono()
   .get(
@@ -27,8 +27,6 @@ const app = new Hono()
       const cids = await db.select({
         cid: filesTable.cid,
       }).from(filesTable).limit(limit).offset((page - 1) * limit);
-
-      console.log(cids)
 
       return respond.ok(
         ctx,
@@ -110,6 +108,9 @@ const app = new Hono()
 
         const w3upClient = getW3UpClient();
         const cid = await w3upClient.uploadDirectory(files);
+
+        const gatewayUrl = w3upClient.getGatewayUrl(cid.toString());
+        console.log(gatewayUrl);
 
         const fileNames = files.map((file: File) => file.name);
 

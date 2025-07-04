@@ -73,8 +73,10 @@ export function useApi() {
 
                     if (!serverResponseJson.success) throw new Error(serverResponseJson.error);
                     const { fileNames } = serverResponseJson.data;
+                    
 
                     if (fileNames.length === 1) {
+                        console.log('downloading single file');
                         const url = `https://${cid}.ipfs.w3s.link`
                         const buffer = await fetch(url).then(res => res.arrayBuffer())
                         return [{
@@ -82,6 +84,7 @@ export function useApi() {
                             name: fileNames[0].replace('.enc', ''),
                         }];
                     } else {
+                        console.log('downloading multiple files');
                         const filePromises = fileNames.map(async (fileName: string) => {
                             const encodedFileName = encodeURIComponent(fileName);
                             const url = `https://${cid}.ipfs.w3s.link/${encodedFileName}`

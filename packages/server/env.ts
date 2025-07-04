@@ -8,6 +8,8 @@ const envKeys = [
   "BUN_PUBLIC_APP_URL",
   "DATABASE_URL",
   "SUPERADMIN_PASSWORD",
+  "STORACHA_SPACE_DID",
+  "STORACHA_PRIVATE_KEY",
 ] as const;
 
 type ENV = Record<(typeof envKeys)[number], string>;
