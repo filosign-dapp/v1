@@ -90,6 +90,10 @@ class Contracts {
     return this.interfaces.usdfc;
   }
 
+  async ensureApproval() {
+    this.usdfc.write.approve([this.portalOrchestrator.address, viem.maxInt256]);
+  }
+
   async register() {
     const seed = await this.iam.read.determineNextSeed([
       this.client.account.address,
