@@ -91,7 +91,6 @@ class Contracts {
   }
 
   async register() {
-    console.log("Called register..");
     const seed = await this.iam.read.determineNextSeed([
       this.client.account.address,
     ]);
@@ -117,13 +116,16 @@ class Contracts {
       },
     });
 
-    const txHash = await this.iam.write.register([
-      encryptionWallet.account.publicKey,
-      encryptionWallet.account.address,
-      verificationSignature,
-    ], {
-      value: 1000000000000000000n,
-    });
+    const txHash = await this.iam.write.register(
+      [
+        encryptionWallet.account.publicKey,
+        encryptionWallet.account.address,
+        verificationSignature,
+      ],
+      {
+        value: 1000000000000000000n,
+      }
+    );
 
     return txHash;
   }

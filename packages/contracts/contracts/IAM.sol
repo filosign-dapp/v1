@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "hardhat/console.sol";
 import "./SignatureVerifier.sol";
+import "./PortalOrchestrator.sol";
 
 contract IAM is SignatureVerifier {
     struct Account {
@@ -17,11 +17,11 @@ contract IAM is SignatureVerifier {
     mapping(address => Account) public accounts;
     mapping(address => bool) public registered;
 
-    address private _orchestrator;
+    PortalOrchestrator private _orchestrator;
 
     constructor() {
         _nonce = block.number;
-        _orchestrator = msg.sender; // assume the orchestrator to be the contract deployer
+        _orchestrator = PortalOrchestrator(msg.sender); // assume the orchestrator to be the contract deployer
     }
 
     function getNonce() external view returns (uint256) {
@@ -51,20 +51,20 @@ contract IAM is SignatureVerifier {
     function register(
         bytes memory pub_,
         address pubAddr_,
-        bytes calldata signature_
-    ) external payable {
-        require(msg.value >= REGISTRATION_FEE, "Insufficient registration fee");
+        bytes calldata signature_ // payable
+    ) external {
         require(
             accounts[msg.sender].pubAddr == address(0),
             "Already registered"
         );
-        // require(isValidPubKey(msg.sender, pub_), "Invalid public key");
 
+        _orchestrator.receivePayment(
+            1 * _orchestrator.ONE_USDFC(),
+            msg.sender,
+            "Registration fee"
+        );
         bytes32 seed = determineNextSeed(msg.sender);
-        // require(validate(pub_, seed, signature_), "Invalid signature");
         bytes32 digest = keccak256(abi.encodePacked(msg.sender, seed));
-        console.log("seed on chain :");
-        console.logBytes32(seed);
         require(
             verifySignature(pubAddr_, digest, signature_),
             "Invalid signature"
@@ -74,8 +74,6 @@ contract IAM is SignatureVerifier {
         registered[msg.sender] = true;
 
         incrementNonce();
-
-        payable(address(_orchestrator)).transfer(msg.value);
     }
 
     function isValidPubKey(
@@ -87,11 +85,10 @@ contract IAM is SignatureVerifier {
             "Invalid pubkey length"
         );
 
-        // Remove leading 0x04 byte if uncompressed
         bytes memory fullPubKey = pubKey;
         if (pubKey.length == 65) {
             require(pubKey[0] == 0x04, "Must be uncompressed pubkey");
-            fullPubKey = slice(pubKey, 1, 64); // remove 0x04
+            fullPubKey = slice(pubKey, 1, 64);
         }
 
         bytes32 hash = keccak256(fullPubKey);
@@ -111,11 +108,4 @@ contract IAM is SignatureVerifier {
         }
         return out;
     }
-
-    // function validate(
-    //     address from_,
-    //     bytes32 seed_,
-    //     bytes calldata signature_
-    // ) private pure returns (bool) {
-    // }
 }

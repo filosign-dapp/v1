@@ -151,22 +151,25 @@ contract KeyManager {
         return uploads[cid_].seeds[for_];
     }
 
-    function unlockKeySeed(string calldata cid_) external payable {
+    function unlockKeySeed(
+        string calldata cid_ //  payable
+    ) external {
         require(uploads[cid_].timestamp != 0, "File not exist");
         require(uploads[cid_].expiration > block.timestamp, "Key has expired");
-        require(
-            msg.value >= uploads[cid_].cost,
-            "Insufficient payment for key"
-        );
         require(
             uploads[cid_].seeds[msg.sender].length != 0,
             "No key registered for this address"
         );
 
-        uint256 fees = msg.value / 10;
+        uint256 cost = uploads[cid_].cost;
+        uint256 fees = cost / 10;
 
-        payable(uploads[cid_].owner).transfer(msg.value - fees);
-        payable(address(_orchestrator)).transfer(fees);
+        _orchestrator.spend(cost - fees, msg.sender, uploads[cid_].owner);
+        _orchestrator.receivePayment(
+            fees,
+            msg.sender,
+            "Fees for unlocking image"
+        );
 
         uploads[cid_].paid[msg.sender] = true;
     }

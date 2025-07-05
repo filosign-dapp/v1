@@ -30,7 +30,7 @@ contract PortalOrchestrator {
         spenders[address(subHandler)] = true;
 
         iam = new IAM();
-        // Iam no need to be a spender
+        spenders[address(iam)] = true;
 
         usdfc = ERC20(usdfc_);
         ONE_USDFC = 10 ** 18; //usdfc.decimals();
@@ -51,14 +51,25 @@ contract PortalOrchestrator {
     }
 
     function receivePayment(
-        uint256 amount,
-        string calldata reason
+        uint256 amount_,
+        address spender_,
+        string calldata reason_
     ) external onlySpender {
-        require(amount > 0, "Amount must be greater than zero");
+        require(amount_ > 0, "Amount must be greater than zero");
 
-        usdfc.transferFrom(msg.sender, address(this), amount * ONE_USDFC);
+        usdfc.transferFrom(spender_, address(this), amount_ * ONE_USDFC);
 
-        emit Payment(msg.sender, amount, reason);
+        emit Payment(msg.sender, amount_, reason_);
+    }
+
+    function spend(
+        uint256 amount_,
+        address spender_,
+        address receiver_
+    ) external onlySpender {
+        require(amount_ > 0, "Amount must be greater than zero");
+
+        usdfc.transferFrom(spender_, receiver_, amount_ * ONE_USDFC);
     }
 
     function withdraw(address to_, uint256 amount_) external onlyAdmin {
