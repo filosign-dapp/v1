@@ -12,9 +12,10 @@ import {
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
 import Icon from "../custom/Icon";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import PremiumButton from "./PremiumButton";
-import FaucetDialog from "./FaucetDialog";
+import FaucetSheet from "./FaucetDialog";
+import { useState } from "react";
 
 interface ConnectProps {
     isMobile?: boolean;
@@ -24,7 +25,7 @@ interface ConnectProps {
 
 export default function Connect({ isMobile = false, onProClick, onFaucetClick }: ConnectProps) {
     const { ready, authenticated, user, login, logout } = usePrivy();
-    const navigate = useNavigate();
+    const [showFaucet, setShowFaucet] = useState(false);
 
     if (!ready) return (
         <Button disabled variant="neo" className="rounded-sm">
@@ -64,7 +65,11 @@ export default function Connect({ isMobile = false, onProClick, onFaucetClick }:
                     <>
                         <div className="p-2 flex items-center gap-2">
                             <PremiumButton />
-                            <FaucetDialog />
+                            <FaucetSheet isOpen={showFaucet} onOpenChange={setShowFaucet}>
+                                <Button variant={"neo"} className="rounded-sm">
+                                    <Icon name="Droplets" className="w-4 h-4 lg:w-5 lg:h-5" />
+                                </Button>
+                            </FaucetSheet>
                         </div>
                         <DropdownMenuSeparator className="bg-black h-[2px]" />
                         <DropdownMenuItem asChild>
