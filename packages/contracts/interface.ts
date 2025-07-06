@@ -3,7 +3,6 @@ import * as viem from "viem";
 import { filecoinCalibration } from "viem/chains";
 import {
   decryptAES,
-  deriveAESKey,
   deriveSharedKey,
   encryptAES,
   extractPrivateKeyFromSignature,
@@ -104,6 +103,7 @@ class Contracts {
 
   async register() {
     this.ensureApproval();
+
     const seed = await this.iam.read.determineNextSeed([
       this.client.account.address,
     ]);

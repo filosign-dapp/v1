@@ -58,11 +58,7 @@ contract IAM is SignatureVerifier {
             "Already registered"
         );
 
-        _orchestrator.receivePayment(
-            1 * _orchestrator.ONE_USDFC(),
-            msg.sender,
-            "Registration fee"
-        );
+        // _orchestrator.receivePayment(1, msg.sender, "Registration fee");
         bytes32 seed = determineNextSeed(msg.sender);
         bytes32 digest = keccak256(abi.encodePacked(msg.sender, seed));
         require(
