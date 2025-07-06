@@ -254,6 +254,14 @@ class Contracts {
     return txHash;
   }
 
+  async revokeAccess(cid: string, recipient: viem.Address) {
+    if (!(await this.isRegistered())) {
+      throw new Error("You are not registered. Please register first.");
+    }
+
+    await this.keyManager.write.revoke([cid, recipient]);
+  }
+
   async isRevocable(cid: string) {
     if (!(await this.isRegistered())) {
       throw new Error("You are not registered. Please register first.");
