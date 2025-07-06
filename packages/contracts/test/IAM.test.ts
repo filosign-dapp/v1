@@ -1,5 +1,5 @@
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
-import { expect } from "chai";
+import { expect, use } from "chai";
 import hre from "hardhat";
 import {
   getAddress,
@@ -9,6 +9,7 @@ import {
   createWalletClient,
   http,
   encodePacked,
+  maxInt152,
 } from "viem";
 import { extractPrivateKeyFromSignature } from "../utils";
 import { hardhat } from "viem/chains";
@@ -18,9 +19,24 @@ describe("IAM", function () {
   async function deployIAMFixture() {
     const [owner, user, otherAccount] = await hre.viem.getWalletClients();
 
-    const iam = await hre.viem.deployContract("IAM");
+    const usdfc = await hre.viem.deployContract("USDFC");
+    const orchestrator = await hre.viem.deployContract("PortalOrchestrator", [
+      usdfc.address,
+    ]);
+
+    const iamAddress = await orchestrator.read.iam();
+    const iam = await hre.viem.getContractAt("IAM", iamAddress);
+
+    await usdfc.write.transfer([
+      user.account.address,
+      BigInt(10_000 * Math.pow(10, 18)),
+    ]);
+    await usdfc.write.approve([orchestrator.address, maxInt152], {
+      account: user.account,
+    });
 
     return {
+      usdfc,
       iam,
       owner,
       user,
@@ -53,6 +69,7 @@ describe("IAM", function () {
     console.log("seed in viem ", seed);
 
     await iamAsUser.write.register([
+      encryptionWallet.account.publicKey,
       encryptionWallet.account.address,
       await encryptionWallet.signMessage({ message: { raw: digest } }),
     ]);
@@ -69,7 +86,7 @@ describe("IAM", function () {
     });
 
     it("Should increment nonce after registration", async function () {
-      const { iam, user } = await loadFixture(deployIAMFixture);
+      const { iam, user, usdfc } = await loadFixture(deployIAMFixture);
 
       const initialNonce = await iam.read.getNonce();
 

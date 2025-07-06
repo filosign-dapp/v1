@@ -80,12 +80,17 @@ const definitions = {
         "inputs": [
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "amount_",
             "type": "uint256"
           },
           {
+            "internalType": "address",
+            "name": "spender_",
+            "type": "address"
+          },
+          {
             "internalType": "string",
-            "name": "reason",
+            "name": "reason_",
             "type": "string"
           }
         ],
@@ -103,6 +108,29 @@ const definitions = {
           }
         ],
         "name": "setAdmin",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amount_",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "spender_",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver_",
+            "type": "address"
+          }
+        ],
+        "name": "spend",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -171,7 +199,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xe8dbfc3b845560d247de8029976cb74d3f12f0b0"
+    "address": "0x9f6a8bbb794140a9ccdc6b551e106b191ef57c72"
   },
   "IAM": {
     "abi": [
@@ -298,7 +326,7 @@ const definitions = {
         ],
         "name": "register",
         "outputs": [],
-        "stateMutability": "payable",
+        "stateMutability": "nonpayable",
         "type": "function"
       },
       {
@@ -388,7 +416,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0x34ebe248c3cfC3630283cd2Cb2E539Ca00fbBe40"
+    "address": "0x11b242Fa7BD3bE33fF623Ab67a9C5C4656224639"
   },
   "SubHandler": {
     "abi": [
@@ -614,7 +642,7 @@ const definitions = {
         "type": "function"
       }
     ],
-    "address": "0xd9DB59fCB58E79517f8264bc22A1C498f7b35314"
+    "address": "0x2bB63D03000f549f9908f823A345d117c29BcF3c"
   },
   "KeyManager": {
     "abi": [
@@ -804,11 +832,11 @@ const definitions = {
         ],
         "name": "unlockKeySeed",
         "outputs": [],
-        "stateMutability": "payable",
+        "stateMutability": "nonpayable",
         "type": "function"
       }
     ],
-    "address": "0xAA6cc49C5BD55698d8748Ce8DE43cF710bAD753c"
+    "address": "0x68AC68c25fd6100b7c36fcF5D7c24F28eF5C556E"
   },
   "usdfc": {
     "abi": [

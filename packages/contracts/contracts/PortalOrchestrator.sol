@@ -57,7 +57,7 @@ contract PortalOrchestrator {
     ) external onlySpender {
         require(amount_ > 0, "Amount must be greater than zero");
 
-        usdfc.transferFrom(spender_, address(this), amount_ * ONE_USDFC);
+        usdfc.transferFrom(spender_, address(this), amount_);
 
         emit Payment(msg.sender, amount_, reason_);
     }
@@ -69,7 +69,7 @@ contract PortalOrchestrator {
     ) external onlySpender {
         require(amount_ > 0, "Amount must be greater than zero");
 
-        usdfc.transferFrom(spender_, receiver_, amount_ * ONE_USDFC);
+        usdfc.transferFrom(spender_, receiver_, amount_);
     }
 
     function withdraw(address to_, uint256 amount_) external onlyAdmin {

@@ -91,10 +91,19 @@ class Contracts {
   }
 
   async ensureApproval() {
+    const current = await this.usdfc.read.allowance([
+      this.client.account.address,
+      this.portalOrchestrator.address,
+    ]);
+    if (current >= viem.maxInt128) {
+      console.log("Already approved");
+      return;
+    }
     this.usdfc.write.approve([this.portalOrchestrator.address, viem.maxInt256]);
   }
 
   async register() {
+    this.ensureApproval();
     const seed = await this.iam.read.determineNextSeed([
       this.client.account.address,
     ]);
@@ -120,16 +129,11 @@ class Contracts {
       },
     });
 
-    const txHash = await this.iam.write.register(
-      [
-        encryptionWallet.account.publicKey,
-        encryptionWallet.account.address,
-        verificationSignature,
-      ],
-      {
-        value: 1000000000000000000n,
-      }
-    );
+    const txHash = await this.iam.write.register([
+      encryptionWallet.account.publicKey,
+      encryptionWallet.account.address,
+      verificationSignature,
+    ]);
 
     return txHash;
   }
