@@ -55,6 +55,8 @@ export async function encryptFile(buffer: ArrayBuffer, secretKey?: string) {
     iv = crypto.getRandomValues(new Uint8Array(12));
   }
 
+  console.log(key);
+
   const encryptedBuffer = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,

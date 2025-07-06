@@ -1,4 +1,3 @@
-// import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import {
   Outlet,
   createRouter,
@@ -15,8 +14,8 @@ import Download from "./download";
 import Profile from "./profile";
 import { z } from 'zod';
 import { useAnalytics } from '../lib/hooks/use-analytics';
-import Test from './test';
 import SharedWithYou from './shared';
+// import Test from './test';
 
 const rootRoute = createRootRoute({
   component: () => {
@@ -25,7 +24,6 @@ const rootRoute = createRootRoute({
     return (
       <>
         <Outlet />
-        {/* <TanStackRouterDevtools /> */}
       </>
     )
   },
@@ -89,24 +87,24 @@ const profileRoute = createRoute({
   },
 })
 
-const notificationsRoute = createRoute({
+const sharedRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/notifications',
-  component: function NotificationsPage() {
+  path: '/shared',
+  component: function SharedPage() {
     return withPageErrorBoundary(SharedWithYou)({});
   },
 })
 
-const testRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/test',
-  component: function TestPage() {
-    return withPageErrorBoundary(Test)({});
-  },
-})
+// const testRoute = createRoute({
+//   getParentRoute: () => rootRoute,
+//   path: '/test',
+//   component: function TestPage() {
+//     return withPageErrorBoundary(Test)({});
+//   },
+// })
 
 const routeTree = rootRoute.addChildren([
-  landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute, testRoute, notificationsRoute
+  landingRoute, uploadRoute, historyRoute, linkRoute, downloadRoute, profileRoute, sharedRoute
 ])
 
 const hashHistory = createHashHistory()

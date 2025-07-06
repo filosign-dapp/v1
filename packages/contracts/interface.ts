@@ -102,8 +102,6 @@ class Contracts {
   }
 
   async register() {
-    this.ensureApproval();
-
     const seed = await this.iam.read.determineNextSeed([
       this.client.account.address,
     ]);

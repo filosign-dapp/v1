@@ -50,11 +50,11 @@ export default function Navbar() {
 
               {isRegistered && (
                 <Button
-                  onClick={() => navigate({ to: '/notifications' })}
+                  onClick={() => navigate({ to: '/shared' })}
                   variant={"neo"}
                   className="rounded-sm"
                 >
-                  <Icon name="Bell" className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <Icon name="Share2" className="w-4 h-4 lg:w-5 lg:h-5" />
                 </Button>
               )}
 

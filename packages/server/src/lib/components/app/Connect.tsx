@@ -16,6 +16,7 @@ import { Link } from "@tanstack/react-router";
 import PremiumButton from "./PremiumButton";
 import FaucetSheet from "./FaucetDialog";
 import { useState } from "react";
+import { Badge } from "../ui/badge";
 
 interface ConnectProps {
     isMobile?: boolean;
@@ -73,7 +74,7 @@ export default function Connect({ isMobile = false, onProClick, onFaucetClick }:
                         </div>
                         <DropdownMenuSeparator className="bg-black h-[2px]" />
                         <DropdownMenuItem asChild>
-                            <Link to="/notifications" className="flex items-center cursor-pointer font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
+                            <Link to="/shared" className="flex items-center cursor-pointer font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
                                 <Icon name="FileSpreadsheet" className="mr-2 w-4 h-4" />
                                 Shared
                             </Link>
@@ -94,11 +95,6 @@ export default function Connect({ isMobile = false, onProClick, onFaucetClick }:
                         Profile
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">
-                    <Icon name="CreditCard" className="mr-2 w-4 h-4" />
-                    Billing
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-black h-[2px]" />
                 <DropdownMenuItem onClick={() => {
                     logout();
                 }} className="font-bold text-zinc-800 hover:bg-neo-beige-1 hover:text-zinc-950">

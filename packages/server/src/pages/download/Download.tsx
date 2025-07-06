@@ -48,6 +48,7 @@ export default function DownloadPage() {
           }
 
           const decodedKey = decodeURIComponent(secretKey)
+          console.log(decodedKey);
           const decryptedBuffer = await decryptFile(item.buffer, decodedKey);
           const decompressedBuffer = await decompressFile(decryptedBuffer);
           const file = new File([decompressedBuffer], item.name)

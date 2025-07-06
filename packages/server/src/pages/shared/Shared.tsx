@@ -6,108 +6,37 @@ import { Badge } from '@/src/lib/components/ui/badge'
 import { Input } from '@/src/lib/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/src/lib/components/ui/select'
 import { useUserStore } from '@/src/lib/hooks/use-store'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import Icon from '@/src/lib/components/custom/Icon'
+import { createDownloadLink } from '@/src/lib/utils/files'
 
-// Mock data type for shared files
+// Updated data type for shared files based on actual schema
 type SharedFile = {
-  id: string
-  name: string
-  size: string
-  type: 'file' | 'directory'
+  cid: string
+  yourKey: string
   sharedBy: string
   sharedAt: string
-  downloadUrl: string
-  cid: string
-  key: string
-  avatar?: string
+  name: string
 }
 
-// Mock shared files data
+// Mock shared files data using the new schema
 const mockSharedFiles: SharedFile[] = [
-  {
-    id: '1',
-    name: 'Project_Proposal_2024.pdf',
-    size: '2.3 MB',
-    type: 'file',
-    sharedBy: 'alice.eth',
-    sharedAt: '2024-01-15T10:30:00Z',
-    downloadUrl: 'https://example.com/download/1',
-    cid: 'QmExample1',
-    key: 'encryption-key-1',
-    avatar: '🚀'
-  },
-  {
-    id: '2',
-    name: 'Design_Assets',
-    size: '45.7 MB',
-    type: 'directory',
-    sharedBy: 'bob.crypto',
-    sharedAt: '2024-01-14T15:45:00Z',
-    downloadUrl: 'https://example.com/download/2',
-    cid: 'QmExample2',
-    key: 'encryption-key-2',
-    avatar: '🎨'
-  },
-  {
-    id: '3',
-    name: 'meeting-notes.md',
-    size: '125 KB',
-    type: 'file',
-    sharedBy: 'charlie.web3',
-    sharedAt: '2024-01-13T09:15:00Z',
-    downloadUrl: 'https://example.com/download/3',
-    cid: 'QmExample3',
-    key: 'encryption-key-3',
-    avatar: '📝'
-  },
-  {
-    id: '4',
-    name: 'blockchain_research.zip',
-    size: '156.8 MB',
-    type: 'file',
-    sharedBy: 'david.dao',
-    sharedAt: '2024-01-12T14:20:00Z',
-    downloadUrl: 'https://example.com/download/4',
-    cid: 'QmExample4',
-    key: 'encryption-key-4',
-    avatar: '⛓️'
-  },
-  {
-    id: '5',
-    name: 'Marketing_Campaign',
-    size: '89.2 MB',
-    type: 'directory',
-    sharedBy: 'eva.defi',
-    sharedAt: '2024-01-11T16:30:00Z',
-    downloadUrl: 'https://example.com/download/5',
-    cid: 'QmExample5',
-    key: 'encryption-key-5',
-    avatar: '📊'
-  },
-  {
-    id: '6',
-    name: 'whitepaper_v3.pdf',
-    size: '8.9 MB',
-    type: 'file',
-    sharedBy: 'frank.nft',
-    sharedAt: '2024-01-10T11:45:00Z',
-    downloadUrl: 'https://example.com/download/6',
-    cid: 'QmExample6',
-    key: 'encryption-key-6',
-    avatar: '📄'
-  }
+  // {
+  //   cid: 'bafkreic7jsdyctvkdkp5b4tvc2mtbwrefdzpvkj32jhzfnjuvxm3tknnsm',
+  //   yourKey: 'GCcTNYsLttLcCDHXlSXGB/uvH6MAY35VA1vU9JwQJSE==:bqlGIoIHxzyzU/ua',
+  //   sharedBy: 'ishtails.eth',
+  //   sharedAt: '2024-01-15T10:30:00Z',
+  //   name: 'styles_logo.png',
+  // },
 ]
 
 export default function SharedWithYou() {
   const { isRegistered } = useUserStore()
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [typeFilter, setTypeFilter] = useState<'all' | 'file' | 'directory'>('all')
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name' | 'sharer'>('newest')
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'sharer'>('newest')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5)
-  const navigate = useNavigate()
 
   const copyToClipboard = async (text: string, id: string) => {
     try {
@@ -129,26 +58,6 @@ export default function SharedWithYou() {
     }).format(date)
   }
 
-  // Convert size string to bytes for proper sorting
-  const sizeToBytes = (sizeStr: string): number => {
-    const units: { [key: string]: number } = {
-      'B': 1,
-      'KB': 1024,
-      'MB': 1024 * 1024,
-      'GB': 1024 * 1024 * 1024,
-      'TB': 1024 * 1024 * 1024 * 1024
-    }
-    
-    const match = sizeStr.match(/^([\d.]+)\s*([A-Z]+)$/i)
-    if (!match) return 0
-    
-    const [, numberStr, unit] = match
-    const number = parseFloat(numberStr)
-    const multiplier = units[unit.toUpperCase()] || 1
-    
-    return number * multiplier
-  }
-
   // Filtered and sorted shared files
   const filteredSharedFiles = useMemo(() => {
     let filtered = mockSharedFiles
@@ -161,11 +70,6 @@ export default function SharedWithYou() {
       )
     }
 
-    // Apply type filter
-    if (typeFilter !== 'all') {
-      filtered = filtered.filter(item => item.type === typeFilter)
-    }
-
     // Apply sorting
     filtered = [...filtered].sort((a, b) => {
       switch (sortBy) {
@@ -173,8 +77,6 @@ export default function SharedWithYou() {
           return new Date(b.sharedAt).getTime() - new Date(a.sharedAt).getTime()
         case 'oldest':
           return new Date(a.sharedAt).getTime() - new Date(b.sharedAt).getTime()
-        case 'name':
-          return a.name.localeCompare(b.name)
         case 'sharer':
           return a.sharedBy.localeCompare(b.sharedBy)
         default:
@@ -183,7 +85,7 @@ export default function SharedWithYou() {
     })
 
     return filtered
-  }, [searchQuery, typeFilter, sortBy])
+  }, [searchQuery, sortBy])
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredSharedFiles.length / itemsPerPage)
@@ -194,7 +96,7 @@ export default function SharedWithYou() {
   // Reset to first page when filters change
   useMemo(() => {
     setCurrentPage(1)
-  }, [searchQuery, typeFilter, sortBy])
+  }, [searchQuery, sortBy])
 
   // Show upgrade notice for non-premium users
   if (!isRegistered) {
@@ -412,25 +314,13 @@ export default function SharedWithYou() {
                 {/* Filters */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
                   <div className="flex flex-col flex-1 gap-3 sm:flex-row">
-                    <Select value={typeFilter} onValueChange={(value: 'all' | 'file' | 'directory') => setTypeFilter(value)}>
-                      <SelectTrigger className="w-full sm:w-36 h-10 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white font-bold text-zinc-900">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white">
-                        <SelectItem value="all" className="font-bold">All Types</SelectItem>
-                        <SelectItem value="file" className="font-bold">Files Only</SelectItem>
-                        <SelectItem value="directory" className="font-bold">Folders Only</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <Select value={sortBy} onValueChange={(value: 'newest' | 'oldest' | 'name' | 'sharer') => setSortBy(value)}>
+                    <Select value={sortBy} onValueChange={(value: 'newest' | 'oldest' | 'sharer') => setSortBy(value)}>
                       <SelectTrigger className="w-full sm:w-36 h-10 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white font-bold text-zinc-900">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white">
                         <SelectItem value="newest" className="font-bold">Newest First</SelectItem>
                         <SelectItem value="oldest" className="font-bold">Oldest First</SelectItem>
-                        <SelectItem value="name" className="font-bold">Name A-Z</SelectItem>
                         <SelectItem value="sharer" className="font-bold">By Sharer</SelectItem>
                       </SelectContent>
                     </Select>
@@ -457,7 +347,6 @@ export default function SharedWithYou() {
               <Button
                 onClick={() => {
                   setSearchQuery('')
-                  setTypeFilter('all')
                   setSortBy('newest')
                 }}
                 variant="neo"
@@ -474,161 +363,108 @@ export default function SharedWithYou() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {paginatedSharedFiles.map((item: SharedFile, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <Card className="p-4 sm:p-6 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg relative">
-                  {/* Main content layout */}
-                  <div className="flex gap-3 items-start">
-                    {/* File icon and info */}
-                    <div className="flex gap-3 items-start flex-1 min-w-0">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-neo-beige-2 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Icon name={item.type === 'directory' ? 'FolderOpen' : 'File'} className='w-6 h-6 sm:w-7 sm:h-7 text-zinc-800' />
-                      </div>
+            {paginatedSharedFiles.map((item: SharedFile, index) => {
+              const downloadURL = createDownloadLink(item.cid, 'shared_file', item.yourKey);
 
-                      <div className="flex flex-col gap-1 items-start flex-1 min-w-0">
-                        {/* Title */}
-                        <h3 className="text-lg font-semibold tracking-tight leading-tight break-words sm:text-xl text-zinc-900 pr-2">{item.name}</h3>
+              return (
+                <motion.div
+                  key={item.cid}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <Card className="p-4 sm:p-6 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg relative">
+                    {/* Main content layout */}
+                    <div className="flex gap-3 items-start">
+                      {/* File icon and info */}
+                      <div className="flex gap-3 items-start flex-1 min-w-0">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-neo-beige-2 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Icon name='File' className='w-6 h-6 sm:w-7 sm:h-7 text-zinc-800' />
+                        </div>
 
-                        {/* Shared by info */}
-                        <div className="flex gap-2 items-center mb-2">
-                          <div className="flex gap-2 items-center">
-                            <div className="w-6 h-6 bg-neo-yellow-1 border border-black rounded-full flex items-center justify-center text-xs">
-                              {item.avatar}
+                        <div className="flex flex-col gap-1 items-start flex-1 min-w-0">
+                          {/* Title */}
+                          <h3 className="text-lg font-semibold tracking-tight leading-tight break-words sm:text-xl text-zinc-900 pr-2">{item.name}</h3>
+
+                          {/* Shared by info */}
+                          <div className="flex gap-2 items-center mb-2">
+                            <div className="flex gap-2 items-center">
+                              <div className="w-6 h-6 bg-neo-yellow-1 border border-black rounded-full flex items-center justify-center text-xs">
+                                {item.sharedBy.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="text-sm font-bold text-zinc-700">Shared by {item.sharedBy}</span>
                             </div>
-                            <span className="text-sm font-bold text-zinc-700">Shared by {item.sharedBy}</span>
+                          </div>
+
+                          {/* Metadata */}
+                          <div className="flex gap-2 items-center font-medium">
+                            <Badge className="h-6 rounded-sm border bg-neo-beige-2 text-zinc-800 border-zinc-500">
+                              {formatDate(item.sharedAt)}
+                            </Badge>
                           </div>
                         </div>
+                      </div>
 
-                        {/* Metadata */}
-                        <div className="flex gap-2 items-center font-medium">
-                          <Badge className="h-6 rounded-sm border bg-neo-beige-2 text-zinc-800 border-zinc-500">
-                            {item.size}
-                          </Badge>
-                          <Badge className="h-6 rounded-sm border bg-neo-beige-2 text-zinc-800 border-zinc-500">
-                            {formatDate(item.sharedAt)}
-                          </Badge>
-                        </div>
+                      {/* Action buttons - Right side on desktop */}
+                      <div className="hidden lg:flex gap-2 items-start flex-shrink-0 ml-4">
+                        <Button
+                          variant="neo"
+                          size="sm"
+                          title="Download File"
+                          onClick={() => window.open(downloadURL, '_blank')}
+                          className="w-8 h-8 p-0 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900"
+                        >
+                          <Icon name="ExternalLink" className="w-4 h-4" />
+                        </Button>
+
+                        <Button
+                          variant="neo"
+                          size="sm"
+                          title={copiedId === item.cid ? 'Copied!' : 'Copy Link'}
+                          onClick={() => copyToClipboard(downloadURL, item.cid)}
+                          className="w-8 h-8 p-0 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                        >
+                          {copiedId === item.cid ? (
+                            <Icon name="Check" className="w-4 h-4" />
+                          ) : (
+                            <Icon name='Copy' className="w-4 h-4" />
+                          )}
+                        </Button>
                       </div>
                     </div>
 
-                    {/* Action buttons - Right side on desktop */}
-                    <div className="hidden lg:flex gap-2 items-start flex-shrink-0 ml-4">
-                      <Button
-                        variant="neo"
-                        size="sm"
-                        title="Download File"
-                        onClick={() => window.open(item.downloadUrl, '_blank')}
-                        className="w-8 h-8 p-0 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900"
-                      >
-                        <Icon name="ExternalLink" className="w-4 h-4" />
-                      </Button>
+                    {/* Mobile action buttons - Bottom on mobile/tablet */}
+                    <div className="pt-3 mt-3 border-t-2 border-black lg:hidden">
+                      <div className="grid gap-2 grid-cols-2">
+                        <Button
+                          variant="neo"
+                          size="sm"
+                          title="Download File"
+                          onClick={() => window.open(downloadURL, '_blank')}
+                          className="h-10 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900"
+                        >
+                          <Icon name="ExternalLink" className="w-4 h-4" />
+                        </Button>
 
-                      <Button
-                        variant="neo"
-                        size="sm"
-                        title={copiedId === item.id ? 'Copied!' : 'Copy Link'}
-                        onClick={() => copyToClipboard(item.downloadUrl, item.id)}
-                        className="w-8 h-8 p-0 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
-                      >
-                        {copiedId === item.id ? (
-                          <Icon name="Check" className="w-4 h-4" />
-                        ) : (
-                          <Icon name='Copy' className="w-4 h-4" />
-                        )}
-                      </Button>
-
-                      <Button
-                        variant="neo"
-                        size="sm"
-                        title="View Details"
-                        onClick={() => navigate({
-                          to: '/link/$cid',
-                          params: { cid: item.cid },
-                          search: {
-                            name: item.name,
-                            key: item.key,
-                            size: item.size,
-                          }
-                        })}
-                        className="w-8 h-8 p-0 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
-                      >
-                        <Icon name='File' className="w-4 h-4" />
-                      </Button>
-
-                      <Button
-                        variant="neo"
-                        size="sm"
-                        title="Contact Sharer"
-                        className="w-8 h-8 p-0 bg-neo-yellow-1 border-2 border-black text-zinc-900 font-bold"
-                      >
-                        <Icon name="MessageCircle" className="w-4 h-4" />
-                      </Button>
+                        <Button
+                          variant="neo"
+                          size="sm"
+                          title={copiedId === item.cid ? 'Copied!' : 'Copy Link'}
+                          onClick={() => copyToClipboard(downloadURL, item.cid)}
+                          className="h-10 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
+                        >
+                          {copiedId === item.cid ? (
+                            <Icon name="Check" className="w-4 h-4" />
+                          ) : (
+                            <Icon name='Copy' className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Mobile action buttons - Bottom on mobile/tablet */}
-                  <div className="pt-3 mt-3 border-t-2 border-black lg:hidden">
-                    <div className="grid gap-2 grid-cols-4">
-                      <Button
-                        variant="neo"
-                        size="sm"
-                        title="Download File"
-                        onClick={() => window.open(item.downloadUrl, '_blank')}
-                        className="h-10 bg-neo-beige-2 border-2 border-black font-bold text-zinc-900"
-                      >
-                        <Icon name="ExternalLink" className="w-4 h-4" />
-                      </Button>
-
-                      <Button
-                        variant="neo"
-                        size="sm"
-                        title={copiedId === item.id ? 'Copied!' : 'Copy Link'}
-                        onClick={() => copyToClipboard(item.downloadUrl, item.id)}
-                        className="h-10 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
-                      >
-                        {copiedId === item.id ? (
-                          <Icon name="Check" className="w-4 h-4" />
-                        ) : (
-                          <Icon name='Copy' className="w-4 h-4" />
-                        )}
-                      </Button>
-
-                      <Button
-                        variant="neo"
-                        size="sm"
-                        title="View Details"
-                        onClick={() => navigate({
-                          to: '/link/$cid',
-                          params: { cid: item.cid },
-                          search: {
-                            name: item.name,
-                            key: item.key,
-                            size: item.size,
-                          }
-                        })}
-                        className="h-10 bg-neo-indigo border-2 border-black text-zinc-900 font-bold"
-                      >
-                        <Icon name='File' className="w-4 h-4" />
-                      </Button>
-
-                      <Button
-                        variant="neo"
-                        size="sm"
-                        title="Contact Sharer"
-                        className="h-10 bg-neo-yellow-1 border-2 border-black text-zinc-900 font-bold"
-                      >
-                        <Icon name="MessageCircle" className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+                  </Card>
+                </motion.div>
+              )
+            })}
           </motion.div>
         )}
 

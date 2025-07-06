@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'motion/react'
 import { Button } from '@/src/lib/components/ui/button'
 import { Card } from '@/src/lib/components/ui/card'
 import { Input } from '@/src/lib/components/ui/input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/src/lib/components/ui/sheet'
+import { DateTimePicker } from '@/src/lib/components/app/date-time-picker'
 import Icon from '@/src/lib/components/custom/Icon'
 import { cn } from '@/src/lib/utils'
+import { getSecondsFromNow, createDateFromInput } from '@/src/lib/utils/date'
 import useContracts from '@/src/lib/hooks/use-contracts'
 import { toast } from 'sonner'
 
@@ -13,7 +15,11 @@ import { toast } from 'sonner'
 const mockExistingAccess: { address: string, grantedAt: string }[] = [
   {
     address: '0x5D56b71abE6cA1Dc208Ed85926178f9758fa879c',
-    grantedAt: '2024-01-15',
+    grantedAt: '2025-07-06',
+  },
+  {
+    address: '0xAA1bfB4D4eCDbc78A6f929D829fded3710D070D0',
+    grantedAt: '2025-07-06',
   }
 ]
 
@@ -32,10 +38,12 @@ export default function AccessManagementSheet({
   cid,
   encryptionKey,
   fileName,
-  fileSize
+  fileSize,
 }: AccessManagementSheetProps) {
   const [recipients, setRecipients] = useState<string[]>([''])
   const [isPublishing, setIsPublishing] = useState(false)
+  const [cost, setCost] = useState<string>('')
+  const [expiryDateTime, setExpiryDateTime] = useState<string>('')
   const { mutateAsync: mutateContractsAsync } = useContracts().mutate;
 
   const addRecipientField = () => {
@@ -77,13 +85,38 @@ export default function AccessManagementSheet({
         return
       }
 
+      // Parse cost and expiry values
+      const costValue = cost.trim() !== '' ? parseFloat(cost) : undefined
+      const expiryValue = expiryDateTime.trim() !== '' ? getSecondsFromNow(createDateFromInput(expiryDateTime)) : undefined
+
+      // Validate cost if provided
+      if (costValue !== undefined && (isNaN(costValue) || costValue < 0)) {
+        toast.error("Please enter a valid cost (positive number)")
+        return
+      }
+
+      // Validate expiry if provided
+      if (expiryDateTime.trim() !== '' && expiryValue !== undefined && expiryValue <= 0) {
+        toast.error("Please select a future date and time for expiry")
+        return
+      }
+
+      const costInWei = costValue ? BigInt(costValue * 10 ** 18) : undefined;
+      const expiration = expiryValue ? expiryValue : undefined;
+
+      const options = {
+        cid,
+        msg: encryptionKey,
+        recipients: validRecipients as `0x${string}`[],
+        safe: true,
+        cost: costInWei,
+        expiration: expiration
+      }
+
+      console.log(options);
+
       await mutateContractsAsync(async (contracts) => {
-        const tx = await contracts.publishEncryptedKeys({
-          cid: cid,
-          msg: encryptionKey,
-          recipients: validRecipients as `0x${string}`[],
-          safe: false,
-        });
+        const tx = await contracts.publishEncryptedKeys(options);
 
         console.log('Transaction:', tx);
         toast.success(`Request submitted!`)
@@ -91,6 +124,8 @@ export default function AccessManagementSheet({
 
       // Reset recipients after successful submission
       setRecipients(['']);
+      setCost('');
+      setExpiryDateTime('');
     } catch (error) {
       console.error('Error publishing encrypted keys:', error)
       toast.error("Failed to share file access. Please try again.")
@@ -131,27 +166,12 @@ export default function AccessManagementSheet({
           </SheetHeader>
 
           {/* File Information Card */}
-          <Card className="p-4 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg mt-6">
-            <div className="space-y-3">
-              <div className="flex gap-2 items-center">
-                <Icon name="File" className="size-5 text-zinc-700" />
-                <h4 className="text-lg font-bold tracking-wide uppercase text-zinc-900">File Details</h4>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center p-3 border-2 border-black bg-neo-bg rounded-md">
-                  <span className="text-sm font-bold text-zinc-700">Name:</span>
-                  <span className="font-medium text-zinc-950 text-right break-all max-w-[60%]">
-                    {fileName || 'Unknown file'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center p-3 border-2 border-black bg-neo-bg rounded-md">
-                  <span className="text-sm font-bold text-zinc-700">Size:</span>
-                  <span className="font-medium text-zinc-950">
-                    {fileSize || '0 B'}
-                  </span>
-                </div>
-              </div>
+          <Card className="p-1 bg-neo-beige-1 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-lg mt-6">
+            <div className="flex justify-between items-center p-3 border-2 border-black bg-neo-bg rounded-md">
+              <span className="text-sm font-bold text-zinc-700">File:</span>
+              <span className="font-medium text-zinc-950 text-right break-all max-w-[60%]">
+                {fileName || 'Unknown file'}
+              </span>
             </div>
           </Card>
 
@@ -200,8 +220,45 @@ export default function AccessManagementSheet({
                   </Button>
                 </div>
 
+                {/* Pro Member Options */}
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-3 mt-4 p-4 bg-neo-beige-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-lg"
+                >
+                  <div className="flex flex-col gap-2">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
+                        Cost (USDFC)
+                      </label>
+                      <Input
+                        type="number"
+                        placeholder="0.0"
+                        value={cost}
+                        onChange={(e) => setCost(e.target.value)}
+                        className="font-mono text-sm border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 rounded-md"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
+                        Expires On
+                      </label>
+                      <DateTimePicker
+                        value={expiryDateTime}
+                        onChange={(value) => setExpiryDateTime(value)}
+                        placeholder="Select expiry date & time"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+
                 <Button
-                  onClick={handlePublishEncryptedKeys}
+                  onClick={() => handlePublishEncryptedKeys()}
                   disabled={isPublishing}
                   variant={"neo"}
                   className="w-full bg-neo-purple border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] rounded-lg"

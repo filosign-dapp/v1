@@ -58,4 +58,32 @@ export function createEndOfDay(date?: string | Date): Date {
 // Create date at start of day (00:00:00)
 export function createStartOfDay(date?: string | Date): Date {
   return moment(date).startOf('day').toDate();
+}
+
+// Calculate seconds from now to a future date
+export function getSecondsFromNow(futureDate: string | Date): number {
+  const now = moment();
+  const future = moment(futureDate);
+  const diffInSeconds = future.diff(now, 'seconds');
+  return Math.max(0, diffInSeconds); // Ensure non-negative
+}
+
+// Format date for datetime-local input
+export function formatForDateTimeInput(date: string | Date): string {
+  return moment(date).format('YYYY-MM-DDTHH:mm');
+}
+
+// Create date from datetime-local input
+export function createDateFromInput(dateTimeString: string): Date {
+  return moment(dateTimeString).toDate();
+}
+
+// Get minimum datetime for input (current time)
+export function getMinDateTime(): string {
+  return moment().format('YYYY-MM-DDTHH:mm');
+}
+
+// Get default expiry datetime (1 hour from now)
+export function getDefaultExpiryDateTime(): string {
+  return moment().add(1, 'hour').format('YYYY-MM-DDTHH:mm');
 } 

@@ -35,14 +35,25 @@ export default function Test() {
     }
   }
 
+  async function sharedWithMe() {
+    await mutateContractsAsync(async (contracts) => {
+      const list = await contracts.getFilesReceived();
+      console.log(list);
+    });
+  }
+
+  useEffect(() => {
+    sharedWithMe();
+  }, []);
+
   async function handlePublishEncryptedKeys() {
     try {
       await mutateContractsAsync(async (contracts) => {
         const tx = await contracts.publishEncryptedKeys({
           cid: "bafkreihl6eos6cyvfltwmu2jof4sqfkpmlra5uqm6wcihz66z6smubdkhu",
           msg: "slc+xK7ylDJFe68PKLXSnsDCq7Y1mplYM6daF3vWDso=:D5AlDffQIHaNVvvG",
-          recipients: ["0x5D56b71abE6cA1Dc208Ed85926178f9758fa879c"],
-          safe: false,
+          recipients: ["0xAA1bfB4D4eCDbc78A6f929D829fded3710D070D0"],
+          safe: true,
         });
 
         console.log(tx);
