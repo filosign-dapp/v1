@@ -63,19 +63,19 @@ export default function Pro() {
             onOpenChange={setIsSheetOpen}
             onRegister={handleRegister}
         >
-            {!isRegistered && (
-                <div>
-                    <Button
-                        onClick={handleButtonClick}
-                        variant={"neo"}
-                        className="flex rounded-sm bg-white hover:bg-white"
-                    >
-                        <span className="font-semibold bg-gradient-to-r from-blue-600 via-orange-500 to-red-500 bg-clip-text text-transparent">Get Pro</span>
+            <div>
+                <Button
+                    onClick={handleButtonClick}
+                    variant={"neo"}
+                    className="flex rounded-sm bg-white hover:bg-white"
+                >
+                    <span className="font-semibold bg-gradient-to-r from-blue-600 via-orange-500 to-red-500 bg-clip-text text-transparent">
+                        {isRegistered ? "Pro" : "Get Pro"}
+                    </span>
 
-                        <Icon name="Zap" className="size-4 text-red-500" />
-                    </Button>
-                </div>
-            )}
+                    <Icon name="Zap" className="size-4 text-red-500" />
+                </Button>
+            </div>
         </PremiumSheet>
     );
 }

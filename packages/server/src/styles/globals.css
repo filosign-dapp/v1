@@ -215,6 +215,7 @@
     from {
       height: 0;
     }
+
     to {
       height: var(--radix-accordion-content-height);
     }
@@ -224,6 +225,7 @@
     from {
       height: var(--radix-accordion-content-height);
     }
+
     to {
       height: 0;
     }
@@ -235,12 +237,17 @@
     @apply border-border outline-ring/50 font-manrope;
     scrollbar-width: thin;
   }
+
   body {
     @apply bg-background text-foreground;
   }
-  h1, h2, h3 {
+
+  h1,
+  h2,
+  h3 {
     @apply font-semibold;
   }
+
   button {
     @apply cursor-pointer;
   }
