@@ -21,13 +21,13 @@ type SharedFile = {
 
 // Mock shared files data using the new schema
 const mockSharedFiles: SharedFile[] = [
-  // {
-  //   cid: 'bafkreic7jsdyctvkdkp5b4tvc2mtbwrefdzpvkj32jhzfnjuvxm3tknnsm',
-  //   yourKey: 'GCcTNYsLttLcCDHXlSXGB/uvH6MAY35VA1vU9JwQJSE==:bqlGIoIHxzyzU/ua',
-  //   sharedBy: 'ishtails.eth',
-  //   sharedAt: '2024-01-15T10:30:00Z',
-  //   name: 'styles_logo.png',
-  // },
+  {
+    cid: 'bafkreic7jsdyctvkdkp5b4tvc2mtbwrefdzpvkj32jhzfnjuvxm3tknnsm',
+    yourKey: 'GCcTNYsLttLcCDHXlSXGB/uvH6MAY35VA1vU9JwQJSE==:bqlGIoIHxzyzU/ua',
+    sharedBy: 'ishtails.eth',
+    sharedAt: '2024-01-15T10:30:00Z',
+    name: 'styles_logo.png',
+  },
 ]
 
 export default function SharedWithYou() {
