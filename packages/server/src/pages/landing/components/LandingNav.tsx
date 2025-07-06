@@ -17,9 +17,9 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden items-center space-x-8 md:flex lg:space-x-12">
-            <a href="#problem" className="px-3 py-2 text-sm font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1 lg:px-4 lg:text-lg">The Problem</a>
-            <a href="#solution" className="px-3 py-2 text-sm font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1 lg:px-4 lg:text-lg">Our Fix</a>
-            <a href="#tiers" className="px-3 py-2 text-sm font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1 lg:px-4 lg:text-lg">Pricing</a>
+            <div className="px-3 py-2 text-sm font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1 lg:px-4 lg:text-lg">The Problem</div>
+            <div className="px-3 py-2 text-sm font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1 lg:px-4 lg:text-lg">Our Fix</div>
+            <div className="px-3 py-2 text-sm font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1 lg:px-4 lg:text-lg">Pricing</div>
           </div>
 
           <div className="hidden items-center space-x-4 md:flex lg:space-x-6">
@@ -44,9 +44,9 @@ const Navbar = () => {
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="pt-4 mt-4 space-y-2 border-t-4 border-black md:hidden">
-            <a href="#problem" className="block px-4 py-2 text-lg font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1">The Problem</a>
-            <a href="#solution" className="block px-4 py-2 text-lg font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1">Our Fix</a>
-            <a href="#tiers" className="block px-4 py-2 text-lg font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1">Pricing</a>
+            <div className="block px-4 py-2 text-lg font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1">The Problem</div>
+            <div className="block px-4 py-2 text-lg font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1">Our Fix</div>
+            <div className="block px-4 py-2 text-lg font-black tracking-wide uppercase transition-colors text-zinc-800 hover:bg-neo-beige-1">Pricing</div>
             <div className="flex flex-col pt-4 space-y-4">
               <Link to="/upload" className="bg-neo-yellow-1 border-4 border-black text-zinc-950 font-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all uppercase text-lg hover:bg-white rounded-none">
                 Upload Files
