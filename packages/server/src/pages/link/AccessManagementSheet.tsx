@@ -14,10 +14,6 @@ import { toast } from 'sonner'
 // Mock data for existing access - replace with real data later
 const mockExistingAccess: { address: string, grantedAt: string }[] = [
   // {
-  //   address: '0x5D56b71abE6cA1Dc208Ed85926178f9758fa879c',
-  //   grantedAt: '2025-07-06',
-  // },
-  // {
   //   address: '0xAA1bfB4D4eCDbc78A6f929D829fded3710D070D0',
   //   grantedAt: '2025-07-06',
   // }

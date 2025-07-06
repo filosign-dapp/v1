@@ -21,13 +21,15 @@ type SharedFile = {
 
 // Mock shared files data using the new schema
 const mockSharedFiles: SharedFile[] = [
-  {
-    cid: 'bafkreic7jsdyctvkdkp5b4tvc2mtbwrefdzpvkj32jhzfnjuvxm3tknnsm',
-    yourKey: 'GCcTNYsLttLcCDHXlSXGB/uvH6MAY35VA1vU9JwQJSE==:bqlGIoIHxzyzU/ua',
-    sharedBy: 'ishtails.eth',
-    sharedAt: '2024-01-15T10:30:00Z',
-    name: 'styles_logo.png',
-  },
+  // {
+  //   cid: 'bafybeieifuosavov2vzil3wbupafniqnl5tmx6wdla5t7w223ljokxxp4u',
+  //   yourKey: 'pwI8pjuK+28Rrtg5sro+LVrp5eZ1fwSrnqEJ9xuXWrA==:KgZ7fp9leByrSDjG',
+  //   sharedBy: 'ishtails.eth',
+  //   sharedAt: '2025-07-06T23:01:00Z',
+  //   name: 'folder-1751841671118',
+  // },
+  
+  // https://portal-plgenesis.onrender.com/#/download/bafybeieifuosavov2vzil3wbupafniqnl5tmx6wdla5t7w223ljokxxp4u?name=folder-1751841671118&key=pwI8pjuK%2B28Rrtg5sro%2BLVrp5eZ1fwSrnqEJ9xuXWrA%3D%3AKgZ7fp9leByrSDjG
 ]
 
 export default function SharedWithYou() {
