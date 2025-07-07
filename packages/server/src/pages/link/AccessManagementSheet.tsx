@@ -12,12 +12,7 @@ import useContracts from '@/src/lib/hooks/use-contracts'
 import { toast } from 'sonner'
 
 // Mock data for existing access - replace with real data later
-const mockExistingAccess: { address: string, grantedAt: string }[] = [
-  // {
-  //   address: '0xAA1bfB4D4eCDbc78A6f929D829fded3710D070D0',
-  //   grantedAt: '2025-07-06',
-  // }
-]
+const mockExistingAccess: { address: string, grantedAt: string }[] = []
 
 interface AccessManagementSheetProps {
   isOpen: boolean

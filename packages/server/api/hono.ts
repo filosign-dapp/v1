@@ -11,7 +11,8 @@ const hono = new Hono()
     origin: [
       "https://portal-plgenesis.onrender.com",
       "https://ishtails.netlify.app",
-      "https://bafybeieh3os27cllufb4lty6lg6sph65b3skmeahvdvfuchkijatt3kd4e.pinme.dev"
+      "https://bafybeieh3os27cllufb4lty6lg6sph65b3skmeahvdvfuchkijatt3kd4e.pinme.dev",
+      "http://localhost:3000"
     ],
   }))
   .use(logger())

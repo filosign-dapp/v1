@@ -2,17 +2,13 @@
 
 **Share files like a NINJA.**
 
-Trustless file sharing platform. Files are encrypted client-side before upload to IPFS. We never see your content.
-
-[![Demo](https://img.shields.io/badge/Demo-Live-brightgreen)](https://fblsd54i.pinit.eth.limo)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+Trustless file sharing platform. Files are encrypted client-side before upload to IPFS. We can't see what's in them.
 
 ## ✨ Features
 
 **Free Tier (Off-Chain)**
-- Client-side encryption (Web Crypto API)
+- Client-side encryption (AES-256)
 - IPFS decentralized storage
-- Zero-knowledge password protection
 - URL fragment keys (`portal.xyz/file/[CID]#[SECRET_KEY]`)
 
 **Pro Tier (Web3)**
@@ -20,20 +16,17 @@ Trustless file sharing platform. Files are encrypted client-side before upload t
 - Monetized links with paywalls
 - Permanent Filecoin storage deals
 - Smart contract enforced expiry
-- NFT-powered themes
 
 ## 🛠 Tech Stack
 
 - **Frontend**: React 19, TypeScript, TanStack Router, Tailwind CSS
-- **Backend**: Hono, Bun, Drizzle ORM, Neon Database
-- **Web3**: IPFS, Filecoin, Privy, Wagmi, Viem
-- **Contracts**: Solidity, Hardhat, FVM
+- **Backend**: IPFS, Filecoin, Privy, Wagmi, Viem, Bun, Hono
+- **Contracts**: Solidity, Hardhat, Filecoin Calibration, FVM
 
 ## 🚀 Quick Start
 
 ```bash
-# Clone and install
-git clone https://github.com/your-org/portal.git
+# install
 cd portal
 bun install
 
@@ -84,7 +77,3 @@ bun run deploy       # Deploy contracts
 ## 🔗 Links
 
 - **Demo**: [https://portal-plgenesis.onrender.com](Live)
-
----
-
-*Zero-knowledge file sharing with Web3 superpowers.*
