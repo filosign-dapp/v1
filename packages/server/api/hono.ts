@@ -10,7 +10,7 @@ const hono = new Hono()
   .use(cors({
     origin: [
       "https://portal-plgenesis.onrender.com",
-      "https://auriynxi.pinit.eth.limo",
+      "https://ishtails.eth.limo",
       "https://bafybeih7e5rrvpt7bcml2qido53g3zqeyjlnlmvmqzhifzu6srauriynxi.pinme.dev",
       "http://localhost:3000"
     ],
