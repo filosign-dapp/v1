@@ -4,6 +4,12 @@
 
 Trustless file sharing platform. Files are encrypted client-side before upload to IPFS. We can't see what's in them.
 
+## Links
+The Project is live, [Try it out here](https://portal-plgenesis.onrender.com/) <br/>
+See the [Devspot Submission](https://devspot.app/en/projects/115) <br/>
+Watch the [Demo Video](https://www.youtube.com/watch?v=yGJrpFHg90Y&ab_channel=Kartik)
+
+
 ## ✨ Features
 
 **Free Tier (Off-Chain)**
