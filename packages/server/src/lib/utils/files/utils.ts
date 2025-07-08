@@ -1,4 +1,4 @@
-export const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 export function createDownloadLink(cid: string, name: string, secretKey: string) {
     const origin = window.location.origin
@@ -21,7 +21,7 @@ export function sanitizeFilename(filename: string): string {
 
 export function basicFileChecks(file: File) {
     if (file.size > MAX_FILE_SIZE) {
-        throw new Error('Maximum file size is 50MB.')
+        throw new Error('Maximum file size is 10MB.');
     }
 }
 
