@@ -48,9 +48,9 @@ export default function ProfilePicture({ isEditing }: ProfilePictureProps) {
       return;
     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image file too large. Please select a file under 10MB.");
+    // Validate file size (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("Image file too large. Please select a file under 50MB.");
       return;
     }
 
@@ -156,7 +156,7 @@ export default function ProfilePicture({ isEditing }: ProfilePictureProps) {
               
               <div className="p-3 bg-neo-beige-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-sm">
                 <p className="text-sm font-bold text-zinc-800">
-                  📸 JPG, PNG or GIF • Max size 10MB
+                  📸 JPG, PNG or GIF • Max size 50MB
                 </p>
               </div>
             </div>
