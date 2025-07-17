@@ -16,15 +16,12 @@ import { Link } from "@tanstack/react-router";
 import PremiumButton from "./PremiumButton";
 import FaucetSheet from "./FaucetDialog";
 import { useState } from "react";
-import { Badge } from "../ui/badge";
 
 interface ConnectProps {
     isMobile?: boolean;
-    onProClick?: () => void;
-    onFaucetClick?: () => void;
 }
 
-export default function Connect({ isMobile = false, onProClick, onFaucetClick }: ConnectProps) {
+export default function Connect({ isMobile = false }: ConnectProps) {
     const { ready, authenticated, user, login, logout } = usePrivy();
     const [showFaucet, setShowFaucet] = useState(false);
 
